@@ -4,3 +4,4 @@ export * from "./components/button";
 export * from "./components/badge";
 export * from "./components/switch";
 export * from "./components/checkbox";
+export * from "./components/input";

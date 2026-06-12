@@ -68,5 +68,8 @@
     "typescript": "^6.0.3",
     "vite-plugin-dts": "^5.0.2",
     "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "lucide-react": "^1.17.0"
   }
 }

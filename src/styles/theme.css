@@ -127,6 +127,13 @@
   --color-bg-white: #ffffff;
   --color-bg-disabled: var(--color-secondary-200);
   --color-bg-card: #ffffff;
+
+  /* Icon (폼 슬롯 아이콘 색 — text 계열과 동일 위계) */
+  --color-icon-primary: var(--color-secondary-700);
+  --color-icon-secondary: var(--color-secondary-500);
+  --color-icon-tertiary: var(--color-secondary-400);
+  --color-icon-disabled: var(--color-secondary-300);
+  --color-icon-danger: var(--color-error-600);
 }
 
 /*
@@ -156,4 +163,11 @@
   --color-bg-white: var(--color-secondary-900);
   --color-bg-disabled: var(--color-secondary-700);
   --color-bg-card: var(--color-secondary-800);
+
+  /* Icon */
+  --color-icon-primary: var(--color-secondary-200);
+  --color-icon-secondary: var(--color-secondary-400);
+  --color-icon-tertiary: var(--color-secondary-500);
+  --color-icon-disabled: var(--color-secondary-700);
+  --color-icon-danger: var(--color-error-400);
 }
