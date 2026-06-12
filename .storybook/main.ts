@@ -18,7 +18,9 @@ const config: StorybookConfig = {
   // brandImage는 원본 크기대로 렌더돼 정사각 로고가 과하게 크다. 사이드바 로고 높이를 제한.
   managerHead: (head) => `${head}
     <style>
-      .sidebar-header img { height: 32px !important; width: auto !important; }
+      /* brandTitle에 로고 img + 이름 span을 함께 넣어 한 줄로 정렬. 로고 과대 렌더 보정. */
+      .sidebar-header a { display: flex !important; align-items: center !important; gap: 8px !important; }
+      .sidebar-header img { height: 28px !important; width: auto !important; }
     </style>`,
   // 기본 온보딩("Get started" 위젯) / 신기능 알림 끄기
   "core": {
