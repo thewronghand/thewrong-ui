@@ -32,7 +32,13 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "motion": ">=11",
+    "@floating-ui/react": ">=0.26"
+  },
+  "peerDependenciesMeta": {
+    "motion": { "optional": true },
+    "@floating-ui/react": { "optional": true }
   },
   "keywords": [
     "ui",
@@ -60,6 +66,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/browser-playwright": "^4.1.8",
     "@vitest/coverage-v8": "^4.1.8",
+    "motion": "^12.40.0",
     "playwright": "^1.60.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

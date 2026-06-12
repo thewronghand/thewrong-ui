@@ -30,7 +30,15 @@ export default defineConfig({
       fileName: format => `index.${format === "es" ? "es" : "cjs"}.js`
     },
     rollupOptions: {
-      external: ["react", "react-dom", "react/jsx-runtime"],
+      // react·motion·floating-ui는 peerDependency로 빼서 번들 비대화 방지.
+      // lucide-react는 tree-shaking이 잘 돼 사용한 아이콘만 들어가므로 번들 포함(소비 편의).
+      external: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
+        /^motion($|\/)/,
+        /^@floating-ui($|\/)/
+      ],
       output: {
         globals: {
           react: "React",

@@ -6,3 +6,5 @@ export * from "./components/switch";
 export * from "./components/checkbox";
 export * from "./components/input";
 export * from "./components/textarea";
+export * from "./components/collapsible";
+export * from "./components/animated-height";
