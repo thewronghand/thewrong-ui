@@ -15,6 +15,11 @@ const config: StorybookConfig = {
   "framework": "@storybook/react-vite",
   // 브랜딩 로고·파비콘 등 정적 에셋 서빙 (/logo.png 로 접근)
   "staticDirs": ["./assets"],
+  // brandImage는 원본 크기대로 렌더돼 정사각 로고가 과하게 크다. 사이드바 로고 높이를 제한.
+  managerHead: (head) => `${head}
+    <style>
+      .sidebar-header img { height: 32px !important; width: auto !important; }
+    </style>`,
   // 기본 온보딩("Get started" 위젯) / 신기능 알림 끄기
   "core": {
     "disableWhatsNewNotifications": true
