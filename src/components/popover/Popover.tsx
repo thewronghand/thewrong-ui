@@ -14,6 +14,12 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 export interface PopoverProps {
+  /**
+   * 팝오버를 여는 트리거. **비대화형 노드(텍스트·아이콘·span 등)를 권장한다.**
+   * 래퍼 span이 `role="button"` + `tabIndex`로 버튼 시맨틱과 키보드 포커스를 부여하기 때문에,
+   * 이미 대화형인 요소(`<button>`/`<a>`)를 넘기면 포커스가 중첩되고 role이 겹친다.
+   * 대화형 트리거가 꼭 필요하면 그 요소를 직접 쓰지 말고 비대화형 콘텐츠로 감싸 전달할 것.
+   */
   trigger: ReactNode;
   /**
    * 팝오버 내용. 함수로 주면 `close` 콜백을 주입받아 내부에서 팝오버를 닫을 수 있다
@@ -73,8 +79,13 @@ export function Popover({
 
   return (
     <>
+      {/* 트리거 래퍼 — 임의 ReactNode를 받으므로 span으로 감싼다.
+          키보드 사용자가 포커스/Enter/Space로 열 수 있도록 tabIndex+role 부여.
+          (useClick의 keyboardHandlers가 focusable한 reference에서 Enter/Space를 click으로 발화) */}
       <span
         ref={refs.setReference}
+        tabIndex={0}
+        role="button"
         {...getReferenceProps()}
         className="inline-flex cursor-pointer select-none"
       >

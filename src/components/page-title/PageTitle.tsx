@@ -9,7 +9,7 @@ interface Props {
 /**
  * 페이지 헤더 좌측에 표시되는 타이틀 영역.
  *
- * Breadcrumb 자리를 대체. source는 라우트 뎁스가 얕아 빵부스러기보단 굵은 타이틀 + 부제목이
+ * Breadcrumb 자리를 대체. 라우트 뎁스가 얕을 때 빵부스러기보단 굵은 타이틀 + 부제목이
  * 페이지 식별에 적합. subtitle은 title 옆에 baseline 정렬로 가로 배치 — 좁은 화면에서는 wrap.
  *
  * subtitle 매핑은 `usePageTitle` 훅이 메뉴 데이터의 `description` 필드를 읽어 전달.

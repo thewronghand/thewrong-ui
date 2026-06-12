@@ -30,11 +30,11 @@ export interface AllPresets {
 }
 
 export class ColumnPresetStorage {
-  private static readonly STORAGE_KEY = "source.table_column_presets";
+  private static readonly STORAGE_KEY = "thewrong.table_column_presets";
 
   private static isStorageAvailable(): boolean {
     try {
-      const test = "__source_storage_test__";
+      const test = "__thewrong_storage_test__";
       localStorage.setItem(test, test);
       localStorage.removeItem(test);
       return true;

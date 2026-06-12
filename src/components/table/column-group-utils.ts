@@ -48,7 +48,7 @@ export function buildColumnSlots<T>(
     const columnKeys = new Set(columns.map((c) => c.key));
     const conflicts = groups.map((g) => g.key).filter((k) => columnKeys.has(k));
     if (conflicts.length > 0) {
-      // eslint-disable-next-line no-console
+       
       console.warn(
         `[buildColumnSlots] 그룹키가 컬럼키와 충돌: ${conflicts.join(", ")}. 그룹키를 다른 이름으로 변경하세요.`,
       );

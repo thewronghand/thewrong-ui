@@ -23,7 +23,7 @@ export default defineConfig({
       "@": resolve(__dirname, "src")
     },
     // 단일 인스턴스 보장 — 중복 번들 시 toast 큐 싱글톤/모션 컨텍스트가 갈라진다.
-    dedupe: ["react", "react-dom", "react-hot-toast", "motion", "@dnd-kit/core", "@tanstack/react-virtual", "date-fns"]
+    dedupe: ["react", "react-dom", "react-hot-toast", "motion", "@floating-ui/react", "@dnd-kit/core", "@tanstack/react-virtual", "date-fns"]
   },
   build: {
     lib: {

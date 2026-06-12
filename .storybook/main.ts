@@ -38,8 +38,10 @@ const config: StorybookConfig = {
       "react-dom",
       "react-hot-toast",
       "motion",
+      "@floating-ui/react",
       "@dnd-kit/core",
       "@tanstack/react-virtual",
+      "date-fns",
     ];
     return config;
   },

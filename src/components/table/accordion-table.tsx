@@ -85,7 +85,7 @@ export interface AccordionTableProps<T> extends PaginatedTableProps<T> {
 // PaginatedTable과 동일한 forwardRef + 제네릭 우회 패턴.
 // React forwardRef는 제네릭 타입을 보존하지 못해 본문에서는 any로 받고 외부 export 시
 // 제네릭 시그니처(파일 끝 `as <T>(...)` cast)로 다시 잡는다.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const AccordionTable = forwardRef<
   HTMLDivElement,
   AccordionTableProps<any>

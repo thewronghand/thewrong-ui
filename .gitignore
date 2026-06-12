@@ -10,3 +10,11 @@ storybook-static/
 .envrc
 .env
 .env.local
+
+# 내부 작업 문서 (출처·진행 메모 — 배포물/공개 대상 아님)
+CLAUDE.md
+PLAN.md
+HANDOVER.md
+
+# 하네스 (정본은 voltron-personal 레포. .claude/는 sync-claude.sh로 받는 사본)
+.claude/

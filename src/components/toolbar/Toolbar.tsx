@@ -36,7 +36,7 @@ import { Popover } from "@/components/popover";
  * false가 되어 Toolbar가 빈 div로 렌더되는 간헐적 버그가 있었다. minification에도
  * 보존되는 Symbol을 static 프로퍼티로 부여해 참조 무관하게 식별한다.
  */
-const TOOLBAR_SLOT = Symbol.for("source.toolbar.slot");
+const TOOLBAR_SLOT = Symbol.for("thewrong.toolbar.slot");
 type SlotKind = "title" | "summary" | "left" | "right";
 
 type SlotComponent<P> = ComponentType<P> & { [TOOLBAR_SLOT]?: SlotKind };

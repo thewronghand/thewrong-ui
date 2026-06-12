@@ -1,0 +1,47 @@
+name: Deploy Storybook to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# GitHub Pages 배포에 필요한 권한
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 동시 배포 1개만 (중복 실행 시 최신만)
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      # npm ci 대신 install — lock에 플랫폼별 optional 의존(@emnapi 등)이 일부만 박혀
+      # 리눅스 러너에서 npm ci가 EUSAGE로 막히는 걸 우회. (단일 레포라 재현성 엄격함 불필요)
+      - run: npm install
+      # Storybook 10은 에셋을 상대경로(./)로 빌드 → /thewrong-ui/ 서브경로에서 그대로 동작.
+      - run: npm run build-storybook -- --output-dir storybook-static
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

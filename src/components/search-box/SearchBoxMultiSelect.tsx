@@ -35,7 +35,7 @@ interface Props {
  * SearchBoxFloatingInput/Select와 동일한 플로팅 라벨 UX. 보더와 라벨이 포커스/오픈 시
  * primary-500으로 통일된다.
  *
- * source의 MultiSelectDropdown은 number[] 전용이라 사용 불가. 별도 inline 컴포넌트.
+ * number[] 전용 드롭다운은 적합하지 않아 별도 inline 컴포넌트로 둔다.
  *
  * 위치 계산은 floating-ui 위임 — autoUpdate가 스크롤/리사이즈 시 좌표를 자동 갱신.
  */

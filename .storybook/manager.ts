@@ -5,7 +5,7 @@ import { create } from "storybook/theming";
 // brandImage와 brandTitle은 동시에 안 보이므로, brandTitle에 로고+이름 HTML을 직접 넣어
 // 한 줄로 나란히 표시한다. (img 높이는 main.ts managerHead CSS로 제한)
 // 빨강은 강한 색이라 로고에만 남기고, 매니저 UI 액센트(선택 강조 등)는
-// source 느낌의 차분한 다크 슬레이트로 절제한다.
+// 차분한 다크 슬레이트로 절제한다.
 const SLATE = "#334155"; // 선택 항목/포커스 강조
 const INK = "#1e293b"; // 본문 텍스트
 const theme = create({
