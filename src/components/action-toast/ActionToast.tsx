@@ -37,9 +37,11 @@ function setActionToastActive(active: boolean) {
   }
 }
 
-type ButtonVisualProps = Pick<
-  ComponentProps<typeof Button>,
-  "variant" | "appearance" | "size" | "leadingIcon" | "trailingIcon"
+type ButtonVisualProps = Partial<
+  Pick<
+    ComponentProps<typeof Button>,
+    "variant" | "appearance" | "size" | "leadingIcon" | "trailingIcon"
+  >
 >;
 
 export interface ActionToastButton extends ButtonVisualProps {

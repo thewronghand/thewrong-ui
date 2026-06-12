@@ -216,6 +216,7 @@ export const 정책_AnimatedHeight_적용: Story = {
           isOpen={open}
           onClose={() => setOpen(false)}
           title="설정"
+          widthPx={420}
           primaryAction={{ label: "저장", onClick: () => setOpen(false) }}
         >
           <AnimatedHeight>
@@ -227,7 +228,8 @@ export const 정책_AnimatedHeight_적용: Story = {
               />
               {expanded && (
                 <div className="rounded-lg bg-bg-base-secondary p-3 text-sm text-text-secondary">
-                  고급 옵션 영역. 토글하면 시트 높이가 부드럽게 늘고 줄어요.
+                  고급 옵션 영역. 너비는 widthPx로 고정돼 있어 토글 시 높이만
+                  부드럽게 늘고 줄어요(가로 흔들림 없음).
                 </div>
               )}
             </div>
@@ -255,6 +257,7 @@ export const 정책_AnimatedHeight_미적용: Story = {
           isOpen={open}
           onClose={() => setOpen(false)}
           title="설정"
+          widthPx={420}
           primaryAction={{ label: "저장", onClick: () => setOpen(false) }}
         >
           <div className="flex flex-col gap-3">
@@ -265,7 +268,8 @@ export const 정책_AnimatedHeight_미적용: Story = {
             />
             {expanded && (
               <div className="rounded-lg bg-bg-base-secondary p-3 text-sm text-text-secondary">
-                고급 옵션 영역. 감싸지 않아 토글 시 높이가 툭 바뀝니다.
+                고급 옵션 영역. AnimatedHeight로 감싸지 않아 토글 시 높이가 툭
+                바뀝니다(너비는 widthPx로 고정).
               </div>
             )}
           </div>
@@ -294,6 +298,7 @@ export const 레이어드_SubView: Story = {
           isOpen={open}
           onClose={() => setOpen(false)}
           title="한도 수정"
+          widthPx={460}
           subView={
             <ModalSubView
               open={subOpen}
@@ -301,13 +306,14 @@ export const 레이어드_SubView: Story = {
               title="변경 이력"
             >
               <div className="text-sm text-text-primary">
-                우측에서 슬라이드 인 한 서브뷰. ESC/뒤로가기로 닫으면 모달은
-                유지됩니다.
+                우측에서 슬라이드 인 한 서브뷰. 부모 모달의 높이를 그대로 채운다.
+                ESC/뒤로가기로 닫으면 모달은 유지됩니다.
               </div>
             </ModalSubView>
           }
         >
-          <div className="flex flex-col gap-3 p-4">
+          {/* 서브뷰가 부모 높이를 채우는 걸 보여주려고 본문에 충분한 높이를 둠 */}
+          <div className="flex min-h-72 flex-col gap-3 p-4">
             <span className="text-sm text-text-primary">본문 영역입니다.</span>
             <Button
               variant="secondary"
@@ -456,7 +462,8 @@ export const 정책_서브뷰높이: Story = {
             </ModalSubView>
           }
         >
-          <div className="flex flex-col gap-3 p-4">
+          {/* 본문에 충분한 높이를 둬, 서브뷰(변경 3건)가 부모 높이에 자연스럽게 들어맞는 걸 보여줌 */}
+          <div className="flex min-h-72 flex-col gap-3 p-4">
             <span className="text-sm text-text-primary">
               본문과 서브뷰의 내용 양이 비슷해 높이가 어긋나지 않는다.
             </span>
