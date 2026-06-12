@@ -83,7 +83,7 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 ## 컴포넌트별 진행 체크리스트
 
 - [x] button (신규 작성 완료)
-- [ ] badge
+- [x] badge (info/neutral 토큰 보강 포함)
 - [ ] switch
 - [ ] checkbox
 - [ ] textarea
