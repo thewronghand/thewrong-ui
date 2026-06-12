@@ -1,3 +1,12 @@
+# thewrong-ui 핸드오버 (2026-06-13 갱신)
+
+> **2026-06-13 업데이트**: select 가족 마무리(MultiSelect 이관, Dropdown 2종은 @deprecated라 제외) +
+> **table 가족 전체 이관**(Table·PaginatedTable·AccordionTable·MiniTable·Pagination·컬럼프리셋, dnd-kit/react-virtual peer,
+> 선행 의존 table-checkbox·column-preset-storage 동반, LegacyTable 제외) + stories 1차 보강(badge/input/collapsible/animated-height).
+> 빌드/typecheck 통과, 브라우저 시각검증 완료. 아래 본문은 6/12 시점 기준이며 위 내용이 최신 누적분.
+
+---
+
 # thewrong-ui 핸드오버 (2026-06-12 기준)
 
 the source app `src/shared/ui/*` → `@thewrong/ui` 컴포넌트 라이브러리 이관 작업.
