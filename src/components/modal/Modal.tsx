@@ -148,17 +148,26 @@ export function Modal({
             }
             transition={
               isMobile
-                ? { type: "spring", damping: 30, stiffness: 320 }
+                ? // damping을 임계감쇠 이상(>= 2*sqrt(stiffness) ≈ 35.8)으로 올려 오버슈트 제거.
+                  // 기존 damping 30은 과소감쇠라 진입 시 시트가 목표(y:0)를 지나쳐 위로 들렸다
+                  // 돌아오며 하단에 백드롭이 비쳤다. 38이면 오버슈트 없이 부드럽게 정착.
+                  { type: "spring", damping: 38, stiffness: 320 }
                 : { duration: 0.25, ease: [0.32, 0.72, 0, 1] }
             }
             // 모바일 한정 스와이프-다운 닫기. 데스크탑에선 translate -50%/-50% 정렬과 충돌하므로 비활성.
             drag={isMobile ? "y" : false}
             dragListener={false}
             dragControls={dragControls}
-            dragConstraints={{ top: 0 }}
+            // 위로는 못 끌게(top 0), 아래로만 elastic. dragElastic의 top을 0으로 둬도 motion이
+            // 미세 오버드래그를 허용하므로 아래 '하단 연장(pb + -bottom)'으로 틈을 원천 차단한다.
+            dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.4 }}
             onDragEnd={handleDragEnd}
-            className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg dark:bg-neutral-800"
+            // 모바일 바텀시트 하단 틈 방지:
+            // spring 진입 오버슈트(0을 지나쳐 위로 들림)나 위로 드래그 시 시트 하단과 화면 바닥
+            // 사이에 백드롭이 비치는 현상을 막기 위해, 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
+            // 같은 양만큼 하단 패딩(pb-8)을 줘 콘텐츠는 그대로 두면서 바닥 틈을 항상 메운다.
+            className="fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800"
             style={
               !isMobile
                 ? {
