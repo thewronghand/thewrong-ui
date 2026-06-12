@@ -514,3 +514,44 @@ export const Base_고정폭: Story = {
     );
   },
 };
+
+// ─────────────────────────────────────────────
+// 반응형 — 모바일 바텀시트
+// ─────────────────────────────────────────────
+
+export const 모바일_바텀시트: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  // Storybook 10: viewport 고정은 globals.viewport.value로. (구 parameters.defaultViewport 대체)
+  // iframe을 모바일 폭으로 고정 → sm(640px) 미만이라 모달이 바텀시트로 분기.
+  globals: { viewport: { value: "mobile", isRotated: false } },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Modal/Drawer는 sm(640px) 미만에서 화면 하단 바텀시트로 자동 분기한다. 이 story는 viewport를 모바일로 고정해 데스크탑에서도 바텀시트 모드를 보여준다. 상단 핸들 바를 잡고 아래로 끌면(100px 초과/빠른 fling) 닫힌다. 같은 Modal 컴포넌트가 폭에 따라 중앙 카드 ↔ 바텀시트로 전환되는 것이 핵심.",
+      },
+    },
+  },
+  render: () => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>바텀시트 열기</Button>
+        <StandardModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="역할 수정"
+          primaryAction={{ label: "저장", onClick: () => setOpen(false) }}
+          secondaryAction={{ label: "닫기", onClick: () => setOpen(false) }}
+        >
+          <Input
+            variant="box"
+            label="이름"
+            labelOption="sustain"
+            placeholder="역할 이름"
+          />
+        </StandardModal>
+      </>
+    );
+  },
+};

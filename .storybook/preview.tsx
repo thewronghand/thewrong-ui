@@ -25,6 +25,19 @@ const preview: Preview = {
       // 'off' - skip a11y checks entirely
       test: "todo",
     },
+
+    // Modal/Drawer는 sm(640px) 미만에서 바텀시트로 분기한다.
+    // story에서 parameters.viewport.defaultViewport: "mobile"로 고정하면
+    // 데스크탑에서도 iframe이 좁아져 바텀시트 모드로만 렌더된다.
+    viewport: {
+      options: {
+        mobile: {
+          name: "Mobile (바텀시트)",
+          styles: { width: "390px", height: "760px" },
+          type: "mobile",
+        },
+      },
+    },
   },
   // ActionToast(react-hot-toast 기반)가 동작하려면 Toaster가 마운트돼 있어야 한다.
   decorators: [
