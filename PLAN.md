@@ -93,8 +93,9 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 - [x] tooltip (floating-ui) / info-tooltip
 - [x] popover (floating-ui 전환 / useClickOutside 훅 공용 이전)
 - [x] action-toast (react-hot-toast peer / overlayStack 조정자 등록)
-- [x] modal + ModalSubView + StandardModal (overlayStack 레이어드 회피 일반화)
-- [ ] drawer
+- [x] toast (ToastProvider — react-hot-toast Toaster 래퍼, toast 재export)
+- [x] modal + ModalSubView + StandardModal (overlayStack 레이어드 회피 일반화, 바텀시트 분기)
+- [x] drawer (Modal 정책 반영 — 바텀시트/하단 틈 방지/overlayStack)
 - [ ] (Tier 3 별도)
 
 ## 공통 인프라 (Tier 2에서 이전)
@@ -111,3 +112,14 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 - **이관 전부 끝나면, 이전에 옮긴 컴포넌트들의 stories도 각 PlaygroundPage 기반으로 살찌우기.**
   (현재 modal만 플레이그라운드 의도 반영 완료. badge/switch/input 등은 기본 stories 수준)
 - source 플레이그라운드 위치: `the source app/src/dev/playground/*PlaygroundPage.tsx`
+
+## Storybook 노하우 (이번에 정립)
+
+- **모바일/바텀시트 데모**: story에 `globals: { viewport: { value: "mobile", isRotated: false } }`로
+  iframe 폭을 모바일로 고정 → sm 미만 분기 컴포넌트(Modal/Drawer)가 바텀시트로만 렌더된다.
+  (Storybook 10은 구 `parameters.viewport.defaultViewport`가 아니라 **`globals.viewport.value`**)
+  viewport 정의는 `.storybook/preview.tsx`의 `parameters.viewport.options`.
+- **싱글톤 패키지 dedupe**: react-hot-toast/motion이 중복 번들되면 toast 큐/모션 컨텍스트가 갈라진다.
+  `.storybook/main.ts`의 `viteFinal`과 `vite.config.ts`의 `resolve.dedupe`에 등록.
+- **명령형 토스트 검증 함정**: 일반 toast는 `duration: 3000`이라, 클릭과 DOM 측정을 별도 도구 호출로
+  나누면 3초 지나 사라진 뒤를 봐서 "안 뜬다"고 오진할 수 있다. 클릭+측정을 한 호출(rAF/짧은 setTimeout)에서.
