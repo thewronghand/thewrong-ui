@@ -84,10 +84,10 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 
 - [x] button (신규 작성 완료)
 - [x] badge (info/neutral 토큰 보강 포함)
-- [ ] switch
-- [ ] checkbox
+- [x] switch (시맨틱 토큰 레이어 도입)
+- [x] checkbox (Circle/Line/LineTransparent)
 - [ ] textarea
-- [ ] input
+- [x] input (PasswordInput, format, clearable / icon 토큰 + lucide 의존성)
 - [ ] animated-height
 - [ ] collapsible
 - [ ] tooltip / info-tooltip
