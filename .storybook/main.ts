@@ -13,6 +13,8 @@ const config: StorybookConfig = {
     "@storybook/addon-mcp"
   ],
   "framework": "@storybook/react-vite",
+  // 브랜딩 로고·파비콘 등 정적 에셋 서빙 (/logo.png 로 접근)
+  "staticDirs": ["./assets"],
   // 기본 온보딩("Get started" 위젯) / 신기능 알림 끄기
   "core": {
     "disableWhatsNewNotifications": true
