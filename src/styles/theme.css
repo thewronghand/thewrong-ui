@@ -52,6 +52,11 @@
   --color-warning-300: oklch(0.82 0.14 85);
   --color-warning-400: oklch(0.75 0.16 85);
   --color-warning-500: oklch(0.68 0.16 85);
+  --color-warning-600: oklch(0.58 0.15 85);
+  --color-warning-700: oklch(0.48 0.13 85);
+  --color-warning-800: oklch(0.39 0.10 85);
+  --color-warning-900: oklch(0.31 0.07 85);
+  --color-warning-950: oklch(0.22 0.05 85);
 
   /* Success */
   --color-success-50: oklch(0.97 0.02 155);
@@ -60,4 +65,35 @@
   --color-success-300: oklch(0.76 0.12 155);
   --color-success-400: oklch(0.66 0.14 155);
   --color-success-500: oklch(0.58 0.14 155);
+  --color-success-600: oklch(0.50 0.13 155);
+  --color-success-700: oklch(0.43 0.11 155);
+  --color-success-800: oklch(0.36 0.09 155);
+  --color-success-900: oklch(0.28 0.06 155);
+  --color-success-950: oklch(0.20 0.04 155);
+
+  /* Info (hue 220 — 정보/링크 청색) */
+  --color-info-50: oklch(0.97 0.02 220);
+  --color-info-100: oklch(0.93 0.04 220);
+  --color-info-200: oklch(0.86 0.08 220);
+  --color-info-300: oklch(0.76 0.11 220);
+  --color-info-400: oklch(0.66 0.13 220);
+  --color-info-500: oklch(0.58 0.14 220);
+  --color-info-600: oklch(0.50 0.13 220);
+  --color-info-700: oklch(0.43 0.11 220);
+  --color-info-800: oklch(0.36 0.09 220);
+  --color-info-900: oklch(0.28 0.06 220);
+  --color-info-950: oklch(0.20 0.04 220);
+
+  /* Neutral (무채색 회색 — secondary와 동일 계열) */
+  --color-neutral-50: oklch(0.98 0.005 260);
+  --color-neutral-100: oklch(0.96 0.005 260);
+  --color-neutral-200: oklch(0.91 0.005 260);
+  --color-neutral-300: oklch(0.83 0.005 260);
+  --color-neutral-400: oklch(0.71 0.005 260);
+  --color-neutral-500: oklch(0.59 0.005 260);
+  --color-neutral-600: oklch(0.49 0.005 260);
+  --color-neutral-700: oklch(0.40 0.005 260);
+  --color-neutral-800: oklch(0.32 0.005 260);
+  --color-neutral-900: oklch(0.24 0.005 260);
+  --color-neutral-950: oklch(0.16 0.005 260);
 }
