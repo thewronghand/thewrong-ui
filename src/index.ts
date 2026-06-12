@@ -20,6 +20,7 @@ export * from "./components/toolbar";
 export * from "./components/table-page-layout";
 export * from "./components/date-picker";
 export * from "./components/date-input";
+export * from "./components/search-box";
 
 export * from "./components/action-toast";
 export * from "./components/toast";
