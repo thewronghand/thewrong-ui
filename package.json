@@ -31,14 +31,18 @@
     "build-storybook": "storybook build"
   },
   "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18",
+    "@floating-ui/react": ">=0.26",
     "motion": ">=11",
-    "@floating-ui/react": ">=0.26"
+    "react": ">=18",
+    "react-dom": ">=18"
   },
   "peerDependenciesMeta": {
-    "motion": { "optional": true },
-    "@floating-ui/react": { "optional": true }
+    "motion": {
+      "optional": true
+    },
+    "@floating-ui/react": {
+      "optional": true
+    }
   },
   "keywords": [
     "ui",
@@ -54,6 +58,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
+    "@floating-ui/react": "^0.27.19",
     "@storybook/addon-a11y": "^10.4.1",
     "@storybook/addon-docs": "^10.4.1",
     "@storybook/addon-mcp": "^0.6.0",
