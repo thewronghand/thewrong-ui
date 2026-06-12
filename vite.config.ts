@@ -23,7 +23,7 @@ export default defineConfig({
       "@": resolve(__dirname, "src")
     },
     // 단일 인스턴스 보장 — 중복 번들 시 toast 큐 싱글톤/모션 컨텍스트가 갈라진다.
-    dedupe: ["react", "react-dom", "react-hot-toast", "motion"]
+    dedupe: ["react", "react-dom", "react-hot-toast", "motion", "@dnd-kit/core", "@tanstack/react-virtual"]
   },
   build: {
     lib: {
@@ -40,7 +40,10 @@ export default defineConfig({
         "react/jsx-runtime",
         /^motion($|\/)/,
         /^@floating-ui($|\/)/,
-        "react-hot-toast"
+        "react-hot-toast",
+        // table 전용 — 무겁고 소비자가 직접 버전 관리하는 게 나아 peer로 분리.
+        /^@dnd-kit($|\/)/,
+        /^@tanstack\/react-virtual($|\/)/
       ],
       output: {
         globals: {

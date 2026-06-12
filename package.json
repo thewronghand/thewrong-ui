@@ -31,7 +31,11 @@
     "build-storybook": "storybook build"
   },
   "peerDependencies": {
+    "@dnd-kit/core": ">=6",
+    "@dnd-kit/sortable": ">=10",
+    "@dnd-kit/utilities": ">=3",
     "@floating-ui/react": ">=0.26",
+    "@tanstack/react-virtual": ">=3",
     "motion": ">=11",
     "react": ">=18",
     "react-dom": ">=18",
@@ -45,6 +49,18 @@
       "optional": true
     },
     "react-hot-toast": {
+      "optional": true
+    },
+    "@dnd-kit/core": {
+      "optional": true
+    },
+    "@dnd-kit/sortable": {
+      "optional": true
+    },
+    "@dnd-kit/utilities": {
+      "optional": true
+    },
+    "@tanstack/react-virtual": {
       "optional": true
     }
   },
@@ -62,6 +78,9 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@floating-ui/react": "^0.27.19",
     "@storybook/addon-a11y": "^10.4.1",
     "@storybook/addon-docs": "^10.4.1",
@@ -69,6 +88,7 @@
     "@storybook/addon-vitest": "^10.4.1",
     "@storybook/react-vite": "^10.4.1",
     "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/react-virtual": "^3.14.2",
     "@types/node": "^25.9.3",
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",

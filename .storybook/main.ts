@@ -27,6 +27,8 @@ const config: StorybookConfig = {
       "react-dom",
       "react-hot-toast",
       "motion",
+      "@dnd-kit/core",
+      "@tanstack/react-virtual",
     ];
     return config;
   },
