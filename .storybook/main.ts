@@ -21,6 +21,8 @@ const config: StorybookConfig = {
       /* brandTitle에 로고 img + 이름 span을 함께 넣어 한 줄로 정렬. 로고 과대 렌더 보정. */
       .sidebar-header a { display: flex !important; align-items: center !important; gap: 8px !important; }
       .sidebar-header img { height: 28px !important; width: auto !important; }
+      /* 코어 내장 "Get started" 온보딩 체크리스트 위젯 숨김 */
+      #storybook-checklist-widget { display: none !important; }
     </style>`,
   // 기본 온보딩("Get started" 위젯) / 신기능 알림 끄기
   "core": {

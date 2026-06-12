@@ -1,0 +1,68 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="시작하기" />
+
+<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+  <img src="/logo.png" alt="thewrong-ui" style={{ height: 56 }} />
+  <h1 style={{ fontFamily: "Georgia, serif", margin: 0 }}>thewrong-ui</h1>
+</div>
+
+> 잘못된 건데 잘 돌아가는 UI 라이브러리
+
+source 백오피스에서 직접 만든 UI 컴포넌트들을 별도 라이브러리로 분리한 모음입니다.
+사이드프로젝트에서 `npm install` 후 슥슥 꺼내 씁니다.
+
+---
+
+## 설치
+
+```bash
+npm install @thewrong/ui
+```
+
+```tsx
+// 1. 스타일 한 줄 (Tailwind 설치 불필요 — CSS가 번들에 자체포함)
+import "@thewrong/ui/styles.css";
+
+// 2. 컴포넌트 import
+import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
+```
+
+무거운 의존(motion, floating-ui, dnd-kit, react-virtual, date-fns, react-hot-toast)은
+**optional peerDependency**라, 그 기능을 쓰는 컴포넌트만 해당 패키지를 함께 설치하면 됩니다.
+
+---
+
+## 테마
+
+색은 2계층 토큰입니다 — 원시 토큰(oklch)을 시맨틱 토큰이 `var()`로 참조합니다.
+소비자는 `:root`에서 CSS Variable만 덮어쓰면 전체 테마가 바뀝니다.
+
+```css
+:root {
+  --color-primary-500: oklch(0.6 0.2 260); /* 브랜드 색 교체 */
+}
+.dark {
+  /* 다크 토큰도 같은 방식으로 오버라이드 */
+}
+```
+
+---
+
+## 구성
+
+- **폼** — Button · Input(+PasswordInput) · Textarea · Select · MultiSelect · Switch · Checkbox · Badge
+- **오버레이** — Modal(+SubView/Standard) · Drawer · Popover · Tooltip · InfoTooltip · Toast · ActionToast
+- **날짜** — DatePicker · DateRangePicker · MonthPicker · DateInput
+- **데이터** — Table · PaginatedTable · AccordionTable · MiniTable · Pagination · SearchBox
+- **레이아웃** — TablePageLayout · TableCard · Toolbar · PageTitle
+- **모션/유틸** — AnimatedHeight · Collapsible · LoadingSpinner · cn
+
+각 컴포넌트의 사용법·정책·안티패턴은 좌측 사이드바의 개별 문서에서 확인하세요.
+
+---
+
+## 설계 원칙
+
+기술적 한계나 의도적 결정으로 **정책으로 풀어낸 제약**은 "제약 + 이유 + 대안"으로 명시해 둡니다.
+예) 모달 너비는 고정 — 동적 너비는 중앙정렬 transform과 충돌해 모션이 부자연스럽다. 폭이 변하면 `widthPx`로 고정할 것.

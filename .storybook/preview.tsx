@@ -4,6 +4,12 @@ import "../src/styles/index.css";
 
 const preview: Preview = {
   parameters: {
+    // "시작하기"(소개 MDX) 최상단 → Components → Layouts 순.
+    options: {
+      storySort: {
+        order: ["시작하기", "Components", "Layouts", "*"],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
