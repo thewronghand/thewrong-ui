@@ -1,0 +1,218 @@
+import { useEffect, useId } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useDragControls,
+  type PanInfo,
+} from "motion/react";
+
+import { overlayStack } from "@/lib/overlay-stack";
+import { Portal } from "@/lib/Portal";
+import { useIsMobile } from "@/hooks";
+
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  /**
+   * 데스크탑(sm+) 모달의 고정 폭(px). 지정하지 않으면 콘텐츠 폭에 fit (`sm:w-auto`).
+   * 콘텐츠가 모드 전환 등으로 폭이 변하더라도 모달 자체는 흔들리지 않게 하고 싶을 때 사용.
+   * 모바일은 무조건 w-full (이 값 무시).
+   */
+  widthPx?: number;
+  /**
+   * 푸터 영역. 지정하면 헤더-바디-푸터 3단 구조로 동작 — 푸터는 스크롤 영역 밖에 고정되고
+   * children(=바디)만 자체 스크롤된다. 미지정이면 children 전체가 한 영역에서 스크롤(기본).
+   */
+  footer?: React.ReactNode;
+  /**
+   * 바디 스크롤 컨테이너 자체에 좌우 패딩을 부여해 스크롤바가 시트 가장자리가 아니라 안쪽에
+   * 떠 있는 모양을 만든다. 이 옵션을 켜면 사용처 본문에서는 좌우 패딩을 제거하고 세로만 둘 것.
+   */
+  bodyPadded?: boolean;
+  /**
+   * 모달 바디 위에 우측에서 슬라이드 인 하는 서브뷰. ModalSubView 컴포넌트를 그대로 넘기면 된다.
+   * 별도 wrapper(scroll-isolated)에 두어 본문 스크롤과 무관하게 viewport 100% 덮음.
+   * subView가 있으면 시트 높이가 자동으로 viewport 기준으로 강제된다 (콘텐츠 따라 자라지 않음).
+   */
+  subView?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+/**
+ * 데스크탑(`sm`+)에서는 중앙 정렬 모달, 모바일에서는 화면 하단에서 올라오는 bottom-sheet으로 동작.
+ *
+ * - 모바일: 시트가 화면 하단에 붙고 상단 모서리만 둥글다. 핸들 바 표시.
+ *   진입/퇴장 모션은 화면 밖에서 슬라이드 (`y: "100%" → 0 → "100%"`).
+ * - 데스크탑: 중앙 카드. 살짝 위로 올라오면서 페이드 인/아웃.
+ *
+ * 콘텐츠 사이즈 변화에 부드럽게 늘어나려면 호출부에서 `<Collapsible>`(또는 grid 0fr/1fr 트릭)을
+ * 영역별로 감싸는 패턴 권장. 모달 외곽에 layout 모션을 직접 걸면 데스크톱 transform 정렬과
+ * 충돌해 위치가 튄다.
+ *
+ * **레이어드 오버레이**: ESC/백드롭은 `overlayStack`에서 자신이 top일 때만 반응한다.
+ * ActionToast나 ModalSubView가 위에 떠 있으면(더 높은 priority/나중 push) 자동으로 양보된다.
+ */
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  widthPx,
+  footer,
+  bodyPadded = false,
+  subView,
+  children,
+}: ModalProps) {
+  const isMobile = useIsMobile();
+
+  const overlayId = useId();
+  const dragControls = useDragControls();
+
+  // 모바일 바텀시트 스와이프-다운 닫기. 100px 이상 끌거나 빠르게 튕기면 close.
+  const handleDragEnd = (_: PointerEvent, info: PanInfo) => {
+    if (info.offset.y > 100 || info.velocity.y > 500) {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    overlayStack.push(overlayId);
+    document.body.style.overflow = "hidden";
+    return () => {
+      overlayStack.pop(overlayId);
+      // 마지막 오버레이가 닫혔을 때만 lock 해제. 레이어드 모달에서 안쪽 닫힐 때 바깥의 lock 유지.
+      if (overlayStack.isEmpty()) {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [isOpen, overlayId]);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      // 가장 위 오버레이만 처리. ActionToast가 떠 있으면 그게 top(priority)이라 자동으로 양보된다.
+      if (!overlayStack.isTop(overlayId)) return;
+      onClose();
+    };
+    if (isOpen) window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [isOpen, onClose, overlayId]);
+
+  return (
+    <Portal>
+      {/* 백드롭 */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => {
+              // 자신이 top일 때만 닫힘. ActionToast/SubView가 위에 있으면 그쪽이 백드롭을 받는다.
+              if (!overlayStack.isTop(overlayId)) return;
+              onClose();
+            }}
+            className="fixed inset-0 z-50 bg-black/50"
+          />
+        )}
+      </AnimatePresence>
+      {/* 시트 — AnimatePresence의 직접 자식이 motion.div여야 exit 동작 */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="modal-sheet"
+            initial={
+              isMobile ? { y: "100%" } : { opacity: 0, y: 24, scale: 0.96 }
+            }
+            animate={isMobile ? { y: 0 } : { opacity: 1, y: 0, scale: 1 }}
+            // exit transition 명시 — 사용자가 드래그로 시트를 살짝 내린 상태에서 백드롭 클릭 시
+            // spring이 현재 위치 기준으로 길어지는 문제를 짧은 tween으로 일정하게 맞춤.
+            exit={
+              isMobile
+                ? {
+                    y: "100%",
+                    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+                  }
+                : { opacity: 0, y: 24, scale: 0.96 }
+            }
+            transition={
+              isMobile
+                ? { type: "spring", damping: 30, stiffness: 320 }
+                : { duration: 0.25, ease: [0.32, 0.72, 0, 1] }
+            }
+            // 모바일 한정 스와이프-다운 닫기. 데스크탑에선 translate -50%/-50% 정렬과 충돌하므로 비활성.
+            drag={isMobile ? "y" : false}
+            dragListener={false}
+            dragControls={dragControls}
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.4 }}
+            onDragEnd={handleDragEnd}
+            className="fixed bottom-0 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg dark:bg-neutral-800"
+            style={
+              !isMobile
+                ? {
+                    translateX: "-50%",
+                    translateY: "-50%",
+                    ...(widthPx ? { width: widthPx } : {}),
+                  }
+                : undefined
+            }
+          >
+            {/* 모바일 핸들 바 — 드래그-다운 닫기 트리거 */}
+            <div
+              className="flex justify-center pt-2 pb-1 cursor-grab touch-none active:cursor-grabbing sm:hidden"
+              onPointerDown={(e) => dragControls.start(e)}
+            >
+              <div className="h-1 w-10 rounded-full bg-neutral-300 dark:bg-neutral-600" />
+            </div>
+
+            {title && (
+              <div className="flex items-center justify-between px-4 py-3">
+                <h3 className="text-base font-semibold text-neutral-900 sm:text-lg dark:text-white">
+                  {title}
+                </h3>
+                <button
+                  onClick={onClose}
+                  className="rounded p-1 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                  aria-label="닫기"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
+            {/*
+              바디 영역 — 통합 구조.
+              wrapper(relative flex min-h-0 flex-1 flex-col overflow-hidden)
+                ├ scroll layer(flex-1 overflow-y-auto overflow-x-hidden): 자연 흐름.
+                └ subView(absolute inset-0): wrapper 기준이라 스크롤 위치 무관하게 viewport 전체 덮음.
+            */}
+            <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+              <div
+                className={`flex-1 overflow-y-auto overflow-x-hidden${bodyPadded ? " mx-1 sm:mx-4" : ""}`}
+              >
+                {children}
+              </div>
+              {subView}
+            </div>
+            {footer && <div className="shrink-0">{footer}</div>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Portal>
+  );
+}

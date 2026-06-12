@@ -37,7 +37,8 @@ export default defineConfig({
         "react-dom",
         "react/jsx-runtime",
         /^motion($|\/)/,
-        /^@floating-ui($|\/)/
+        /^@floating-ui($|\/)/,
+        "react-hot-toast"
       ],
       output: {
         globals: {

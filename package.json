@@ -34,13 +34,17 @@
     "@floating-ui/react": ">=0.26",
     "motion": ">=11",
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "react-hot-toast": ">=2"
   },
   "peerDependenciesMeta": {
     "motion": {
       "optional": true
     },
     "@floating-ui/react": {
+      "optional": true
+    },
+    "react-hot-toast": {
       "optional": true
     }
   },
@@ -75,6 +79,7 @@
     "playwright": "^1.60.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-hot-toast": "^2.6.0",
     "storybook": "^10.4.1",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
