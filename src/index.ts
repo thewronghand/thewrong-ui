@@ -12,6 +12,7 @@ export * from "./components/tooltip";
 export * from "./components/info-tooltip";
 export * from "./components/popover";
 export * from "./components/loading-spinner";
+export * from "./components/select";
 
 export * from "./components/action-toast";
 export * from "./components/toast";
