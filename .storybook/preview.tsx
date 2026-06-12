@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook/react";
-import { Toaster } from "react-hot-toast";
+import { ToastProvider } from "../src/components/toast";
 import "../src/styles/index.css";
 
 const preview: Preview = {
@@ -39,13 +39,12 @@ const preview: Preview = {
       },
     },
   },
-  // ActionToast(react-hot-toast 기반)가 동작하려면 Toaster가 마운트돼 있어야 한다.
+  // Toast/ActionToast가 동작하려면 ToastProvider(Toaster)가 마운트돼 있어야 한다.
   decorators: [
     (Story) => (
-      <>
+      <ToastProvider>
         <Story />
-        <Toaster position="bottom-center" />
-      </>
+      </ToastProvider>
     ),
   ],
 };

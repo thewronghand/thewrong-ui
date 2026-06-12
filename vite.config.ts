@@ -21,7 +21,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "src")
-    }
+    },
+    // 단일 인스턴스 보장 — 중복 번들 시 toast 큐 싱글톤/모션 컨텍스트가 갈라진다.
+    dedupe: ["react", "react-dom", "react-hot-toast", "motion"]
   },
   build: {
     lib: {
