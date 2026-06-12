@@ -15,6 +15,9 @@ export * from "./components/loading-spinner";
 export * from "./components/select";
 export * from "./components/table-checkbox";
 export * from "./components/table";
+export * from "./components/page-title";
+export * from "./components/toolbar";
+export * from "./components/table-page-layout";
 
 export * from "./components/action-toast";
 export * from "./components/toast";
