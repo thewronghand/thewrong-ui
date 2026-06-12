@@ -376,6 +376,104 @@ export const 레이어드_ActionToast_재확인: Story = {
 // Modal (base) — escape hatch
 // ─────────────────────────────────────────────
 
+export const 정책_너비고정: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "설계 제약: 모달은 너비를 애니메이션하지 않는다. 동적 너비는 데스크탑 중앙 정렬(translateX -50%) 기준점과 함께 움직여 한쪽으로 밀리는 부자연스러운 모션이 되기 때문(framer-motion layout도 transform 정렬과 충돌). → 높이만 AnimatedHeight로 부드럽게, 너비는 widthPx로 고정. 콘텐츠 폭이 인터랙션으로 변할 수 있는 모달이라면 widthPx 지정이 사실상 필수.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [wide, setWide] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>너비 고정 정책</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="너비는 고정"
+          widthPx={420}
+          footer={
+            <div className="flex justify-end border-t border-neutral-200 px-5 py-4 dark:border-neutral-700">
+              <Button size="small" onClick={() => setOpen(false)}>
+                닫기
+              </Button>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Switch
+              label="내용 늘리기 (너비는 그대로)"
+              checked={wide}
+              onCheckedChange={setWide}
+            />
+            <p className="text-sm text-text-secondary">
+              widthPx=420 고정. 내용을 늘려도 시트 너비는 그대로 — 높이만 변한다.
+            </p>
+            {wide && (
+              <p className="text-sm text-text-secondary">
+                추가된 내용. 너비가 흔들리지 않으니 시각적으로 안정적이다.
+              </p>
+            )}
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 정책_서브뷰높이: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "설계 제약: 서브뷰 콘텐츠 높이 ≤ 부모 모달 본문 높이. 서브뷰는 부모 시트를 absolute로 덮어 부모 높이를 물려받으므로, '작은 모달에 긴 서브뷰'를 넣으면 서브뷰 안에서만 스크롤이 생겨 부모와 어긋나 보인다. 긴 목록은 부모 모달을 그만큼 키우거나 별도 Drawer/페이지로 분리할 것. 아래는 권장 케이스(서브뷰가 부모 높이에 들어맞음).",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>서브뷰 높이 정책</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="권한 설정"
+          widthPx={460}
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="최근 변경 3건"
+            >
+              <div className="flex flex-col gap-2">
+                {["권한 A 부여", "권한 B 회수", "역할 변경"].map((t) => (
+                  <div
+                    key={t}
+                    className="rounded-lg bg-bg-base-secondary px-3 py-2 text-sm text-text-primary"
+                  >
+                    {t}
+                  </div>
+                ))}
+              </div>
+            </ModalSubView>
+          }
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <span className="text-sm text-text-primary">
+              본문과 서브뷰의 내용 양이 비슷해 높이가 어긋나지 않는다.
+            </span>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={() => setSubOpen(true)}
+            >
+              변경 이력 →
+            </Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
 export const Base_고정폭: Story = {
   args: { isOpen: false, onClose: () => {}, children: null },
   parameters: story(

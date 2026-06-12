@@ -42,6 +42,13 @@ export interface ModalSubViewProps {
  * **부모 Modal 요구사항**: 자식이 `absolute inset-0`로 자리 잡으려면 어딘가에 `position: relative`가
  * 있어야 한다. Modal 컴포넌트 자체가 `relative` 시트라 별도 처리 불필요.
  *
+ * **높이 정책 — 서브뷰 콘텐츠 ≤ 부모 모달 콘텐츠**: 서브뷰는 부모 시트 영역을 `absolute inset-0`로
+ * 덮으므로 부모 시트의 높이를 그대로 물려받는다. 모달 너비를 애니메이션하지 않는 것과 같은 이유로
+ * 시트 높이도 서브뷰 진입 때마다 출렁이게 하지 않는다. 따라서 **서브뷰 콘텐츠 높이는 부모 모달
+ * 본문 높이와 같거나 작게** 설계하는 것을 권장한다. "작은 모달인데 서브뷰에만 아주 긴 내용"이
+ * 들어가면 서브뷰 안에서만 스크롤이 생겨 부모와 높이가 어긋나 보인다. 긴 목록은 부모 모달 자체를
+ * 그만큼 키우거나(`widthPx`/콘텐츠 양 조정), 별도 페이지/Drawer로 분리할 것.
+ *
  * **ESC 동작**: SubView가 열려있는 동안 ESC는 SubView의 `onBack`을 부르고 모달은 유지된다.
  * `overlayStack`을 push해 Modal보다 위 layer로 등록 — Modal의 ESC 핸들러는 자기가 top일 때만 실행.
  *
