@@ -10,3 +10,6 @@ export * from "./components/collapsible";
 export * from "./components/animated-height";
 export * from "./components/tooltip";
 export * from "./components/info-tooltip";
+export * from "./components/popover";
+
+export * from "./hooks";

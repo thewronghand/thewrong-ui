@@ -90,7 +90,7 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 - [x] input (PasswordInput, format, clearable / icon 토큰 + lucide 의존성)
 - [x] animated-height (motion external/peer)
 - [x] collapsible
-- [ ] tooltip / info-tooltip
+- [x] tooltip (floating-ui) / info-tooltip
 - [ ] popover
 - [ ] modal
 - [ ] drawer
