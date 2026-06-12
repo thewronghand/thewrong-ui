@@ -92,7 +92,22 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 - [x] collapsible
 - [x] tooltip (floating-ui) / info-tooltip
 - [x] popover (floating-ui 전환 / useClickOutside 훅 공용 이전)
-- [ ] modal
+- [x] action-toast (react-hot-toast peer / overlayStack 조정자 등록)
+- [x] modal + ModalSubView + StandardModal (overlayStack 레이어드 회피 일반화)
 - [ ] drawer
-- [ ] action-toast
 - [ ] (Tier 3 별도)
+
+## 공통 인프라 (Tier 2에서 이전)
+
+- `src/lib/overlay-stack.ts` — 오버레이 ID 스택 + **priority** 지원. dismissable 오버레이는
+  모두 등록하고 "내가 top일 때만" ESC/백드롭에 반응. action-toast는 priority 1000으로 항상 최상위.
+  → Modal이 action-toast를 직접 import하지 않고도 "토스트 떠있으면 ESC 양보"가 자동 성립.
+- `src/lib/Portal.tsx` — body portal
+- `src/hooks/useMediaQuery.ts` — useMediaQuery / useIsMobile
+
+## 후속 작업 메모 (TODO)
+
+- **테이블 이관 시 `src/dev/playground/TablePlaygroundPage.tsx` 참고** — 의도/케이스 파악.
+- **이관 전부 끝나면, 이전에 옮긴 컴포넌트들의 stories도 각 PlaygroundPage 기반으로 살찌우기.**
+  (현재 modal만 플레이그라운드 의도 반영 완료. badge/switch/input 등은 기본 stories 수준)
+- source 플레이그라운드 위치: `the source app/src/dev/playground/*PlaygroundPage.tsx`
