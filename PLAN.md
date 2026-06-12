@@ -91,7 +91,7 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 - [x] animated-height (motion external/peer)
 - [x] collapsible
 - [x] tooltip (floating-ui) / info-tooltip
-- [ ] popover
+- [x] popover (floating-ui 전환 / useClickOutside 훅 공용 이전)
 - [ ] modal
 - [ ] drawer
 - [ ] action-toast

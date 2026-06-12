@@ -83,20 +83,25 @@ export function Popover({
       <FloatingPortal>
         <AnimatePresence>
           {isOpen && (
-            <motion.div
+            // 바깥 div: floating-ui가 위치(position/transform) 담당.
+            // 안쪽 motion.div: scale/opacity 애니메이션 담당.
+            // 한 요소에 둘을 합치면 motion이 floating-ui의 transform을 덮어써 위치가 (0,0)으로 깨진다.
+            <div
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
               className="z-9999"
             >
-              <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-border-tertiary dark:border-border-secondary p-4 min-w-60 max-w-[320px]">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.15 }}
+                className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-border-tertiary dark:border-border-secondary p-4 min-w-60 max-w-[320px]"
+              >
                 {typeof content === "function" ? content(close) : content}
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </FloatingPortal>

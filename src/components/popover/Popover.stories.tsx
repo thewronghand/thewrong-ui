@@ -21,7 +21,7 @@ export const Default: Story = {
       <div className="flex flex-col gap-1 text-sm text-text-primary">
         <span className="font-medium">팝오버 콘텐츠</span>
         <span className="text-text-secondary">
-          외부를 클릭하면 닫혀요. trigger 오른쪽 끝 기준으로 배치됩니다.
+          외부 클릭/ESC로 닫혀요. trigger 기준으로 배치되며 공간이 부족하면 자동 flip돼요.
         </span>
       </div>
     ),
