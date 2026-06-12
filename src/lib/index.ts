@@ -1,4 +1,5 @@
 export { overlayStack } from "./overlay-stack";
+export { cn, formatYearMonth } from "./utils";
 export { Portal } from "./Portal";
 export type { PortalProps } from "./Portal";
 export { ColumnPresetStorage } from "./column-preset-storage";

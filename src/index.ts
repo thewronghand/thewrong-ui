@@ -18,6 +18,8 @@ export * from "./components/table";
 export * from "./components/page-title";
 export * from "./components/toolbar";
 export * from "./components/table-page-layout";
+export * from "./components/date-picker";
+export * from "./components/date-input";
 
 export * from "./components/action-toast";
 export * from "./components/toast";

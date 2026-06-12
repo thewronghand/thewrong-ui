@@ -33,7 +33,9 @@ const meta = {
 } satisfies Meta<typeof TablePageLayout>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+// children이 required라 StoryObj<typeof meta>는 args를 강제한다. render-only 스토리이므로
+// 느슨한 StoryObj로 둔다(다른 컴포넌트 stories와 동일 패턴).
+type Story = StoryObj;
 
 const story = (text: string) => ({ docs: { description: { story: text } } });
 
