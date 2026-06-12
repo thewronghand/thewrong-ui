@@ -96,7 +96,10 @@ table, select, search-box, sidebar, date-picker — 개별 평가 후 진행
 - [x] toast (ToastProvider — react-hot-toast Toaster 래퍼, toast 재export)
 - [x] modal + ModalSubView + StandardModal (overlayStack 레이어드 회피 일반화, 바텀시트 분기)
 - [x] drawer (Modal 정책 반영 — 바텀시트/하단 틈 방지/overlayStack)
-- [ ] (Tier 3 별도)
+- [x] loading-spinner (select/table 선행 의존)
+- [x] select — **단일 Select만** (floating-ui, searchable). MultiSelect/Dropdown/MultiSelectDropdown 남음
+- [ ] table (Tier 3 — 선행: icons/table-checkbox/column-preset-storage, peer: dnd-kit/react-virtual)
+- [ ] 상세 진행/노하우는 HANDOVER.md 참조
 
 ## 공통 인프라 (Tier 2에서 이전)
 
