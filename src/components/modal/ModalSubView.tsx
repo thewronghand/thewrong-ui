@@ -119,7 +119,9 @@ export function ModalSubView({
   // contentPadded면 children을 px-4 py-5 wrapper로 감싸 콘텐츠 가장자리 여백 확보.
   const body = (
     <div
-      className={`flex-1 overflow-y-auto overflow-x-hidden${
+      // transform-gpu — 부모 Modal의 중앙정렬 translate transform 레이어 안에서 그려지므로
+      // 본 Modal 바디와 같은 Chrome 합성 페인트 버그(긴 스크롤 콘텐츠 리렌더 시 백지)에 노출된다.
+      className={`transform-gpu flex-1 overflow-y-auto overflow-x-hidden${
         bodyPadded ? " mx-1 sm:mx-4" : ""
       }`}
     >

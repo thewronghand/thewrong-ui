@@ -219,8 +219,16 @@ export function Modal({
                 └ subView(absolute inset-0): wrapper 기준이라 스크롤 위치 무관하게 viewport 전체 덮음.
             */}
             <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+              {/*
+                transform-gpu(translateZ로 GPU 레이어 강제) — 데스크탑 중앙정렬 translate
+                transform 레이어 안에서 긴 스크롤 콘텐츠를 다수 리렌더하면 Chrome 합성 페인트
+                버그로 본문이 통째로 하얗게 비는 현상(콘솔 에러 없음)을 막는다.
+                단, transform은 새 containing block을 만든다 — 이 스크롤 영역 내부에 position:fixed
+                자식을 두면 좌표 기준이 viewport가 아니라 이 div가 된다. floating류는 Portal로
+                body에 띄울 것(이 라이브러리 기본 패턴).
+              */}
               <div
-                className={`flex-1 overflow-y-auto overflow-x-hidden${bodyPadded ? " mx-1 sm:mx-4" : ""}`}
+                className={`transform-gpu flex-1 overflow-y-auto overflow-x-hidden${bodyPadded ? " mx-1 sm:mx-4" : ""}`}
               >
                 {children}
               </div>
