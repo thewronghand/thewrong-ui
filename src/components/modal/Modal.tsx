@@ -220,15 +220,19 @@ export function Modal({
             */}
             <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
               {/*
-                transform-gpu(translateZ로 GPU 레이어 강제) — 데스크탑 중앙정렬 translate
+                transform-[translateZ(0)](GPU 레이어 강제) — 데스크탑 중앙정렬 translate
                 transform 레이어 안에서 긴 스크롤 콘텐츠를 다수 리렌더하면 Chrome 합성 페인트
                 버그로 본문이 통째로 하얗게 비는 현상(콘솔 에러 없음)을 막는다.
+                Tailwind의 `transform-gpu` 유틸 대신 임의값을 쓰는 이유: v4 일부 버전에서
+                transform-gpu를 다른 transform 유틸 없이 단독으로 쓰면 translateZ가 미정의
+                변수 뒤로 밀려 transform이 none으로 폴백돼 레이어 격리가 무효가 된다. 임의값은
+                translateZ(0)를 리터럴로 박아 버전·소비자 환경에 무관하게 항상 적용된다.
                 단, transform은 새 containing block을 만든다 — 이 스크롤 영역 내부에 position:fixed
                 자식을 두면 좌표 기준이 viewport가 아니라 이 div가 된다. floating류는 Portal로
                 body에 띄울 것(이 라이브러리 기본 패턴).
               */}
               <div
-                className={`transform-gpu flex-1 overflow-y-auto overflow-x-hidden${bodyPadded ? " mx-1 sm:mx-4" : ""}`}
+                className={`transform-[translateZ(0)] flex-1 overflow-y-auto overflow-x-hidden${bodyPadded ? " mx-1 sm:mx-4" : ""}`}
               >
                 {children}
               </div>
