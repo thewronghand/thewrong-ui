@@ -39,6 +39,19 @@ export interface PopoverProps {
  * - **자동 flip / shift**: 공간 부족하면 반대편으로, viewport 경계로 clamp
  * - **스크롤/resize 자동 추적**(autoUpdate)
  * - **Portal 렌더**: 부모 overflow:hidden에 잘리지 않음
+ *
+ * 클릭으로 여닫는 자유 콘텐츠(헤더 드롭다운·메뉴)에 쓴다. 짧은 텍스트 힌트는 `Tooltip`,
+ * 물음표 아이콘 도움말은 `InfoTooltip`을 쓸 것.
+ *
+ * @example
+ * ```tsx
+ * <Popover
+ *   trigger={<MoreIcon />}
+ *   content={(close) => (
+ *     <button onClick={() => { edit(); close(); }}>수정</button>
+ *   )}
+ * />
+ * ```
  */
 export function Popover({
   trigger,

@@ -37,6 +37,13 @@ export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 
 /**
  * 영역 중앙에 스피너 + 메시지를 표시하는 로딩 표시. 데이터 페칭 중 컨테이너에 채워 쓴다.
+ * 텍스트 줄 안에 인라인으로 넣을 작은 스피너는 `InlineSpinner`, 스피너 단독은 `Spinner`.
+ *
+ * @example
+ * ```tsx
+ * {isLoading ? <LoadingSpinner /> : <Table ... />}
+ * <LoadingSpinner message="정산 내역을 불러오는 중이에요..." size="lg" />
+ * ```
  */
 export function LoadingSpinner({
   message = "데이터를 불러오는 중이에요...",

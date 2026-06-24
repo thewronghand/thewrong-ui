@@ -29,6 +29,16 @@ export interface TooltipProps {
  * - **스크롤/resize 자동 추적**: trigger가 움직여도 따라감
  * - **Portal 렌더**: 부모 overflow:hidden에 잘리지 않음
  * - **focus/keyboard 접근성** 내장
+ *
+ * hover/focus로 뜨는 짧은 텍스트 힌트(`content`는 string)에 쓴다. 강조·줄바꿈이 필요한
+ * 도움말은 `InfoTooltip`(ReactNode), 클릭으로 여는 자유 콘텐츠는 `Popover`를 쓸 것.
+ *
+ * @example
+ * ```tsx
+ * <Tooltip content="최근 30일 기준">
+ *   <InfoIcon />
+ * </Tooltip>
+ * ```
  */
 export function Tooltip({
   children,
