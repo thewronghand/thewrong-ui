@@ -15,7 +15,8 @@
     "./styles.css": "./dist/ui.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "llms.txt"
   ],
   "publishConfig": {
     "access": "public"
