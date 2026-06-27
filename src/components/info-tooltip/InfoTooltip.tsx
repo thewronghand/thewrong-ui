@@ -9,6 +9,13 @@ export interface InfoTooltipProps {
  * 정보 툴팁 컴포넌트
  *
  * `?` 아이콘에 마우스 호버 시 툴팁을 표시해요. CSS group-hover 기반의 단순 구현.
+ *
+ * 라벨 옆 보조 설명에 쓴다. `content`가 ReactNode라 강조·줄바꿈이 자유롭다(string만이면 `Tooltip`).
+ *
+ * @example
+ * ```tsx
+ * <label>정산 주기 <InfoTooltip content={<>영업일 기준 <b>D+2</b></>} /></label>
+ * ```
  */
 export function InfoTooltip({ content, position = "top" }: InfoTooltipProps) {
   const positionClasses = {

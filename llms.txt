@@ -1,0 +1,80 @@
+# @thewrong/ui
+
+> @thewronghand의 개인 프로젝트용 React UI 컴포넌트 라이브러리. React 19 / Tailwind CSS v4 기반.
+> CSS가 번들에 자체포함되어 소비자는 Tailwind 설치 없이 스타일 한 줄 import로 쓴다.
+> 이 문서는 AI 코드 어시스턴트가 라이브러리를 정확히 쓰도록 돕는 컨텍스트다.
+
+## 설치 / 기본 사용
+
+```tsx
+// 1. 스타일 한 줄 (Tailwind 설치 불필요 — CSS 자체포함)
+import "@thewrong/ui/styles.css";
+
+// 2. 컴포넌트 import (전부 named export)
+import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
+```
+
+- 패키지명: `@thewrong/ui` · React `>=18` peerDependency.
+- 스타일 진입점: `@thewrong/ui/styles.css` (앱 어디서든 한 번만 import).
+- 테마: `:root`에서 CSS Variable(`--color-primary-500` 등)을 덮어쓰면 전체 테마가 바뀐다. 토큰 계열은 `primary-*`/`secondary-*`(neutral)/`error-*` (각 50~950).
+
+## 규칙 (consumer가 지킬 것)
+
+- **모든 export는 named export.** default export 없음.
+- **무거운 의존은 optional peerDependency** — 해당 컴포넌트를 쓸 때만 그 패키지를 함께 설치한다:
+  - `motion` → Modal, Drawer, ActionToast, Popover, DatePicker류, Table, AnimatedHeight
+  - `@floating-ui/react` → Select, Popover, Tooltip, DatePicker류, SearchBox, Table
+  - `react-hot-toast` → Toast, ActionToast, SearchBox, Table
+  - `@dnd-kit/*`, `@tanstack/react-virtual` → Table (컬럼 DnD / 가상화)
+  - `date-fns` → DatePicker류, SearchBox
+- 가벼운 필수 의존(`clsx`, `tailwind-merge`, `lucide-react`)은 번들에 포함되어 별도 설치 불필요.
+
+## 컴포넌트 (전부 `@thewrong/ui`에서 named export)
+
+### 폼
+- `Button` — variant×appearance×size. `as="a"`+`href`로 링크. `clickThrottleMs`로 더블클릭 방지(비가역 액션). `display="block"`으로 풀폭.
+- `Input`, `PasswordInput` — size 토큰 4단계. `prefix`/`suffix`/`clearable` 지원. `format`은 `InputFormat` 객체를 받으며, `inputFormats.phoneNumber`/`inputFormats.price` 프리셋을 넘긴다(`format={inputFormats.price}`).
+- `Textarea` — `showCount`+`maxLength`로 글자 수. resize는 기본 고정.
+- `Select` — 단일 선택. `searchable`로 필터(클라이언트). 서버 검색 시 호출부가 selected snapshot 보존.
+- `MultiSelect` — 다중 선택. 값은 `string[]`. 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
+- `Switch`, `Checkbox`, `Badge`.
+
+### 오버레이
+- `Modal` — 데스크탑 중앙 카드 / 모바일 바텀시트 자동 분기. 너비 고정(`widthPx`). 헤더-바디-푸터 3단(`footer`).
+- `StandardModal` — 표준 폼 모달. `primaryAction`/`secondaryAction`/`leftAction`으로 footer 자동 생성. 폼 80% 케이스.
+- `ModalSubView` — 모달 안 우측 슬라이드 인 푸시 네비. 모달 위에 모달 쌓는 대신 이걸 쓴다.
+- `Drawer` — 가장자리 고정 패널 / 모바일 바텀시트.
+- `Popover` — 클릭으로 여닫는 자유 콘텐츠(ReactNode).
+- `Tooltip` — hover/focus 짧은 텍스트(string). `InfoTooltip` — 물음표 아이콘 도움말(ReactNode).
+- `Toast` — 자동 사라지는 알림. `ToastProvider`를 앱 루트에 두고 `toast()` 호출(react-hot-toast 재export).
+- `ActionToast` — 사용자 결정을 요구하는 토스트(자동 dismiss 없음, 한 번에 하나). 함수형 API: `showActionToast()`, `dismissActionToast()`, `isActionToastActive()`. 모달 위에서도 띄울 수 있다.
+
+### 날짜
+- `DatePicker`(단일) · `DateRangePicker`(기간) · `MonthPicker`(년월) · `DateInput`(타이핑+캘린더). 모바일 바텀시트 분기.
+
+### 데이터
+- `PaginatedTable` — 페이지네이션+페이지 사이즈 셀렉터 내장. 대부분의 목록 페이지 기본형.
+- `Table` — 페이지네이션 없이 전부 표시. `totalElements`로 '총 N건' 표기.
+- `AccordionTable` — 행 펼침(single/multiple, 비동기 fetch 가능).
+- `MiniTable`, `Pagination`, `TableCheckbox`(indeterminate), `SearchBox`(선언적 필드 배열: text/select/multiSelect/dateRange).
+
+### 레이아웃 / 유틸
+- `TablePageLayout`, `TableCard`, `Toolbar`, `PageTitle`.
+- `AnimatedHeight`(높이 트랜지션), `Collapsible`, `LoadingSpinner`.
+- `cn`(clsx+tailwind-merge), `Portal`, `overlayStack`, `formatYearMonth`, `ColumnPresetStorage`.
+- hooks: `useClickOutside`, `useMediaQuery`, `useIsMobile`, `useBottomSheetDrag`, `useScrollLock`.
+
+## 선택 가이드 (언제 무엇을 쓰나)
+
+- **오버레이**: 중앙 폼=Modal(표준 버튼이면 StandardModal) / 모달 안 더 깊은 뷰=ModalSubView / 가장자리 패널=Drawer / 즉시 컨펌=ActionToast(모달 위 가능) / 단순 알림=Toast. **모달 위에 모달을 쌓지 않는다** — 더 깊은 뷰는 ModalSubView, 재확인은 ActionToast로 푼다.
+- **셀렉트**: 단일=Select / 타이핑 필터=Select searchable / 다중=MultiSelect.
+- **도움말 오버레이**: 짧은 텍스트 힌트=Tooltip / 아이콘 도움말(ReactNode)=InfoTooltip / 클릭 자유 콘텐츠=Popover.
+- **테이블**: 목록 페이지=PaginatedTable / 한 번에 전부=Table / 행 펼침=AccordionTable.
+
+## 정책 (제약 + 이유)
+
+- **모달 너비 고정** — 동적 너비는 중앙정렬 `translateX(-50%)` 기준점과 함께 밀린다. 폭이 변하면 `widthPx`로 고정.
+- **높이 변하는 모달 본문은 `AnimatedHeight`로 감싼다** — 미적용 시 instant jump.
+- **ModalSubView 콘텐츠 높이 ≤ 부모 모달 본문 높이** — 서브뷰는 부모 시트를 덮으므로 높이가 어긋나면 안 된다.
+- **Table을 Section `p-4` 박스에 직접 넣지 않는다** — Table 자체 padding/border와 겹쳐 이중 박스가 된다. `bg-white rounded-lg overflow-hidden` wrapper로만 감싼다.
+- **모달 중앙정렬 transform 레이어 내부 스크롤 컨테이너는 `transform-[translateZ(0)]`로 GPU 레이어를 강제**한다(Chrome 합성 페인트 누락 방지). Tailwind v4에서 `transform-gpu` 유틸은 폴백 위험이 있어 임의값을 쓴다.

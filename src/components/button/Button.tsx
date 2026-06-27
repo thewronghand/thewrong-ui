@@ -32,6 +32,22 @@ const Spinner = () => (
   </svg>
 );
 
+/**
+ * 기본 버튼. `variant`(primary/secondary/tertiary/danger) × `appearance`(filled/outlined/transparent)
+ * × `size`(mini/small/medium/large) 조합으로 표현한다.
+ *
+ * - 저장·정산·전송 같은 **비가역 async 액션**에는 `clickThrottleMs`로 더블클릭을 막는다.
+ * - 모달 푸터·모바일 등 부모 폭을 채워야 하면 `display="block"`.
+ * - 시각은 버튼이지만 실제 이동이 필요하면 `as="a"` + `href`(링크로 렌더, loading/disabled 동일 동작).
+ *
+ * @example
+ * ```tsx
+ * <Button onClick={save}>저장</Button>
+ * <Button variant="danger" appearance="outlined" onClick={remove}>삭제</Button>
+ * <Button display="block" loading={isSaving} clickThrottleMs={1000} onClick={submit}>제출</Button>
+ * <Button as="a" href="/list">목록으로</Button>
+ * ```
+ */
 export const Button = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
   ButtonBaseProps | ButtonLinkProps
