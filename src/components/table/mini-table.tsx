@@ -160,7 +160,7 @@ export const MiniTable = forwardRef<
             </div>
             <div
               ref={scrollContainerRef}
-              className="scrollbar-table overflow-x-auto overflow-y-hidden flex-1 bg-bg-gray-primary dark:bg-slate-900/50"
+              className="scrollbar-table overflow-x-auto overflow-y-hidden flex-1 bg-bg-base-secondary"
             >
               {data.length === 0 ? (
                 <div className="flex items-center justify-center p-8 h-full">
