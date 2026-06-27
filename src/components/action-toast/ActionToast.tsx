@@ -19,6 +19,7 @@ import {
   ACTION_TOAST_OVERLAY_ID,
   ACTION_TOAST_PRIORITY,
 } from "@/lib/overlay-stack";
+import { cn } from "@/lib/utils";
 
 const ACTION_TOAST_ID = "action-toast-singleton";
 
@@ -82,6 +83,11 @@ interface ShowActionToastArgs {
    * false면 클릭-아웃 dismiss도 비활성.
    */
   backdrop?: boolean;
+  /**
+   * 시트(카드) 루트에 병합되는 클래스. `cn`(tailwind-merge)으로 병합된다. 백드롭에는 적용 안 됨.
+   * 폭은 `widthPx`로 고정하는 것이 정책이므로 너비 클래스 대신 `widthPx`를 우선 쓸 것.
+   */
+  className?: string;
 }
 
 /**
@@ -108,6 +114,7 @@ export function showActionToast({
   input,
   widthPx,
   backdrop = true,
+  className,
 }: ShowActionToastArgs): string {
   setActionToastActive(true);
   return toast.custom(
@@ -121,6 +128,7 @@ export function showActionToast({
         input={input}
         widthPx={widthPx}
         backdrop={backdrop}
+        className={className}
       />
     ),
     {
@@ -161,6 +169,7 @@ interface ActionToastViewProps {
   input?: ActionToastInput;
   widthPx?: number;
   backdrop: boolean;
+  className?: string;
 }
 
 const TONE_ICON_CLASSES: Record<ActionToastViewProps["tone"], string> = {
@@ -189,6 +198,7 @@ function ActionToastView({
   input,
   widthPx = 680,
   backdrop,
+  className,
 }: ActionToastViewProps) {
   const isMobile = useIsMobile();
 
@@ -348,9 +358,11 @@ function ActionToastView({
         transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
         // `dark` 클래스를 시트 자체에 박아, 내부 Input/Textarea/Button 같은 공용 컴포넌트가
         // 호스트 페이지의 라이트/다크 모드와 무관하게 항상 다크 톤으로 렌더되도록 강제.
-        className={`dark relative rounded-2xl bg-secondary-700 text-white shadow-lg ${
-          toastInstance.visible ? "" : "pointer-events-none"
-        }`}
+        className={cn(
+          "dark relative rounded-2xl bg-secondary-700 text-white shadow-lg",
+          toastInstance.visible ? "" : "pointer-events-none",
+          className,
+        )}
         style={{ width: `min(${widthPx}px, calc(100vw - 32px))` }}
         role="alertdialog"
         aria-modal={backdrop ? "true" : undefined}

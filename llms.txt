@@ -12,11 +12,22 @@ import "@thewrong/ui/styles.css";
 
 // 2. 컴포넌트 import (전부 named export)
 import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
+
+// 훅만 필요하면 서브패스로 — 무거운 UI 의존(motion/floating)이 안 끌려온다.
+import { useIsMobile } from "@thewrong/ui/hooks";
 ```
 
 - 패키지명: `@thewrong/ui` · React `>=18` peerDependency.
-- 스타일 진입점: `@thewrong/ui/styles.css` (앱 어디서든 한 번만 import).
-- 테마: `:root`에서 CSS Variable(`--color-primary-500` 등)을 덮어쓰면 전체 테마가 바뀐다. 토큰 계열은 `primary-*`/`secondary-*`(neutral)/`error-*` (각 50~950).
+- 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅만, motion/floating 의존 0) · `@thewrong/ui/styles.css`(스타일, 한 번만 import).
+- 라이브러리는 컴포넌트별 코드분할되어 있어 소비자 번들러가 안 쓰는 컴포넌트를 트리셰이킹한다.
+
+## 스타일 커스터마이징 (소비자가 색/스타일 바꾸기)
+
+- **전역 색 교체 = `:root` CSS Variable 토큰 오버라이드** (대부분 이걸로 충분, 코드 변경 0). 그 토큰을 쓰는 모든 컴포넌트가 한 번에 바뀐다.
+  - 원시 토큰: `--color-primary-*`/`--color-secondary-*`(neutral)/`--color-error-*` (각 50~950).
+  - 시맨틱 토큰: `--color-bg-*`(white·card·base-primary/secondary/tertiary·disabled) · `--color-text-*`(primary/secondary/tertiary/disabled/inverse/danger) · `--color-border-*` · `--color-icon-*`. 앱 톤 맞추기는 이걸 덮는다.
+- **인스턴스별 스타일 = `className` prop** (이 컴포넌트 하나만 폭·여백·배경 다르게). 많은 컴포넌트가 className을 받아 tailwind-merge로 병합. 오버레이(Modal·Drawer·ActionToast·Popover)는 className이 백드롭이 아니라 **시트/카드**에 병합된다.
+- floating·고정좌표 컴포넌트(Tooltip·DatePicker 등)는 className 미개방(위치 깨짐 방지) — 색은 토큰 오버라이드로 바꾼다.
 
 ## 규칙 (consumer가 지킬 것)
 

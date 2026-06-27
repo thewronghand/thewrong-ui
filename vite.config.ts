@@ -14,7 +14,10 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 export default defineConfig({
   plugins: [react(), tailwindcss(), dts({
     include: ["src"],
-    exclude: ["src/**/*.stories.tsx", "src/**/*.d.ts"],
+    // .d.ts는 산출물로 재방출하지 않되, 앰비언트 선언 파일(vite-env·css)은 dts 컴파일
+    // 컨텍스트에 포함해야 import.meta.env / CSS side-effect import 타입이 해석된다.
+    // (전체 *.d.ts를 빼면 그 참조가 끊겨 dts 빌드에서 경고가 난다.)
+    exclude: ["src/**/*.stories.tsx"],
     // src/ 접두어를 떼고 dist 루트로 평탄화 → dist/index.d.ts (package.json "types"와 일치)
     entryRoot: "src"
   })],
@@ -27,9 +30,14 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      formats: ["es", "cjs"],
-      fileName: format => `index.${format === "es" ? "es" : "cjs"}.js`
+      // 다중 진입점 — 루트 배럴(.) + 훅 전용 서브패스(./hooks).
+      // 훅 진입점을 분리해 소비자가 useIsMobile 등만 쓸 때 무거운 UI(motion/floating)가
+      // 끌려오지 않게 한다. preserveModules와 함께 컴포넌트별 개별 트리셰이킹도 가능해진다.
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        hooks: resolve(__dirname, "src/hooks/index.ts")
+      },
+      formats: ["es", "cjs"]
     },
     rollupOptions: {
       // react·motion·floating-ui는 peerDependency로 빼서 번들 비대화 방지.
@@ -48,12 +56,18 @@ export default defineConfig({
         /^date-fns($|\/)/
       ],
       output: {
+        // 모듈 구조 보존 — 컴포넌트/훅이 개별 파일로 남아 소비자 번들러가 쓰지 않는 것을
+        // 트리셰이킹할 수 있다. 단일 번들이면 useIsMobile만 import해도 전체가 평가됐다.
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].[format].js",
         globals: {
           react: "React",
           "react-dom": "ReactDOM"
         }
       }
     },
+    // CSS는 단일 파일 유지(소비자가 styles.css 한 줄만 import). 코드분할은 JS 모듈에만 적용.
     cssCodeSplit: false
   },
   test: {

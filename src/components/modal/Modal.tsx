@@ -8,6 +8,7 @@ import {
 
 import { overlayStack } from "@/lib/overlay-stack";
 import { Portal } from "@/lib/Portal";
+import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks";
 
 export interface ModalProps {
@@ -39,6 +40,12 @@ export interface ModalProps {
    * subView가 있으면 시트 높이가 자동으로 viewport 기준으로 강제된다 (콘텐츠 따라 자라지 않음).
    */
   subView?: React.ReactNode;
+  /**
+   * 시트(카드) 루트에 병합되는 클래스. 인스턴스별로 배경·여백 등을 덮을 때 쓴다.
+   * `cn`(tailwind-merge)으로 병합되어 같은 속성은 이 값이 이긴다. 백드롭에는 적용되지 않는다.
+   * 폭은 `widthPx`로 고정하는 것이 정책이므로 너비 클래스 대신 `widthPx`를 우선 쓸 것.
+   */
+  className?: string;
   children: React.ReactNode;
 }
 
@@ -69,6 +76,7 @@ export function Modal({
   footer,
   bodyPadded = false,
   subView,
+  className,
   children,
 }: ModalProps) {
   const isMobile = useIsMobile();
@@ -167,7 +175,10 @@ export function Modal({
             // spring 진입 오버슈트(0을 지나쳐 위로 들림)나 위로 드래그 시 시트 하단과 화면 바닥
             // 사이에 백드롭이 비치는 현상을 막기 위해, 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 콘텐츠는 그대로 두면서 바닥 틈을 항상 메운다.
-            className="fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800"
+            className={cn(
+              "fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
+              className,
+            )}
             style={
               !isMobile
                 ? {

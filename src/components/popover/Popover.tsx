@@ -13,6 +13,8 @@ import {
 } from "@floating-ui/react";
 import { motion, AnimatePresence } from "motion/react";
 
+import { cn } from "@/lib/utils";
+
 export interface PopoverProps {
   /**
    * 팝오버를 여는 트리거. **비대화형 노드(텍스트·아이콘·span 등)를 권장한다.**
@@ -30,6 +32,11 @@ export interface PopoverProps {
   placement?: "top" | "bottom" | "left" | "right";
   /** 열림/닫힘 변화 콜백. 호출처가 open 상태에 따라 폴링 등을 제어할 때 사용. */
   onOpenChange?: (open: boolean) => void;
+  /**
+   * 팝오버 카드(콘텐츠 박스)에 병합되는 클래스. 배경·패딩·폭 등을 덮을 때 쓴다.
+   * `cn`(tailwind-merge)으로 병합된다. 위치를 잡는 바깥 wrapper(floating-ui 제어)에는 적용 안 됨.
+   */
+  className?: string;
 }
 
 /**
@@ -58,6 +65,7 @@ export function Popover({
   content,
   placement = "bottom",
   onOpenChange,
+  className,
 }: PopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -121,7 +129,10 @@ export function Popover({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
-                className="bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-border-tertiary dark:border-border-secondary p-4 min-w-60 max-w-[320px]"
+                className={cn(
+                  "bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-border-tertiary dark:border-border-secondary p-4 min-w-60 max-w-[320px]",
+                  className,
+                )}
               >
                 {typeof content === "function" ? content(close) : content}
               </motion.div>

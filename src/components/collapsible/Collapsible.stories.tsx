@@ -98,7 +98,7 @@ export const 고급옵션: Story = {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-sm text-text-link"
+          className="text-sm text-primary-600"
         >
           {open ? "− 고급 옵션 숨기기" : "+ 고급 옵션"}
         </button>

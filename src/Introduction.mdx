@@ -31,19 +31,45 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 
 ---
 
-## 테마
+## 테마 / 스타일 커스터마이징
+
+색을 바꾸는 길은 두 가지이고, **목적에 따라 고른다.**
+
+### 전역 색 교체 — CSS Variable 토큰 오버라이드 (대부분 이걸로 충분)
 
 색은 2계층 토큰입니다 — 원시 토큰(oklch)을 시맨틱 토큰이 `var()`로 참조합니다.
-소비자는 `:root`에서 CSS Variable만 덮어쓰면 전체 테마가 바뀝니다.
+소비자가 `:root`에서 CSS Variable을 덮어쓰면 **그 토큰을 쓰는 모든 컴포넌트의 색이 한 번에** 바뀝니다.
+앱 전체를 자기 디자인 톤에 맞추려면 이 방법을 쓰세요(컴포넌트 코드를 만질 필요 없음).
 
 ```css
 :root {
-  --color-primary-500: oklch(0.6 0.2 260); /* 브랜드 색 교체 */
+  /* 원시 토큰 — 브랜드 색 계열 교체 */
+  --color-primary-500: oklch(0.6 0.2 260);
+
+  /* 시맨틱 토큰 — 배경·텍스트·보더를 직접 지정 (앱 톤 맞추기) */
+  --color-bg-white: oklch(0.16 0.01 260); /* 카드/시트 배경 */
+  --color-text-primary: oklch(0.95 0 0); /* 본문 텍스트 */
+  --color-border-tertiary: oklch(0.3 0.01 260); /* 옅은 구분선 */
 }
 .dark {
-  /* 다크 토큰도 같은 방식으로 오버라이드 */
+  /* 다크 토큰도 같은 이름으로 오버라이드 */
 }
 ```
+
+시맨틱 토큰 계열: `bg-*`(base-primary/secondary/tertiary·white·card·disabled) · `text-*`(primary/secondary/tertiary/disabled/inverse/danger) · `border-*` · `icon-*`. 전체 목록은 `src/styles/theme.css` 참고.
+
+### 인스턴스별 스타일 — `className` prop
+
+"같은 앱 안에서 **이 컴포넌트 하나만** 폭·여백·배경을 다르게"는 토큰으로는 안 됩니다.
+많은 컴포넌트가 `className`을 받아 루트에 병합하므로, 인스턴스 단위로 덮으세요.
+
+```tsx
+<Toolbar className="bg-slate-900" ... />
+<Table className="rounded-xl" ... />
+```
+
+> floating·고정 좌표 컴포넌트(Tooltip·DatePicker 등)는 위치가 깨질 수 있어 `className`을 열지 않습니다.
+> 그 경우에도 **색은 위의 토큰 오버라이드로** 바뀝니다.
 
 ---
 
