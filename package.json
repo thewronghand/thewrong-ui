@@ -1,6 +1,6 @@
 {
   "name": "@thewrong/ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "@thewronghand의 개인 프로젝트용 React UI 컴포넌트 라이브러리",
   "type": "module",
   "main": "dist/index.cjs.js",
