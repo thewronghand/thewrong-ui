@@ -26,7 +26,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - **전역 색 교체 = `:root` CSS Variable 토큰 오버라이드** (대부분 이걸로 충분, 코드 변경 0). 그 토큰을 쓰는 모든 컴포넌트가 한 번에 바뀐다.
   - 원시 토큰: `--color-primary-*`/`--color-secondary-*`(neutral)/`--color-error-*` (각 50~950).
   - 시맨틱 토큰: `--color-bg-*`(white·card·base-primary/secondary/tertiary·disabled) · `--color-text-*`(primary/secondary/tertiary/disabled/inverse/danger) · `--color-border-*` · `--color-icon-*`. 앱 톤 맞추기는 이걸 덮는다.
-- **인스턴스별 스타일 = `className` prop** (이 컴포넌트 하나만 폭·여백·배경 다르게). 많은 컴포넌트가 className을 받아 tailwind-merge로 병합.
+- **인스턴스별 스타일 = `className` prop** (이 컴포넌트 하나만 폭·여백·배경 다르게). 많은 컴포넌트가 className을 받아 tailwind-merge로 병합. 오버레이(Modal·Drawer·ActionToast·Popover)는 className이 백드롭이 아니라 **시트/카드**에 병합된다.
 - floating·고정좌표 컴포넌트(Tooltip·DatePicker 등)는 className 미개방(위치 깨짐 방지) — 색은 토큰 오버라이드로 바꾼다.
 
 ## 규칙 (consumer가 지킬 것)

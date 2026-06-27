@@ -8,6 +8,7 @@ import {
 
 import { overlayStack } from "@/lib/overlay-stack";
 import { Portal } from "@/lib/Portal";
+import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks";
 
 export interface DrawerProps {
@@ -16,6 +17,11 @@ export interface DrawerProps {
   title?: string;
   /** 데스크탑(sm+) 드로어 폭(px). 기본 480. 모바일은 무관 (바텀시트). */
   widthPx?: number;
+  /**
+   * 시트(패널) 루트에 병합되는 클래스. 인스턴스별로 배경·여백 등을 덮을 때 쓴다.
+   * `cn`(tailwind-merge)으로 병합되어 같은 속성은 이 값이 이긴다. 백드롭에는 적용되지 않는다.
+   */
+  className?: string;
   children: React.ReactNode;
 }
 
@@ -33,6 +39,7 @@ export function Drawer({
   onClose,
   title,
   widthPx = 480,
+  className,
   children,
 }: DrawerProps) {
   const isMobile = useIsMobile();
@@ -121,7 +128,10 @@ export function Drawer({
             onDragEnd={handleDragEnd}
             // 모바일 바텀시트 하단 틈 방지: 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 오버슈트/드래그 시에도 바닥 틈을 메운다. (Modal과 동일)
-            className="fixed z-50 flex flex-col overflow-x-hidden bg-bg-white dark:bg-neutral-800 -bottom-8 left-0 right-0 max-h-[88vh] w-full rounded-t-2xl pb-8 sm:bottom-0 sm:left-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-auto sm:rounded-none sm:pb-0"
+            className={cn(
+              "fixed z-50 flex flex-col overflow-x-hidden bg-bg-white dark:bg-neutral-800 -bottom-8 left-0 right-0 max-h-[88vh] w-full rounded-t-2xl pb-8 sm:bottom-0 sm:left-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-auto sm:rounded-none sm:pb-0",
+              className,
+            )}
             style={!isMobile ? desktopStyle : undefined}
           >
             <div
