@@ -144,3 +144,35 @@ export const 모바일_바텀시트: Story = {
     );
   },
 };
+
+export const 닫기_제한과_종료: Story = {
+  args: { open: false, onClose: () => {}, children: null },
+  parameters: story(
+    "dismissible=false에서는 외부 닫기 동작을 막고 내부 버튼으로 닫는다. 종료 모션이 끝나면 onExitComplete가 호출된다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [exits, setExits] = useState(0);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>닫기 제한 드로어 열기</Button>
+        <p>종료 모션 완료: {exits}회</p>
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          dismissible={false}
+          onExitComplete={() => setExits((count) => count + 1)}
+          title="직접 닫는 드로어"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <label>
+              입력
+              <input autoFocus className="border p-1" />
+            </label>
+            <Button onClick={() => setOpen(false)}>직접 닫기</Button>
+          </div>
+        </Drawer>
+      </>
+    );
+  },
+};

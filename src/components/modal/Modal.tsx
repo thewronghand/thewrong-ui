@@ -1,20 +1,25 @@
-import { useEffect, useId } from "react";
+import { useEffect, useId, useState } from "react";
 import {
   motion,
   AnimatePresence,
   useDragControls,
+  useReducedMotion,
   type PanInfo,
 } from "motion/react";
 
 import { overlayStack } from "@/lib/overlay-stack";
 import { Portal } from "@/lib/Portal";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks";
+import { useFocusTrap, useIsMobile, useScrollLock } from "@/hooks";
 
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
+  dismissible?: boolean;
+  /** 닫힘 모션이 끝난 뒤 호출한다. */
+  onExitComplete?: () => void;
   /**
    * 데스크탑(sm+) 모달의 고정 폭(px). 지정하지 않으면 콘텐츠 폭에 fit (`sm:w-auto`).
    *
@@ -72,6 +77,8 @@ export function Modal({
   isOpen,
   onClose,
   title,
+  dismissible = true,
+  onExitComplete,
   widthPx,
   footer,
   bodyPadded = false,
@@ -82,11 +89,14 @@ export function Modal({
   const isMobile = useIsMobile();
 
   const overlayId = useId();
+  const titleId = useId();
   const dragControls = useDragControls();
+  const prefersReducedMotion = useReducedMotion();
+  const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
 
   // 모바일 바텀시트 스와이프-다운 닫기. 100px 이상 끌거나 빠르게 튕기면 close.
   const handleDragEnd = (_: PointerEvent, info: PanInfo) => {
-    if (info.offset.y > 100 || info.velocity.y > 500) {
+    if (dismissible && (info.offset.y > 100 || info.velocity.y > 500)) {
       onClose();
     }
   };
@@ -94,26 +104,27 @@ export function Modal({
   useEffect(() => {
     if (!isOpen) return;
     overlayStack.push(overlayId);
-    document.body.style.overflow = "hidden";
     return () => {
       overlayStack.pop(overlayId);
-      // 마지막 오버레이가 닫혔을 때만 lock 해제. 레이어드 모달에서 안쪽 닫힐 때 바깥의 lock 유지.
-      if (overlayStack.isEmpty()) {
-        document.body.style.overflow = "";
-      }
     };
   }, [isOpen, overlayId]);
 
+  useScrollLock(isOpen);
+  useFocusTrap(sheet, {
+    enabled: isOpen,
+    canTrap: () => overlayStack.isTop(overlayId),
+  });
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || !dismissible) return;
       // 가장 위 오버레이만 처리. ActionToast가 떠 있으면 그게 top(priority)이라 자동으로 양보된다.
       if (!overlayStack.isTop(overlayId)) return;
       onClose();
     };
     if (isOpen) window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [isOpen, onClose, overlayId]);
+  }, [isOpen, onClose, overlayId, dismissible]);
 
   return (
     <Portal>
@@ -125,10 +136,10 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
             onClick={() => {
               // 자신이 top일 때만 닫힘. ActionToast/SubView가 위에 있으면 그쪽이 백드롭을 받는다.
-              if (!overlayStack.isTop(overlayId)) return;
+              if (!dismissible || !overlayStack.isTop(overlayId)) return;
               onClose();
             }}
             className="fixed inset-0 z-50 bg-black/50"
@@ -136,10 +147,15 @@ export function Modal({
         )}
       </AnimatePresence>
       {/* 시트 — AnimatePresence의 직접 자식이 motion.div여야 exit 동작 */}
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={onExitComplete}>
         {isOpen && (
           <motion.div
             key="modal-sheet"
+            ref={setSheet}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={title ? titleId : undefined}
+            tabIndex={-1}
             initial={
               isMobile ? { y: "100%" } : { opacity: 0, y: 24, scale: 0.96 }
             }
@@ -150,20 +166,25 @@ export function Modal({
               isMobile
                 ? {
                     y: "100%",
-                    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+                    transition: {
+                      duration: prefersReducedMotion ? 0 : 0.2,
+                      ease: [0.4, 0, 1, 1],
+                    },
                   }
                 : { opacity: 0, y: 24, scale: 0.96 }
             }
             transition={
-              isMobile
-                ? // damping을 임계감쇠 이상(>= 2*sqrt(stiffness) ≈ 35.8)으로 올려 오버슈트 제거.
-                  // 기존 damping 30은 과소감쇠라 진입 시 시트가 목표(y:0)를 지나쳐 위로 들렸다
-                  // 돌아오며 하단에 백드롭이 비쳤다. 38이면 오버슈트 없이 부드럽게 정착.
-                  { type: "spring", damping: 38, stiffness: 320 }
-                : { duration: 0.25, ease: [0.32, 0.72, 0, 1] }
+              prefersReducedMotion
+                ? { duration: 0 }
+                : isMobile
+                  ? // damping을 임계감쇠 이상(>= 2*sqrt(stiffness) ≈ 35.8)으로 올려 오버슈트 제거.
+                    // 기존 damping 30은 과소감쇠라 진입 시 시트가 목표(y:0)를 지나쳐 위로 들렸다
+                    // 돌아오며 하단에 백드롭이 비쳤다. 38이면 오버슈트 없이 부드럽게 정착.
+                    { type: "spring", damping: 38, stiffness: 320 }
+                  : { duration: 0.25, ease: [0.32, 0.72, 0, 1] }
             }
             // 모바일 한정 스와이프-다운 닫기. 데스크탑에선 translate -50%/-50% 정렬과 충돌하므로 비활성.
-            drag={isMobile ? "y" : false}
+            drag={isMobile && dismissible ? "y" : false}
             dragListener={false}
             dragControls={dragControls}
             // 위로는 못 끌게(top 0), 아래로만 elastic. dragElastic의 top을 0으로 둬도 motion이
@@ -191,20 +212,33 @@ export function Modal({
           >
             {/* 모바일 핸들 바 — 드래그-다운 닫기 트리거 */}
             <div
-              className="flex justify-center pt-2 pb-1 cursor-grab touch-none active:cursor-grabbing sm:hidden"
-              onPointerDown={(e) => dragControls.start(e)}
+              className={cn(
+                "flex justify-center pt-2 pb-1 cursor-grab touch-none active:cursor-grabbing sm:hidden",
+                !dismissible && "pointer-events-none opacity-0",
+              )}
+              onPointerDown={(e) => {
+                if (dismissible) dragControls.start(e);
+              }}
             >
               <div className="h-1 w-10 rounded-full bg-neutral-300 dark:bg-neutral-600" />
             </div>
 
             {title && (
               <div className="flex items-center justify-between px-4 py-3">
-                <h3 className="text-base font-semibold text-neutral-900 sm:text-lg dark:text-white">
+                <h3
+                  id={titleId}
+                  className="text-base font-semibold text-neutral-900 sm:text-lg dark:text-white"
+                >
                   {title}
                 </h3>
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="rounded p-1 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                  disabled={!dismissible}
+                  className={cn(
+                    "rounded p-1 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300",
+                    !dismissible && "pointer-events-none opacity-0",
+                  )}
                   aria-label="닫기"
                 >
                   <svg

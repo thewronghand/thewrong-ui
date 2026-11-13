@@ -555,3 +555,49 @@ export const 모바일_바텀시트: Story = {
     );
   },
 };
+
+export const 닫기_제한과_포커스: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "dismissible=false에서는 ESC·백드롭·닫기 버튼·드래그로 닫히지 않는다. 내부 버튼으로 닫으면 종료 모션 뒤 횟수가 늘어나고 열기 버튼에 포커스가 돌아간다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    const [exits, setExits] = useState(0);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>닫기 제한 모달 열기</Button>
+        <p>종료 모션 완료: {exits}회</p>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          dismissible={false}
+          onExitComplete={() => setExits((count) => count + 1)}
+          title="직접 닫는 모달"
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="서브뷰"
+            >
+              <label>
+                서브뷰 입력
+                <input className="border p-1" />
+              </label>
+            </ModalSubView>
+          }
+          footer={<Button onClick={() => setOpen(false)}>직접 닫기</Button>}
+        >
+          <div className="flex min-h-48 flex-col gap-3 p-4">
+            <label>
+              자동 포커스 입력
+              <input autoFocus className="border p-1" />
+            </label>
+            <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};

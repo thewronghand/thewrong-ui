@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { useEffect, useId, type ReactNode } from "react";
 
 import { overlayStack } from "@/lib/overlay-stack";
@@ -75,6 +75,7 @@ export function ModalSubView({
   children,
 }: ModalSubViewProps) {
   const overlayId = useId();
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!open) return;
@@ -145,7 +146,7 @@ export function ModalSubView({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
               onClick={onBack}
               className="absolute inset-0 bg-black/40"
             />
@@ -155,9 +156,16 @@ export function ModalSubView({
               animate={{ x: 0 }}
               exit={{
                 x: "100%",
-                transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+                transition: {
+                  duration: prefersReducedMotion ? 0 : 0.2,
+                  ease: [0.4, 0, 1, 1],
+                },
               }}
-              transition={{ type: "spring", damping: 30, stiffness: 320 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: "spring", damping: 30, stiffness: 320 }
+              }
               className="absolute right-0 top-0 bottom-0 flex w-[85%] max-w-md flex-col bg-bg-white shadow-xl dark:bg-neutral-800"
             >
               {header}
@@ -176,7 +184,10 @@ export function ModalSubView({
           initial={{ x: "100%" }}
           animate={{ x: 0 }}
           exit={{ x: "100%" }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.25,
+            ease: "easeOut",
+          }}
           className="absolute inset-0 z-10 flex flex-col bg-bg-white dark:bg-neutral-800"
         >
           {header}
