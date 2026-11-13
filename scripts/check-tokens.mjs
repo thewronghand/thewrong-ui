@@ -72,6 +72,9 @@ const cssSources = [
   join(ROOT, "node_modules/tailwindcss/theme.css"),
 ].map((f) => readFileSync(f, "utf8"));
 const definedVars = new Set();
+const defaultVars = new Set(
+  [...cssSources.at(-1).matchAll(/(--[a-z0-9-]+)\s*:/gi)].map((m) => m[1]),
+);
 for (const css of cssSources) {
   for (const m of css.matchAll(/(--[a-z0-9-]+)\s*:/gi)) definedVars.add(m[1]);
 }
@@ -220,6 +223,8 @@ const KEYWORDS = new Set([
   "none",
   "auto",
   "initial",
+  "white",
+  "black",
   // text
   "left",
   "center",
@@ -288,7 +293,7 @@ function normalizeUtil(raw) {
 }
 const ROLE = /(?:^|-)(?:control|slot|button|toast|table|surface|overlay|floating|tooltip|badge|sheet|chip|checkbox|input|focus|radio|spinner|icon|body|display)(?:-|$)/;
 const ROLE_UTIL = /^-?(?:h|w|size|min-h|min-w|max-h|max-w|p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|gap|gap-x|gap-y|space-x|space-y|inset|inset-x|inset-y|top|right|bottom|left|start|end|translate|translate-x|translate-y|font|leading|tracking)-(.+)$/;
-const MOTION_UTIL = /^(?:duration|delay|ease|opacity|animate)-(.+)$/;
+const MOTION_UTIL = /^(duration|delay|ease|opacity|animate)-(.+)$/;
 
 function isTokenCandidate(cls) {
   if (cls.includes("[") || cls.includes("(")) return false;
@@ -303,17 +308,24 @@ function isTokenCandidate(cls) {
       ))
   ) {
     const v = m[1];
-    return Boolean(v) && !KEYWORDS.has(v);
+    return Boolean(v) && !KEYWORDS.has(v) && !defaultVars.has(`--radius-${v}`);
   }
   if ((m = /^shadow-(.+)$/.exec(cls))) {
     const v = m[1];
-    return !KEYWORDS.has(v) && v !== "inner";
+    return (
+      !KEYWORDS.has(v) &&
+      v !== "inner" &&
+      !defaultVars.has(`--shadow-${v}`) &&
+      !defaultVars.has(`--color-${v}`)
+    );
   }
   if ((m = new RegExp(`^${COLOR_PREFIX}-(.+)$`).exec(cls))) {
     const v = m[1];
     if (
       KEYWORDS.has(v) ||
       /^\d+(\.\d+)?$/.test(v) ||
+      defaultVars.has(`--color-${v}`) ||
+      defaultVars.has(`--text-${v}`) ||
       /^(offset|opacity|spacing|gradient|linear|radial|conic|clip|origin|blend|position|size)(-|$)/.test(
         v,
       )
@@ -326,7 +338,15 @@ function isTokenCandidate(cls) {
     return true;
   }
   if ((m = ROLE_UTIL.exec(cls))) return ROLE.test(m[1]);
-  if ((m = MOTION_UTIL.exec(cls))) return !/^\d+(?:\.\d+)?$/.test(m[1]);
+  if ((m = MOTION_UTIL.exec(cls))) {
+    const [, prefix, value] = m;
+    return (
+      !/^\d+(?:\.\d+)?$/.test(value) &&
+      !KEYWORDS.has(value) &&
+      cls !== "ease-linear" &&
+      !defaultVars.has(`--${prefix}-${value}`)
+    );
+  }
   return false;
 }
 
