@@ -11,6 +11,7 @@ import { overlayStack } from "@/lib/overlay-stack";
 import { Portal } from "@/lib/Portal";
 import { cn } from "@/lib/utils";
 import { useFocusTrap, useIsMobile, useScrollLock } from "@/hooks";
+import { ModalFocusTrapContext } from "@/components/modal/ModalFocusTrapContext";
 
 export interface DrawerProps {
   open: boolean;
@@ -18,7 +19,12 @@ export interface DrawerProps {
   title?: string;
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
-  /** false면 Tab 가두기와 배경 포커스 복귀를 끈다. 초기 포커스와 닫힐 때 복원은 유지한다. @default true */
+  /**
+   * false면 Tab 가두기와 배경 포커스 복귀를 끈다. 초기 포커스와 닫힐 때의 복원 규칙은 유지한다 —
+   * 닫는 시점에 포커스가 시트·부유 레이어 안이거나 body이면 열기 직전 요소로 복원하고,
+   * 소비자가 배경의 다른 요소로 옮겨 둔 포커스는 그대로 둔다.
+   * 안에 둔 ModalSubView에도 같은 설정이 적용된다. @default true
+   */
   trapFocus?: boolean;
   /** 닫힘 모션이 끝난 뒤 호출한다. open을 false로 바꾸지 않고 컴포넌트를 언마운트하면 호출되지 않는다. */
   onExitComplete?: () => void;
@@ -103,7 +109,7 @@ export function Drawer({
     return () => window.removeEventListener("keydown", handleEsc);
   }, [open, onClose, overlayId, dismissible]);
 
-  return (
+  const content = (
     <Portal>
       <AnimatePresence>
         {open && (
@@ -219,5 +225,12 @@ export function Drawer({
         )}
       </AnimatePresence>
     </Portal>
+  );
+
+  // 안에 둔 ModalSubView가 드로어의 trapFocus 설정을 따르게 한다.
+  return (
+    <ModalFocusTrapContext.Provider value={trapFocus}>
+      {content}
+    </ModalFocusTrapContext.Provider>
   );
 }

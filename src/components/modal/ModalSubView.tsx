@@ -51,6 +51,10 @@ export interface ModalSubViewProps {
  * 들어가면 서브뷰 안에서만 스크롤이 생겨 부모와 높이가 어긋나 보인다. 긴 목록은 부모 모달 자체를
  * 그만큼 키우거나(`widthPx`/콘텐츠 양 조정), 별도 페이지/Drawer로 분리할 것.
  *
+ * **포커스**: 열리면 뒤로 가기 버튼에 포커스하고 닫히면 연 요소로 돌아간다. 열린 동안 Tab은
+ * 서브뷰와, 서브뷰가 덮지 않은 부모 시트 영역(헤더·footer 등)을 DOM 순서로 돈다. 덮인 본문으로는
+ * 가지 않는다 — 화면에 보이고 마우스로 누를 수 있는 요소는 키보드로도 닿아야 하기 때문이다.
+ *
  * **ESC 동작**: SubView가 열려있는 동안 ESC는 SubView의 `onBack`을 부르고 모달은 유지된다.
  * `overlayStack`을 push해 Modal보다 위 layer로 등록 — Modal의 ESC 핸들러는 자기가 top일 때만 실행.
  *
@@ -79,6 +83,7 @@ export function ModalSubView({
   const overlayId = useId();
   const prefersReducedMotion = useReducedMotion();
   const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
+  const [drawerRoot, setDrawerRoot] = useState<HTMLDivElement | null>(null);
   const trapFocus = useContext(ModalFocusTrapContext);
 
   useEffect(() => {
@@ -93,6 +98,8 @@ export function ModalSubView({
     enabled: open,
     trapFocus,
     canTrap: () => overlayStack.isTop(overlayId),
+    // 덮지 않은 부모 시트 영역(헤더·footer)은 Tab 고리에 남긴다.
+    cover: variant === "drawer" ? drawerRoot : sheet,
   });
 
   useEffect(() => {
@@ -150,7 +157,7 @@ export function ModalSubView({
     return (
       <AnimatePresence>
         {open && (
-          <div className="absolute inset-0 z-10">
+          <div ref={setDrawerRoot} className="absolute inset-0 z-10">
             <motion.div
               key="subview-drawer-backdrop"
               initial={{ opacity: 0 }}

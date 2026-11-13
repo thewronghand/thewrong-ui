@@ -20,7 +20,9 @@ export interface ModalProps {
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
   /**
-   * false면 Tab 가두기와 배경 포커스 복귀를 끈다. 초기 포커스와 닫힐 때 복원은 유지한다.
+   * false면 Tab 가두기와 배경 포커스 복귀를 끈다. 초기 포커스와 닫힐 때의 복원 규칙은 유지한다 —
+   * 닫는 시점에 포커스가 시트·부유 레이어 안이거나 body이면 열기 직전 요소로 복원하고,
+   * 소비자가 배경의 다른 요소로 옮겨 둔 포커스는 그대로 둔다.
    * ModalSubView에도 같은 설정이 적용된다. @default true
    */
   trapFocus?: boolean;

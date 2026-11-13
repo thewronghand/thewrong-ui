@@ -59,7 +59,11 @@ type MultiSelectSearchProps =
       searchable: true;
       /** 패널 검색 input placeholder. */
       searchPlaceholder?: string;
-      /** 외부 검색(서버) 콜백. 제공 시 클라이언트 필터를 끄고 입력만 외부에 전달. */
+      /**
+       * 외부 검색(서버) 콜백. 제공 시 클라이언트 필터를 끄고 입력만 외부에 전달.
+       * 마운트 시점에는 호출되지 않으며, 한 번 열렸다 닫힐 때 빈 문자열로 호출된다.
+       * 초기 옵션은 소비자가 직접 불러온다.
+       */
       onSearchChange?: (query: string) => void;
       /** 외부 검색 로딩 상태. 패널 검색 input 옆 LoadingDots. */
       isSearchLoading?: boolean;
@@ -78,8 +82,8 @@ type MultiSelectBaseProps = Omit<
   /** 트리거 추가 className. */
   className?: string;
   /**
-   * 드롭다운 패널 추가 className. 패널 폭은 인라인 maxWidth가
-   * `max(트리거 폭, min(가용 폭, 420px))`로 제한하므로 `max-w-*`/`min-w-*`로
+   * 드롭다운 패널 추가 className. 긴 라벨이 패널을 뷰포트 밖으로 밀어내지 않도록 인라인 maxWidth가
+   * 패널 폭을 `max(트리거 폭, min(가용 폭, 420px))`로 제한하므로 `max-w-*`/`min-w-*`로
    * 이 범위를 넘길 수 없다. 범위 안에서는 `w-*`로 지정하고, 더 큰 폭이 필요하면 트리거 폭을 조정한다.
    */
   panelClassName?: string;

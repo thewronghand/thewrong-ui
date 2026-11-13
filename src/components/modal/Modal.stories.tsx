@@ -697,7 +697,7 @@ export const 모달_위_모달: Story = {
   name: "모달 위 모달",
   args: { isOpen: false, onClose: () => {}, children: null },
   parameters: story(
-    "안쪽 모달의 Tab 순환과 각 모달을 닫은 뒤의 포커스 복원을 확인한다.",
+    "안쪽 모달의 Tab 순환과 각 모달을 닫은 뒤의 포커스 복원을 확인한다. 실제 화면에서는 모달 위 모달 대신 ModalSubView(푸시 네비)나 ActionToast(재확인)를 권장한다.",
   ),
   render: () => {
     const [outerOpen, setOuterOpen] = useState(false);

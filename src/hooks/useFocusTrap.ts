@@ -47,7 +47,8 @@ function getTabbableElements(
     .sort((a, b) => {
       const aOrder = tabIndex(a) > 0 ? tabIndex(a) : Infinity;
       const bOrder = tabIndex(b) > 0 ? tabIndex(b) : Infinity;
-      return aOrder - bOrder;
+      // Infinity - Infinity는 NaN이므로 같은 순서는 명시적으로 0을 돌려 DOM 순서를 유지한다.
+      return aOrder === bOrder ? 0 : aOrder - bOrder;
     });
 }
 
@@ -56,7 +57,10 @@ const MARKED_LAYER = "[data-focus-trap-layer]";
 const FOCUS_GUARD = "[data-floating-ui-focus-guard]";
 const MODAL_DIALOG = '[role="dialog"][aria-modal="true"]';
 
-function getFloatingLayers(container: HTMLElement): HTMLElement[] {
+function getFloatingLayers(
+  container: HTMLElement,
+  inScope: (element: Element) => boolean = () => true,
+): HTMLElement[] {
   const layers: HTMLElement[] = [];
   const roots: HTMLElement[] = [container];
 
@@ -71,6 +75,7 @@ function getFloatingLayers(container: HTMLElement): HTMLElement[] {
     for (const reference of root.querySelectorAll<HTMLElement>(
       "[aria-controls]",
     )) {
+      if (root === container && !inScope(reference)) continue;
       for (const id of (reference.getAttribute("aria-controls") ?? "").split(
         /\s+/,
       )) {
@@ -96,12 +101,14 @@ function getFloatingLayers(container: HTMLElement): HTMLElement[] {
 function getLayerTrigger(
   container: HTMLElement,
   layer: HTMLElement,
+  inScope: (element: Element) => boolean,
 ): HTMLElement | null {
-  const roots = [container, ...getFloatingLayers(container)];
+  const roots = [container, ...getFloatingLayers(container, inScope)];
   for (const root of roots) {
     for (const reference of root.querySelectorAll<HTMLElement>(
       "[aria-controls]",
     )) {
+      if (root === container && !inScope(reference)) continue;
       const ids = (reference.getAttribute("aria-controls") ?? "").split(/\s+/);
       if (
         ids.some(
@@ -125,17 +132,27 @@ function isFloatingLayer(element: Element): boolean {
   );
 }
 
+type TrapScope = { parent: HTMLElement; covered: HTMLElement } | null;
+
 /**
  * 열린 컨테이너 안에서 Tab 포커스를 순환하고 닫힐 때 이전 포커스를 복원한다.
  * Portal처럼 노드가 늦게 연결되면 `container`에 연결된 노드를 전달한다.
- * 이미 내부에 포커스가 있으면 유지하고, 대상이 없으면 컨테이너 자체에 포커스한다.
- * 열리면 첫 tabbable(제목과 활성 닫기 버튼이 있으면 닫기 버튼)에 포커스하며, 다른 필드는 `autoFocus`를 준다.
+ * 열리면 첫 tabbable에 포커스한다. 이미 내부에 포커스가 있으면 유지하고, 대상이 없으면 컨테이너 자체에 포커스한다.
  * `canTrap`은 중첩 오버레이에서 현재 트랩이 Tab을 처리할 수 있는지 판정한다.
- * `trapFocus`가 false여도 열릴 때의 초기 포커스와 닫힐 때의 이전 포커스 복원은 유지한다.
+ * 닫힐 때 포커스가 컨테이너·부유 레이어 안이거나 body이면 열기 직전 요소로 복원하고,
+ * 소비자가 배경의 다른 요소로 옮겨 둔 포커스는 그대로 둔다. `trapFocus`가 false여도
+ * 초기 포커스와 이 복원 규칙은 유지한다.
+ * `cover`는 부모 dialog 시트의 일부만 덮는 서브뷰용이다. 덮는 요소를 전달하면 Tab 고리는
+ * 부모 시트에서 덮인 영역을 뺀 나머지(헤더·footer 등)와 컨테이너를 DOM 순서로 잇는다.
+ * 덮인 영역은 `cover`의 offsetParent(없으면 부모 요소)로 판정한다 — 절대 위치로 덮는 범위가
+ * 곧 그 기준 요소이기 때문이다.
  * 부유 레이어는 `aria-controls`로 연결된 Floating UI 포털 또는 `data-focus-trap-layer`가
  * 붙은 포털만 인정한다. 연결을 알 수 없는 포털의 Tab은 컨테이너로 돌아오므로 해당 포털에
  * 표식을 붙이거나 `trapFocus: false`를 사용한다. 액션 토스트가 top이면 트랩은 양보한다.
  * 표식은 문서 전체에서 찾으므로 현재 트랩에 편입할 포털에만 붙인다.
+ * 포커스가 있던 레이어나 토스트가 사라져 포커스가 body로 유실되면 연결 트리거, 컨테이너에서
+ * 마지막으로 포커스됐던 요소, 컨테이너 첫 tabbable 순으로 되돌린다. 포커스 이동 도중에는
+ * 잠시 body가 활성 요소가 되므로, 복구는 다음 태스크에서도 body일 때만 한다.
  *
  * @example
  * const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
@@ -148,10 +165,12 @@ export function useFocusTrap(
     enabled,
     canTrap,
     trapFocus = true,
+    cover,
   }: {
     enabled: boolean;
     canTrap?: () => boolean;
     trapFocus?: boolean;
+    cover?: HTMLElement | null;
   },
 ) {
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -171,17 +190,18 @@ export function useFocusTrap(
   wasEnabledRef.current = enabled;
 
   useEffect(() => {
-    if (container) {
-      containerRef.current = container;
-      parentDialogRef.current =
-        container.parentElement?.closest<HTMLElement>(MODAL_DIALOG) ?? null;
-    }
+    // 컨테이너가 빠지면 함께 비워 분리된 시트 DOM을 다음 열림까지 쥐고 있지 않는다.
+    // 닫힘 복원은 enabled cleanup에서 먼저 끝나므로 그 뒤에 비워도 된다.
+    containerRef.current = container;
+    parentDialogRef.current =
+      container?.parentElement?.closest<HTMLElement>(MODAL_DIALOG) ?? null;
   }, [container]);
 
   useEffect(() => {
     if (!enabled) return;
     return () => {
       const previous = previousFocusRef.current;
+      previousFocusRef.current = null;
       const active = document.activeElement;
       const current = containerRef.current;
       if (
@@ -226,50 +246,86 @@ export function useFocusTrap(
   useEffect(() => {
     if (!enabled || !container || !trapFocus) return;
 
+    const parentDialog =
+      container.parentElement?.closest<HTMLElement>(MODAL_DIALOG) ?? null;
+    const getScope = (): TrapScope => {
+      if (!cover || !parentDialog?.isConnected || !parentDialog.contains(cover))
+        return null;
+      const offsetParent = cover.offsetParent;
+      const covered =
+        offsetParent instanceof HTMLElement && parentDialog.contains(offsetParent)
+          ? offsetParent
+          : cover.parentElement;
+      return covered ? { parent: parentDialog, covered } : null;
+    };
+    // 컨테이너 또는 부모 시트에서 덮이지 않은 영역이면 트랩 범위다.
+    const makeInScope = (scope: TrapScope) => (element: Element) =>
+      container.contains(element) ||
+      (!!scope &&
+        scope.parent.contains(element) &&
+        !scope.covered.contains(element));
+
     let lastContainerFocus =
-      container.contains(document.activeElement) &&
-      document.activeElement instanceof HTMLElement
+      document.activeElement instanceof HTMLElement &&
+      makeInScope(getScope())(document.activeElement)
         ? document.activeElement
         : null;
     let lostFocus: { element: HTMLElement; restore: HTMLElement | null } | null =
       null;
+    let restoreTimer: ReturnType<typeof setTimeout> | undefined;
+    const canFocus = (element: HTMLElement | null): element is HTMLElement =>
+      !!element &&
+      element.isConnected &&
+      !element.matches(":disabled") &&
+      element.getClientRects().length > 0;
     // 포커스된 레이어나 토스트가 제거되어 body로 유실된 경우만 복원한다.
     const observer = new MutationObserver(() => {
-      if (
-        lostFocus &&
-        !lostFocus.element.isConnected &&
-        document.activeElement === document.body &&
-        (!canTrapRef.current || canTrapRef.current())
-      ) {
-        const restore = lostFocus.restore;
-        lostFocus = null;
-        observer.disconnect();
+      if (!lostFocus || lostFocus.element.isConnected) return;
+      const restore = lostFocus.restore;
+      lostFocus = null;
+      observer.disconnect();
+      // focusout과 focusin 사이에는 activeElement가 잠시 body라 다음 태스크에서 다시 확인한다.
+      clearTimeout(restoreTimer);
+      restoreTimer = setTimeout(() => {
+        const active = document.activeElement;
         if (
-          restore?.isConnected &&
-          !restore.matches(":disabled") &&
-          restore.getClientRects().length
-        ) {
-          restore.focus({ preventScroll: true });
-        }
-      }
+          !container.isConnected ||
+          (active && active !== document.body && active.isConnected) ||
+          (canTrapRef.current && !canTrapRef.current())
+        )
+          return;
+        const fallback =
+          lastContainerFocus && makeInScope(getScope())(lastContainerFocus)
+            ? lastContainerFocus
+            : null;
+        const target = [restore, fallback].find(canFocus);
+        (target ?? getTabbableElements(container)[0] ?? container).focus({
+          preventScroll: true,
+        });
+      });
     });
     const handleFocusIn = (event: FocusEvent) => {
       const target = event.target;
-      if (!(target instanceof HTMLElement)) return;
-      if (container.contains(target)) {
+      // 다른 focusin 처리 중에 포커스가 다시 옮겨졌으면 이 이벤트는 지난 상태다.
+      if (!(target instanceof HTMLElement) || target !== document.activeElement)
+        return;
+      const scope = getScope();
+      const inScope = makeInScope(scope);
+      if (inScope(target)) {
         lastContainerFocus = target;
         lostFocus = null;
       } else if (target.closest("[data-ui-action-toast]")) {
         lostFocus = { element: target, restore: lastContainerFocus };
       } else {
-        const layer = getFloatingLayers(container).find((item) =>
+        const root = scope?.parent ?? container;
+        const layer = getFloatingLayers(root, inScope).find((item) =>
           item.contains(target),
         );
         lostFocus = layer
-          ? { element: target, restore: getLayerTrigger(container, layer) }
+          ? { element: target, restore: getLayerTrigger(root, layer, inScope) }
           : null;
       }
-      if (lostFocus?.restore) {
+      if (lostFocus) {
         observer.observe(document.body, { childList: true, subtree: true });
       } else {
         observer.disconnect();
@@ -278,12 +334,25 @@ export function useFocusTrap(
     document.addEventListener("focusin", handleFocusIn);
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Tab" || (canTrapRef.current && !canTrapRef.current()))
+      // 안쪽 위젯이 Tab을 직접 처리했거나 조합 키(Ctrl+Tab 등)면 관여하지 않는다.
+      if (
+        event.key !== "Tab" ||
+        event.defaultPrevented ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.metaKey ||
+        (canTrapRef.current && !canTrapRef.current())
+      )
         return;
 
       const active = document.activeElement;
-      const tabbables = getTabbableElements(container);
-      const layers = getFloatingLayers(container);
+      const scope = getScope();
+      const inScope = makeInScope(scope);
+      const root = scope?.parent ?? container;
+      const tabbables = scope
+        ? getTabbableElements(root).filter(inScope)
+        : getTabbableElements(container);
+      const layers = getFloatingLayers(root, inScope);
       const activeLayer = layers.find(
         (layer) => active && layer.contains(active),
       );
@@ -304,10 +373,24 @@ export function useFocusTrap(
       const first = ring[0];
       const last = ring[ring.length - 1];
 
+      // 덮인 영역이 고리 중간에 끼면 브라우저 기본 이동이 그리로 가므로 다음 범위 요소로 건너뛴다.
+      if (scope && active instanceof HTMLElement) {
+        const step = event.shiftKey ? -1 : 1;
+        const all = getTabbableElements(scope.parent);
+        const nativeNext = all[all.indexOf(active) + step];
+        const index = tabbables.indexOf(active);
+        const target = index >= 0 ? tabbables[index + step] : undefined;
+        if (target && nativeNext && !inScope(nativeNext)) {
+          event.preventDefault();
+          target.focus({ preventScroll: true });
+          return;
+        }
+      }
+
       if (!first || !last) {
         event.preventDefault();
         container.focus({ preventScroll: true });
-      } else if (!container.contains(active) && !activeLayer) {
+      } else if (!(active && inScope(active)) && !activeLayer) {
         event.preventDefault();
         (event.shiftKey ? last : first).focus({ preventScroll: true });
       } else {
@@ -333,6 +416,7 @@ export function useFocusTrap(
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocusIn);
       observer.disconnect();
+      clearTimeout(restoreTimer);
     };
-  }, [container, enabled, trapFocus]);
+  }, [container, enabled, trapFocus, cover]);
 }
