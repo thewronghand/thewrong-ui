@@ -1,0 +1,557 @@
+/*
+  2계층 — 시맨틱 토큰 (역할)
+  ============================
+  • 컴포넌트가 참조하는 유일한 토큰 계층. 프리미티브(--p-*)만 참조하고 hex를 직접 쓰지 않는다
+    (반투명 rgba처럼 프리미티브로 표현하지 않는 값은 예외).
+  • Tailwind v4 @theme — 변수명이 곧 유틸리티 이름이다.
+    --color-bg-surface → bg-bg-surface, --color-fg-default → text-fg-default,
+    --radius-control-medium → rounded-control-medium, --spacing-control-medium → h-control-medium.
+  • 테마 오버라이드: 소비자 CSS에서 이 변수들을 재선언한다. 프리미티브는 건드리지 않는다.
+  • 다크: 아래 `.dark` 블록이 시맨틱만 재정의한다. `.dark`는 임의 조상 요소에 붙여도 동작한다.
+
+  네이밍:
+    --color-{역할}           → 단독 역할 (예: --color-primary)
+    --color-{대분류}-{역할}  → 그룹 (예: --color-fg-default, --color-bg-surface)
+    --radius-{용도} / --shadow-{용도} / --text-{scale}
+
+  ⚠️ cn() 연동 — src/lib/utils.ts:
+    커스텀 유틸리티(rounded-control-*, h-control-*, z-* 등)를 tailwind-merge가 인식하려면
+    utils.ts의 extendTailwindMerge 그룹에 등록해야 한다. 여기에 유틸리티를 추가하면
+    utils.ts도 같이 고친다.
+*/
+
+@theme {
+  /* ── 브랜드 ─────────────────────────────────────────────────────────────── */
+
+  --color-primary: var(--p-color-violet-600); /* 버튼·링크 메인 색 */
+  --color-primary-hover: var(--p-color-violet-700);
+  --color-primary-active: var(--p-color-violet-800);
+  --color-primary-fg: var(
+    --p-color-violet-600
+  ); /* 틴트 배경 위 primary 텍스트 */
+  --color-primary-subtle: var(
+    --p-color-violet-50
+  ); /* 배경 틴트 (선택 상태 등) */
+  --color-primary-border: var(--p-color-violet-300);
+  /* 키보드 포커스 링 — filled primary와 surface 양쪽에서 3:1 이상. */
+  --color-focus-primary: var(--p-color-violet-400);
+  /* 약한 포커스 역할. 기본값은 full 링과 같다(AA 포커스 대비). */
+  --color-focus-primary-soft: var(--color-focus-primary);
+  --color-button-secondary-hover: color-mix(
+    in srgb,
+    var(--p-color-violet-300) var(--p-alpha-20),
+    transparent
+  );
+  --color-button-secondary-active: color-mix(
+    in srgb,
+    var(--p-color-violet-300) var(--p-alpha-30),
+    transparent
+  );
+  --color-icon-button-primary-active: color-mix(
+    in srgb,
+    var(--p-color-violet-50) var(--p-alpha-70),
+    transparent
+  );
+  --color-input-clear-ring: color-mix(
+    in srgb,
+    var(--p-color-violet-300) var(--p-alpha-40),
+    transparent
+  );
+
+  /* ── 전경(텍스트) ───────────────────────────────────────────────────────── */
+
+  --color-fg-default: var(--p-color-gray-800); /* 본문 */
+  /* 무채색 선택 배경(bg-muted) 위 강조 텍스트. [대비쌍] bg-subtle ↔ fg-accent */
+  --color-fg-accent: var(--p-color-violet-800);
+  --color-fg-muted: var(--p-color-gray-600); /* 보조 */
+  --color-fg-subtle: var(--p-color-gray-500); /* 힌트·플레이스홀더 */
+  --color-fg-disabled: var(--p-color-gray-500);
+  --color-fg-inverse: var(--p-color-white); /* 진한 배경 위 텍스트 */
+  --color-fg-danger: var(--p-color-rose-danger);
+  --color-fg-danger-placeholder: var(
+    --p-color-rose-600
+  ); /* white 위 AA 6.47:1 */
+
+  /* ── 배경(surface) ──────────────────────────────────────────────────────── */
+
+  --color-bg-page: var(--p-color-white); /* 페이지 최상위 */
+  --color-bg-surface: var(--p-color-white); /* 카드·모달·패널 */
+  --color-bg-subtle: var(--p-color-gray-100); /* 입력 배경·호버 트랙 */
+  /* surface와 subtle 사이의 가장 옅은 면 — 보더 없이 배경만으로 영역을 나눌 때. */
+  --color-bg-faint: var(--p-color-gray-50);
+  --color-bg-muted: var(--p-color-gray-200); /* 비활성·구분 배경 */
+  --color-bg-disabled: var(--p-color-gray-200);
+  --color-bg-radio-disabled-indicator: var(--p-color-gray-300);
+  --color-bg-overlay: rgba(0, 0, 0, 0.4); /* 모달 백드롭 */
+  /* 바텀시트·드로어·date-picker 공용 핸들 바. */
+  --color-bg-handle: var(--p-color-gray-300);
+
+  /* ── 경계선 ─────────────────────────────────────────────────────────────── */
+
+  --color-border-default: var(--p-color-gray-400);
+  --color-border-subtle: var(--p-color-gray-200);
+  --color-border-faint: var(--p-color-gray-100);
+  --color-border-disabled: var(
+    --p-color-black
+  ); /* 디자이너 의도 유지 — 의도된 값이다 */
+  --color-border-danger: var(--p-color-rose-danger);
+  /* danger 재시도·포커스 링. 오류 보더와 분리된 역할이며 값은 error-border를 따른다. */
+  --color-focus-danger: var(--color-error-border);
+  --color-border-primary: var(--p-color-violet-300); /* 선택·강조 보더 */
+
+  /* ── 아이콘 ─────────────────────────────────────────────────────────────── */
+  /* 아이콘은 텍스트보다 채도가 낮아도 읽히므로 fg-default보다 한 스텝 낮게. */
+  --color-icon-primary: var(--p-color-gray-700);
+  --color-icon-secondary: var(--p-color-gray-500);
+  --color-icon-tertiary: var(--p-color-gray-400);
+  --color-icon-disabled: var(--p-color-gray-300);
+  --color-icon-inverse: var(--p-color-white);
+
+  /* ── 상태 색 ────────────────────────────────────────────────────────────── */
+
+  --color-success: var(--p-color-green-label);
+  --color-error: var(--p-color-rose-danger);
+  --color-warning: var(--p-color-yellow-primary);
+  --color-info: var(--p-color-violet-600);
+
+  /* error 스케일 (danger 버튼 등) */
+  --color-error-hover: var(--p-color-rose-600);
+  --color-error-active: var(--p-color-rose-700);
+  --color-error-subtle: var(--p-color-rose-50); /* hover 배경 */
+  --color-error-surface: var(--p-color-rose-50); /* 정적 경고·오류 블록 배경 */
+  --color-error-muted: var(--p-color-rose-100);
+  --color-error-border: var(--p-color-rose-300);
+  --color-error-fg: var(--p-color-rose-600); /* Badge weak 텍스트 */
+
+  /* success 스케일 */
+  --color-success-subtle: var(--p-color-green-50);
+  --color-success-fg: var(--p-color-green-600);
+  --color-success-border: var(--p-color-green-300);
+
+  /* warning 스케일 */
+  --color-warning-subtle: var(--p-color-yellow-50);
+  --color-warning-fg: var(--p-color-yellow-600);
+  --color-warning-border: var(--p-color-yellow-300);
+
+  /* info 스케일 */
+  --color-info-subtle: var(--p-color-violet-50);
+  --color-info-fg: var(--p-color-violet-600);
+  --color-info-border: var(--p-color-violet-300);
+
+  /* neutral 스케일 (Badge secondary/neutral) */
+  --color-neutral-fill: var(--p-color-gray-500);
+  /* gray-50은 bg-page(white)에 묻혀 한 스텝 올린 gray-100을 쓴다. */
+  --color-neutral-subtle: var(--p-color-gray-100);
+  --color-neutral-fg: var(--p-color-gray-600);
+  --color-neutral-border: var(--p-color-gray-300);
+
+  /* ── 반경 (역할별) ──────────────────────────────────────────────────────── */
+  /* 컴포넌트는 raw rounded-md/lg/xl 대신 아래 역할 유틸리티를 쓴다. */
+
+  --radius-control-mini: var(--p-radius-1); /* 3px */
+  --radius-control-small: var(--p-radius-2); /* 5px */
+  --radius-control-medium: var(--p-radius-3); /* 7px */
+  --radius-control-large: var(--p-radius-3); /* 7px */
+
+  --radius-surface: var(--p-radius-2); /* 카드·모달·팝오버 (5px) */
+  --radius-badge: var(--p-radius-1); /* 뱃지·태그 (3px) */
+  --radius-chip: var(--p-radius-full);
+  --radius-circle: var(--p-radius-full); /* 원형 아이콘 버튼·상태 점 */
+  /* 체크박스 박스 (3px). 뱃지 정책 변경이 체크박스를 끌고 가지 않도록 역할을 분리한다. */
+  --radius-checkbox: var(--p-radius-1);
+  --radius-toast: var(--p-radius-3); /* 토스트 시트 (7px) */
+  --radius-sheet: var(--p-radius-3); /* 바텀시트 상단 (7px) */
+  --radius-tooltip: var(--p-radius-1); /* 툴팁 표면 (3px) */
+
+  /* ── 그림자 (역할별) ────────────────────────────────────────────────────── */
+  /*
+   * ⚠️ Tailwind v4 @theme flatten 우회 — 중간층 변수 패턴
+   *
+   * @theme 안에서 `--shadow-control: var(--p-shadow-sm)`처럼 쓰면 Tailwind가 빌드 때
+   * var()를 풀어 `.shadow-control { --tw-shadow: <값> }`으로 굳힌다. 그러면 .dark에서
+   * --shadow-control을 재정의해도 효과가 없다.
+   * 그래서 @theme 밖(:root)의 --shadow-*-src를 참조하게 한다. Tailwind는 @theme 밖 변수를
+   * 풀지 못하므로 var() 체인이 런타임까지 남고, .dark에서 -src만 바꾸면 다크 그림자가 된다.
+   */
+  --shadow-control: var(--shadow-control-src); /* 버튼·인풋 */
+  --shadow-surface: var(--shadow-surface-src); /* 카드 */
+  --shadow-overlay: var(--shadow-overlay-src); /* 모달·드롭다운 */
+  --shadow-tooltip: var(--shadow-tooltip-src);
+
+  /* ── 타이포그래피 — text-* 유틸리티를 px로 재정의 ───────────────────────── */
+
+  --text-xs: var(--p-text-xs);
+  --text-xs--line-height: var(--p-text-xs--line-height);
+  --text-sm: var(--p-text-sm);
+  --text-sm--line-height: var(--p-text-sm--line-height);
+  --text-base: var(--p-text-base);
+  --text-base--line-height: var(--p-text-base--line-height);
+  --text-lg: var(--p-text-lg);
+  --text-lg--line-height: var(--p-text-lg--line-height);
+  --text-xl: var(--p-text-xl);
+  --text-xl--line-height: var(--p-text-xl--line-height);
+  --text-2xl: var(--p-text-2xl);
+  --text-2xl--line-height: var(--p-text-2xl--line-height);
+  --text-3xl: var(--p-text-3xl);
+  --text-3xl--line-height: var(--p-text-3xl--line-height);
+  --text-4xl: var(--p-text-4xl);
+  --text-4xl--line-height: var(--p-text-4xl--line-height);
+  --text-5xl: var(--p-text-5xl);
+  --text-5xl--line-height: var(--p-text-5xl--line-height);
+
+  /* ── 폰트 역할 — 소비자는 family·weight 역할만 교체 ──────────────────── */
+
+  --font-body: var(--p-font-family-sans);
+  --font-display: var(--p-font-family-sans);
+  --font-control: var(--p-font-family-sans);
+  --font-weight-body-default: var(--p-font-weight-regular);
+  --font-weight-button: var(--p-font-weight-medium);
+  --font-weight-control-field: var(--p-font-weight-regular);
+  /* 테이블 "굵게" — bold(700)는 촘촘한 표에서 뭉개져 semibold를 쓴다. */
+  --font-weight-table-emphasis: var(--p-font-weight-semibold);
+
+  /* ── 토스트 (모드 불변 — 라이트/다크 모두 진한 회색 시트) ──────────────── */
+  /* 의도적으로 .dark 재정의가 없다. */
+
+  --color-bg-toast: var(--p-color-gray-700);
+  --color-fg-toast: var(--p-color-white);
+  --color-fg-toast-muted: rgba(255, 255, 255, 0.7); /* 닫기 버튼 기본 */
+  --color-fg-toast-hover: var(--p-color-white);
+  --color-bg-toast-backdrop: rgba(0, 0, 0, 0.15);
+  --color-border-toast: rgba(255, 255, 255, 0.12); /* 시트 내부 구분선 */
+  /* 어두운 시트 위 tone 아이콘 — 밝은 채도. */
+  --color-toast-tone-warning: var(--p-color-yellow-400);
+  --color-toast-tone-info: var(--p-color-violet-400);
+  --color-toast-tone-danger: var(--p-color-rose-300);
+  --color-toast-tone-success: var(--p-color-green-400);
+  /* 시트 안 tertiary filled 버튼 — 시트와 같은 색이 되는 문제 해소 */
+  --color-bg-toast-tertiary: rgba(255, 255, 255, 0.1);
+  --color-bg-toast-tertiary-hover: rgba(255, 255, 255, 0.15);
+  --color-bg-toast-tertiary-active: rgba(255, 255, 255, 0.2);
+
+  /* ── 툴팁 표면 ──────────────────────────────────────────────────────────── */
+  /* 라이트 gray-800 / 다크 gray-700. 텍스트는 모드 불변 white. */
+
+  --color-bg-tooltip: var(--p-color-gray-800);
+  --color-fg-tooltip: var(--p-color-white);
+  --color-bg-tooltip-badge: rgba(255, 255, 255, 0.14); /* 툴팁 위 뱃지 */
+
+  /* ── 테이블 표면 ────────────────────────────────────────────────────────── */
+
+  --color-bg-table-header: var(--p-color-gray-100);
+  --color-bg-table-row-even: var(--p-color-white);
+  --color-bg-table-row-odd: var(--p-color-gray-50);
+  --color-bg-table-row-hover: var(--p-color-gray-100);
+  --color-bg-table-row-selected: var(--p-color-violet-50);
+  --color-bg-table-row-selected-hover: var(--p-color-violet-100);
+  --color-border-table-cell: var(--p-color-gray-100);
+  --color-border-table-header: var(--p-color-gray-200);
+  --color-bg-table-row-plain: var(--p-color-white); /* 스트라이프 없는 행 */
+  --color-border-table-row-dashed: var(
+    --p-color-gray-200
+  ); /* plain 행 점선 구분 */
+
+  /* 테이블 비색상 — 세로 padding·폰트·굵기. 스코프 클래스(component-utils.css)가 재정의한다. */
+  --table-cell-pad-y: 4px;
+  --table-header-pad-y: 8px;
+  --table-cell-font: var(--p-text-sm);
+  --table-header-font: var(--table-cell-font);
+  --table-cell-font-weight: var(--font-weight-body-default);
+
+  /* ── 트랜지션 ───────────────────────────────────────────────────────────── */
+
+  --default-transition-duration: var(--p-duration-default);
+  --duration-fast: var(--p-duration-fast);
+  --duration-slow: var(--p-duration-slow);
+
+  /* ── 컨트롤 상태 역할 ───────────────────────────────────────────────────── */
+
+  --border-width-control: var(--p-border-width-thin);
+  --border-width-button: var(--p-border-width-strong);
+  --ring-width-control: var(--p-ring-width-control);
+  --ring-width-button: var(--p-ring-width-control);
+  --ring-width-input-clear: var(--p-ring-width-control);
+  --transition-duration-control: var(--p-duration-default);
+  --transition-duration-button: var(--p-duration-default);
+  /* 포커스가 오버레이에서 트리거로 돌아오는 사이 focus-within이 잠깐 끊겨 깜빡이는 것을 막는 지연. */
+  --transition-delay-focus-return: var(--p-duration-default);
+  --ease-control: var(--p-ease-out);
+  --ease-button: var(--p-ease-out);
+
+  --spacing-button-mini: var(--p-space-4);
+  --spacing-button-small: var(--p-space-6);
+  --spacing-button-medium: var(--p-space-8);
+  --spacing-button-large: var(--p-space-8);
+  --spacing-button-icon-mini: var(--p-size-14);
+  --spacing-button-icon-small: var(--p-size-16);
+  --spacing-button-icon-medium: var(--p-size-20);
+  --spacing-button-icon-large: var(--p-size-20);
+  /* 로딩 스피너 — 사이즈별로 아이콘 크기와 맞춘다. */
+  --spacing-button-spinner-mini: var(--p-size-14);
+  --spacing-button-spinner-small: var(--p-size-16);
+  --spacing-button-spinner-medium: var(--p-size-20);
+  --spacing-button-spinner-large: var(--p-size-20);
+
+  --opacity-button-spinner-track: var(--p-opacity-25);
+  --opacity-button-spinner-head: var(--p-opacity-75);
+  /* 로딩 중 라벨은 폭 예약용으로만 남기고 완전히 숨긴다(짧은 라벨이 스피너와 겹쳐 보임). */
+  --opacity-button-loading-label: var(--p-opacity-0);
+  --opacity-button-disabled: var(--p-opacity-60);
+  --opacity-icon-button-disabled: var(--p-opacity-40);
+  --animate-button-spinner: button-spinner var(--p-duration-spinner)
+    var(--p-ease-linear) infinite;
+
+  /*
+   * ── 폼 컨트롤 사이즈 ────────────────────────────────────────────────────
+   * 값은 직접 px — 전역 --spacing과 무관하게 컨트롤 크기만 따로 바꿀 수 있다.
+   *   --spacing-control-medium     → h-control-medium
+   *   --spacing-control-pad-medium → px-control-pad-medium
+   *   --spacing-slot-icon-medium   → h-slot-icon-medium / w-slot-icon-medium
+   *   --spacing-slot-medium        → gap-slot-medium
+   *   --text-control-medium        → text-control-medium
+   *   --text-slot-badge-medium     → text-slot-badge-medium
+   *
+   * | size   | height | px   | font       | 슬롯 아이콘 | 슬롯 gap | 배지 텍스트 |
+   * | mini   | 28px   | 8px  | 12px(xs)   | 14px        | 6px      | 10px        |
+   * | small  | 36px   | 12px | 14px(sm)   | 16px        | 8px      | 12px(xs)    |
+   * | medium | 44px   | 14px | 14px(sm)   | 18px        | 12px     | 12px(xs)    |
+   * | large  | 48px   | 20px | 16px(base) | 20px        | 14px     | 14px(sm)    |
+   */
+
+  --spacing-control-mini: 28px;
+  --spacing-control-small: 36px;
+  --spacing-control-medium: 44px;
+  --spacing-control-large: 48px;
+
+  --spacing-control-pad-mini: 8px;
+  --spacing-control-pad-small: 12px;
+  --spacing-control-pad-medium: 14px;
+  --spacing-control-pad-large: 20px;
+
+  --spacing-slot-icon-mini: 14px;
+  --spacing-slot-icon-small: 16px;
+  --spacing-slot-icon-medium: 18px;
+  --spacing-slot-icon-large: 20px;
+
+  --spacing-slot-mini: 6px;
+  --spacing-slot-small: 8px;
+  --spacing-slot-medium: 12px;
+  --spacing-slot-large: 14px;
+
+  --text-control-mini: var(--p-text-xs);
+  --text-control-mini--line-height: var(--p-text-xs--line-height);
+  --text-control-small: var(--p-text-sm);
+  --text-control-small--line-height: var(--p-text-sm--line-height);
+  --text-control-medium: var(--p-text-sm);
+  --text-control-medium--line-height: var(--p-text-sm--line-height);
+  --text-control-large: var(--p-text-base);
+  --text-control-large--line-height: var(--p-text-base--line-height);
+
+  /* 배지 텍스트 (mini만 10px — 스케일 밖 값이라 직접 선언) */
+  --text-slot-badge-mini: 10px;
+  --text-slot-badge-mini--line-height: 14px;
+  --text-slot-badge-small: var(--p-text-xs);
+  --text-slot-badge-small--line-height: var(--p-text-xs--line-height);
+  --text-slot-badge-medium: var(--p-text-xs);
+  --text-slot-badge-medium--line-height: var(--p-text-xs--line-height);
+  --text-slot-badge-large: var(--p-text-sm);
+  --text-slot-badge-large--line-height: var(--p-text-sm--line-height);
+}
+
+@utility font-body-default {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body-default);
+}
+
+@utility font-control-action {
+  font-family: var(--font-control);
+  font-weight: var(--font-weight-button);
+}
+
+@utility font-control-field {
+  font-family: var(--font-control);
+  font-weight: var(--font-weight-control-field);
+}
+
+@keyframes button-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --animate-button-spinner: none;
+  }
+}
+
+/* 그림자 중간층 — 위 @theme 그림자 주석 참조. .dark는 이 -src만 재정의한다. */
+:root {
+  --shadow-control-src: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* = --p-shadow-sm */
+  --shadow-surface-src: 0 2px 4px rgba(0, 0, 0, 0.08); /* = --p-shadow-e2 */
+  --shadow-overlay-src:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); /* = --p-shadow-lg */
+  --shadow-tooltip-src:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* = --p-shadow-md */
+}
+
+/*
+  ── z-index 계층 ────────────────────────────────────────────────────────────
+  overlay(모달·드로어·바텀시트) < toast-backdrop(액션 토스트 백드롭) < floating(select·popover·
+  tooltip·date-picker — 모달 위에서도 떠야 함) < toast(최상위).
+  toast > floating 순서를 DOM 순서가 아니라 값으로 보장한다. 같은 계층 안의 겹침은 DOM 순서.
+  컴포넌트 내부의 z-10/20 같은 로컬 스택은 이 정책과 무관하다.
+  Tailwind v4에 z-index 테마 네임스페이스가 없어 @utility로 만든다. 다크와 무관하다.
+*/
+:root {
+  --z-overlay: 50;
+  --z-toast-backdrop: 60;
+  --z-floating: 100;
+  --z-toast: 150;
+}
+
+@utility z-overlay {
+  z-index: var(--z-overlay);
+}
+@utility z-toast-backdrop {
+  z-index: var(--z-toast-backdrop);
+}
+@utility z-floating {
+  z-index: var(--z-floating);
+}
+@utility z-toast {
+  z-index: var(--z-toast);
+}
+
+/*
+  ── 다크 — 시맨틱 재매핑 ──────────────────────────────────────────────────
+  • 프리미티브는 그대로 두고 시맨틱만 다른 프리미티브로 다시 가리킨다.
+  • `.dark`는 임의 조상에 붙여도 동작한다. 여기서 재정의하는 변수는 그 요소에서 다시 계산되기
+    때문이다. 다른 시맨틱을 var()로 참조하는 시맨틱(focus-primary-soft, focus-danger,
+    bg-faint)은 :root에서 계산된 값이 상속되므로 여기서 같이 다시 선언한다.
+  • 컴포넌트에 dark: variant를 쓰지 않는다 — 토큰이 다크를 흡수한다.
+  • 범위: 색·그림자. 반경·크기·타이포·z는 다크와 무관하다.
+
+  대비쌍 (함께 뒤집혀야 한다):
+    bg-page(gray-900) ↔ fg-default(gray-100)
+    bg-surface(gray-800) ↔ fg-muted(gray-400)
+    bg-subtle(gray-700) ↔ fg-subtle(gray-300)
+    primary(violet-600) ↔ fg-inverse(white)
+    error-subtle(gray-700) ↔ error-fg(rose-300)
+    success/warning/neutral-subtle(gray-700) ↔ *-fg(400/400/300), info-subtle(violet-950) ↔ info-fg(violet-400)
+    border-default(gray-600) ↔ bg-page, border-subtle(gray-700) ↔ bg-surface, border-faint(gray-800) ↔ bg-subtle
+    bg-tooltip(gray-700) ↔ fg-tooltip(white)
+*/
+.dark {
+  /* 브라우저 기본 UI(스크롤바·autofill·date picker)도 다크 톤으로. */
+  color-scheme: dark;
+
+  /* 브랜드 — violet은 600부터 white 대비 AA라 라이트와 같은 상태 순서를 유지한다. */
+  --color-primary: var(--p-color-violet-600);
+  --color-primary-hover: var(--p-color-violet-700);
+  --color-primary-active: var(--p-color-violet-800);
+  --color-primary-fg: var(--p-color-violet-300);
+  --color-primary-subtle: var(--p-color-violet-950);
+  --color-primary-border: var(--p-color-violet-300);
+  --color-focus-primary: var(--p-color-gray-100);
+  --color-focus-primary-soft: var(--color-focus-primary);
+  --color-icon-button-primary-active: color-mix(
+    in srgb,
+    var(--p-color-violet-950) var(--p-alpha-70),
+    transparent
+  );
+
+  /* 전경 */
+  --color-fg-default: var(--p-color-gray-100);
+  --color-fg-accent: var(--p-color-violet-300);
+  --color-fg-muted: var(--p-color-gray-400);
+  --color-fg-subtle: var(--p-color-gray-300);
+  --color-fg-disabled: var(--p-color-gray-400);
+  --color-fg-inverse: var(--p-color-white);
+  --color-fg-danger: var(--p-color-rose-300);
+  --color-fg-danger-placeholder: var(--p-color-rose-300);
+
+  /* 배경 */
+  --color-bg-page: var(--p-color-gray-900);
+  --color-bg-surface: var(--p-color-gray-800);
+  --color-bg-subtle: var(--p-color-gray-700);
+  /* 다크 팔레트에는 surface와 subtle 사이 값이 없어 subtle을 그대로 가리킨다(역할은 다름). */
+  --color-bg-faint: var(--color-bg-subtle);
+  --color-bg-muted: var(--p-color-gray-600);
+  --color-bg-disabled: var(--p-color-gray-700);
+  --color-bg-radio-disabled-indicator: var(--p-color-gray-600);
+  --color-bg-overlay: rgba(0, 0, 0, 0.6);
+  --color-bg-handle: var(--p-color-gray-600);
+
+  /* 경계선 */
+  --color-border-default: var(--p-color-gray-600);
+  --color-border-subtle: var(--p-color-gray-700);
+  --color-border-faint: var(--p-color-gray-800);
+  --color-border-disabled: var(--p-color-white); /* 디자이너 의도 유지 */
+  --color-border-danger: var(--p-color-rose-danger);
+  --color-focus-danger: var(--color-error-border);
+  --color-border-primary: var(--p-color-violet-300);
+
+  /* 아이콘 */
+  --color-icon-primary: var(--p-color-gray-300);
+  --color-icon-secondary: var(--p-color-gray-400);
+  --color-icon-tertiary: var(--p-color-gray-300);
+  --color-icon-disabled: var(--p-color-gray-600);
+  --color-icon-inverse: var(--p-color-white);
+
+  /* 상태 색 */
+  --color-success: var(--p-color-green-label);
+  --color-error: var(--p-color-rose-danger);
+  --color-warning: var(--p-color-yellow-primary);
+  --color-info: var(--p-color-violet-500);
+
+  --color-error-hover: var(--p-color-rose-600);
+  --color-error-active: var(--p-color-rose-700);
+  --color-error-subtle: var(
+    --p-color-gray-700
+  ); /* rose-50은 다크에서 흰색처럼 보인다 */
+  --color-error-surface: var(--p-color-rose-950);
+  --color-error-muted: var(--p-color-gray-600);
+  --color-error-border: var(--p-color-rose-700);
+  --color-error-fg: var(--p-color-rose-300);
+
+  --color-success-subtle: var(--p-color-gray-700);
+  --color-success-fg: var(--p-color-green-400);
+  --color-success-border: var(--p-color-green-700);
+
+  --color-warning-subtle: var(--p-color-gray-700);
+  --color-warning-fg: var(--p-color-yellow-400);
+  --color-warning-border: var(--p-color-yellow-600);
+
+  --color-info-subtle: var(--p-color-violet-950);
+  --color-info-fg: var(--p-color-violet-400);
+  --color-info-border: var(--p-color-violet-700);
+
+  --color-neutral-fill: var(--p-color-gray-600);
+  --color-neutral-subtle: var(--p-color-gray-700);
+  --color-neutral-fg: var(--p-color-gray-300);
+  --color-neutral-border: var(--p-color-gray-600);
+
+  /* 툴팁 */
+  --color-bg-tooltip: var(--p-color-gray-700);
+
+  /* 테이블 */
+  --color-bg-table-header: var(--p-color-gray-800);
+  --color-bg-table-row-even: var(--p-color-gray-900);
+  --color-bg-table-row-odd: var(--p-color-gray-950);
+  --color-bg-table-row-hover: var(--p-color-gray-700);
+  --color-bg-table-row-selected: var(--p-color-violet-950);
+  --color-bg-table-row-selected-hover: var(--p-color-violet-900);
+  --color-border-table-cell: var(--p-color-gray-700);
+  --color-border-table-header: var(--p-color-gray-700);
+  --color-bg-table-row-plain: var(--p-color-gray-900);
+  --color-border-table-row-dashed: var(--p-color-gray-700);
+
+  /* 그림자 — 어두운 배경에서 보이도록 불투명도를 올린다. -src만 재정의한다. */
+  --shadow-control-src: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-surface-src: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-overlay-src:
+    0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-tooltip-src:
+    0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+}
