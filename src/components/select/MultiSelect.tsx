@@ -77,7 +77,11 @@ type MultiSelectBaseProps = Omit<
   onChange: (values: string[]) => void;
   /** 트리거 추가 className. */
   className?: string;
-  /** 드롭다운 패널 추가 className. */
+  /**
+   * 드롭다운 패널 추가 className. 패널 폭은 인라인 maxWidth가
+   * `max(트리거 폭, min(가용 폭, 420px))`로 제한하므로 `max-w-*`/`min-w-*`로
+   * 이 범위를 넘길 수 없다. 범위 안에서는 `w-*`로 지정하고, 더 큰 폭이 필요하면 트리거 폭을 조정한다.
+   */
   panelClassName?: string;
   /**
    * 트리거에 보여줄 풀 텍스트 포맷터. 기본은 라벨을 콤마로 연결.

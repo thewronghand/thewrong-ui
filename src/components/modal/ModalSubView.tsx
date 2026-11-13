@@ -1,7 +1,8 @@
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { useEffect, useId, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
+import { useFocusTrap } from "@/hooks";
 import { overlayStack } from "@/lib/overlay-stack";
 
 export interface ModalSubViewProps {
@@ -76,6 +77,7 @@ export function ModalSubView({
 }: ModalSubViewProps) {
   const overlayId = useId();
   const prefersReducedMotion = useReducedMotion();
+  const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -84,6 +86,11 @@ export function ModalSubView({
       overlayStack.pop(overlayId);
     };
   }, [open, overlayId]);
+
+  useFocusTrap(sheet, {
+    enabled: open,
+    canTrap: () => overlayStack.isTop(overlayId),
+  });
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -152,6 +159,8 @@ export function ModalSubView({
             />
             <motion.div
               key="subview-drawer-sheet"
+              ref={setSheet}
+              tabIndex={-1}
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{
@@ -181,6 +190,8 @@ export function ModalSubView({
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={setSheet}
+          tabIndex={-1}
           initial={{ x: "100%" }}
           animate={{ x: 0 }}
           exit={{ x: "100%" }}

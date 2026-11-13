@@ -1,5 +1,5 @@
 import { AlertTriangle, CircleX, Info } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   useEffect,
   useRef,
@@ -212,6 +212,7 @@ function ActionToastView({
   className,
 }: ActionToastViewProps) {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
 
   // 모바일에서 사이즈를 한 단계 다운: 텍스트/아이콘/버튼/패딩.
   const iconSizeClass = isMobile ? "h-4 w-4" : "h-4.5 w-4.5";
@@ -366,7 +367,7 @@ function ActionToastView({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: toastInstance.visible ? 1 : 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
             onClick={() => {
               toast.dismiss(toastInstance.id);
               setActionToastActive(false);
@@ -389,7 +390,7 @@ function ActionToastView({
             ? { opacity: 1, scale: 1 }
             : { opacity: 0, scale: 0.98 }
         }
-        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: [0.16, 1, 0.3, 1] }}
         // `dark` 클래스를 시트 자체에 박아, 내부 Input/Textarea/Button 같은 공용 컴포넌트가
         // 호스트 페이지의 라이트/다크 모드와 무관하게 항상 다크 톤으로 렌더되도록 강제.
         className={cn(

@@ -147,3 +147,43 @@ export const Searchable_클라이언트필터: Story = {
     );
   },
 };
+
+export const 긴_라벨: Story = {
+  name: "긴 라벨",
+  parameters: story("200px 트리거의 긴 라벨 말줄임과 패널의 420px 폭 상한을 확인한다."),
+  render: () => {
+    const [value, setValue] = useState("long");
+    const options: SelectOption[] = [
+      { value: "long", label: "길이가 매우 긴 선택 옵션 라벨로 패널 폭과 트리거의 말줄임을 확인합니다. ".repeat(4) },
+      { value: "short", label: "짧은 옵션" },
+    ];
+    return (
+      <div className="w-[200px]">
+        <Select variant="box" options={options} value={value} onChange={setValue} />
+      </div>
+    );
+  },
+};
+
+export const 좁은_컨테이너: Story = {
+  name: "좁은 컨테이너",
+  parameters: story("108px 컨테이너에서 검색형과 일반 트리거의 선택된 긴 라벨을 비교한다."),
+  render: () => {
+    const [searchValue, setSearchValue] = useState("long");
+    const [value, setValue] = useState("long");
+    const options: SelectOption[] = [
+      { value: "long", label: "아주 길게 표시되는 선택 항목" },
+      { value: "short", label: "짧은 항목" },
+    ];
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="w-[108px]">
+          <Select variant="box" searchable label="검색형" options={options} value={searchValue} onChange={setSearchValue} />
+        </div>
+        <div className="w-[108px]">
+          <Select variant="box" label="일반" options={options} value={value} onChange={setValue} />
+        </div>
+      </div>
+    );
+  },
+};

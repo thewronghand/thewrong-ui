@@ -94,7 +94,11 @@ type SelectBaseProps = Omit<
   value: string;
   /** 값 변경 콜백. clearable로 비울 때도 빈 문자열로 호출. */
   onChange: (value: string) => void;
-  /** 드롭다운 패널 추가 className. */
+  /**
+   * 드롭다운 패널 추가 className. 패널 폭은 인라인 maxWidth가
+   * `max(트리거 폭, min(가용 폭, 420px))`로 제한하므로 `max-w-*`/`min-w-*`로
+   * 이 범위를 넘길 수 없다. 범위 안에서는 `w-*`로 지정하고, 더 큰 폭이 필요하면 트리거 폭을 조정한다.
+   */
   panelClassName?: string;
   /** 트리거 추가 className. */
   className?: string;
@@ -519,7 +523,7 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
             placeholder={selectedOption ? searchPlaceholder : placeholder}
             onChange={handleSearchChange}
             onKeyDown={handleSearchKeyDown}
-            className={`min-w-0 flex-1 bg-transparent text-left outline-hidden ${fontSize} ${triggerTextColor} ${
+            className={`min-w-0 flex-1 truncate bg-transparent text-left outline-hidden ${fontSize} ${triggerTextColor} ${
               disabled ? "cursor-not-allowed" : ""
             } placeholder:text-text-tertiary`}
           />

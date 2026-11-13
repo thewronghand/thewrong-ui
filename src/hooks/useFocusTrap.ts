@@ -22,6 +22,7 @@ function getTabbableElements(container: HTMLElement): HTMLElement[] {
       return (
         element.tabIndex >= 0 &&
         !element.matches(":disabled") &&
+        !element.hasAttribute("data-floating-ui-focus-guard") &&
         !element.closest("[hidden], [inert], [aria-hidden='true']") &&
         style.visibility !== "hidden" &&
         style.visibility !== "collapse" &&
@@ -51,6 +52,7 @@ export function useFocusTrap(
   { enabled, canTrap }: { enabled: boolean; canTrap?: () => boolean },
 ) {
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
   const wasEnabledRef = useRef(false);
   const canTrapRef = useRef(canTrap);
   canTrapRef.current = canTrap;
@@ -65,10 +67,20 @@ export function useFocusTrap(
   wasEnabledRef.current = enabled;
 
   useEffect(() => {
+    if (container) containerRef.current = container;
+  }, [container]);
+
+  useEffect(() => {
     if (!enabled) return;
     return () => {
       const previous = previousFocusRef.current;
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
+      const active = document.activeElement;
+      if (
+        previous?.isConnected &&
+        (!active || active === document.body || containerRef.current?.contains(active))
+      ) {
+        previous.focus({ preventScroll: true });
+      }
     };
   }, [enabled]);
 
@@ -89,13 +101,17 @@ export function useFocusTrap(
       if (event.key !== "Tab" || (canTrapRef.current && !canTrapRef.current()))
         return;
 
+      const active = document.activeElement;
+      if (active && active !== document.body && !container.contains(active))
+        return;
+
       const tabbables = getTabbableElements(container);
       const first = tabbables[0];
       const last = tabbables[tabbables.length - 1];
       if (!first || !last) {
         event.preventDefault();
         container.focus({ preventScroll: true });
-      } else if (!container.contains(document.activeElement)) {
+      } else if (!container.contains(active)) {
         event.preventDefault();
         (event.shiftKey ? last : first).focus({ preventScroll: true });
       } else if (

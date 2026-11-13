@@ -6,6 +6,7 @@ import { ModalSubView } from "./ModalSubView";
 import { StandardModal } from "./StandardModal";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
+import { MultiSelect, Select } from "@/components/select";
 import { Switch } from "@/components/switch";
 import { AnimatedHeight } from "@/components/animated-height";
 import { showActionToast } from "@/components/action-toast";
@@ -595,6 +596,39 @@ export const 닫기_제한과_포커스: Story = {
               <input autoFocus className="border p-1" />
             </label>
             <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 모달_안_Select: Story = {
+  name: "모달 안 Select",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "모달에서 각 Select 패널을 연 뒤 Tab과 Shift+Tab으로 앞뒤 필드로 이동하고 모달 경계에서 순환한다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [country, setCountry] = useState("");
+    const [city, setCity] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
+    const options = [
+      { value: "seoul", label: "서울" },
+      { value: "busan", label: "부산" },
+      { value: "jeju", label: "제주" },
+    ];
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Select 폼 열기</Button>
+        <Modal isOpen={open} onClose={() => setOpen(false)} title="Select 폼" widthPx={420}>
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" label="이름" placeholder="이름 입력" />
+            <Select variant="box" label="지역" options={options} value={country} onChange={setCountry} />
+            <Select variant="box" label="검색 지역" searchable options={options} value={city} onChange={setCity} />
+            <MultiSelect variant="box" label="관심 지역" options={options} value={tags} onChange={setTags} />
+            <Button onClick={() => setOpen(false)}>저장</Button>
           </div>
         </Modal>
       </>

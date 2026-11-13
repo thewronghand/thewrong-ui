@@ -18,7 +18,7 @@ export interface ModalProps {
   title?: string;
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
-  /** 닫힘 모션이 끝난 뒤 호출한다. */
+  /** 닫힘 모션이 끝난 뒤 호출한다. isOpen을 false로 바꾸지 않고 컴포넌트를 언마운트하면 호출되지 않는다. */
   onExitComplete?: () => void;
   /**
    * 데스크탑(sm+) 모달의 고정 폭(px). 지정하지 않으면 콘텐츠 폭에 fit (`sm:w-auto`).
