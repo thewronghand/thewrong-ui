@@ -563,7 +563,7 @@ export const 모바일_바텀시트: Story = {
 export const 닫기_제한과_포커스: Story = {
   args: { isOpen: false, onClose: () => {}, children: null },
   parameters: story(
-    "dismissible=false에서는 ESC·백드롭·닫기 버튼·드래그로 닫히지 않는다. 내부 버튼으로 닫으면 종료 모션 뒤 횟수가 늘어나고 열기 버튼에 포커스가 돌아간다.",
+    "dismissible=false에서는 ESC·백드롭·닫기 버튼·드래그로 닫히지 않는다. 내부 버튼으로 닫으면 종료 모션 뒤 횟수가 늘어나고 열기 버튼에 포커스가 돌아간다. 서브뷰가 열린 동안 Tab은 서브뷰와 보이는 헤더·footer를 돌고 덮인 본문은 건너뛴다.",
   ),
   render: () => {
     const [open, setOpen] = useState(false);

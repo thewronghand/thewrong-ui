@@ -6,4 +6,4 @@ export {
 } from "./useMediaQuery";
 export { useBottomSheetDrag } from "./useBottomSheetDrag";
 export { useScrollLock } from "./useScrollLock";
-export { useFocusTrap } from "./useFocusTrap";
+export { useFocusTrap, type UseFocusTrapOptions } from "./useFocusTrap";

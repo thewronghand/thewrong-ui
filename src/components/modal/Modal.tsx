@@ -85,7 +85,11 @@ export interface ModalProps {
  * **포커스 트랩**: `aria-controls`로 연결된 Floating UI 포털 또는 `data-focus-trap-layer`가
  * 붙은 포털만 부유 레이어로 인정한다. 연결을 알 수 없는 포털의 Tab은 모달로 돌아오므로
  * 해당 포털에 표식을 붙이거나 `trapFocus={false}`를 사용한다. 표식은 문서 전체에서 찾으므로
- * 현재 트랩에 편입할 포털에만 붙인다. 액션 토스트가 top이면 트랩은 양보한다.
+ * 현재 트랩에 편입할 포털에만 붙인다. `role="dialog"` + `aria-modal="true"`인 포털(서드파티
+ * 다이얼로그 등)은 표식이 있어도 편입하지 않으므로 `trapFocus={false}`를 사용한다.
+ * 액션 토스트가 top이면 트랩은 양보하며, 그동안에는 Tab이 모달 밖으로 나갈 수 있다
+ * (`backdrop: false` 알림성 토스트 포함). Tab으로 모달 밖에 떨어진 포커스는 고리로 되돌리고,
+ * 마우스로 옮긴 포커스는 건드리지 않는다.
  */
 export function Modal({
   isOpen,
