@@ -41,7 +41,7 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 ## 테마 · 토큰
 
 - **층**: 프리미티브(`--p-*`, 원료 — 직접 쓰지 않는다) → 시맨틱(`--color-bg-surface`, `--radius-control-medium` 같은 역할). 변수명이 곧 Tailwind 유틸 이름이다(`bg-bg-surface`, `rounded-control-medium`).
-- **다크**: 조상 요소에 `.dark` 클래스를 붙이면 된다(`<html>`이 아니어도 동작). OS 설정을 따르지 않는다.
+- **다크**: 시맨틱 토큰은 조상 요소의 `.dark`를 따른다. Modal·Drawer·Tooltip·Popover·Select·DatePicker 등 body로 portal되는 컴포넌트까지 다크로 표시하려면 `<html>` 또는 `<body>`에 붙인다. `styles.css`의 `dark:` 유틸도 `.dark`를 따르며 OS 설정은 따르지 않는다.
 - **오버라이드**: 시맨틱 변수를 덮는다.
 
 ```css
@@ -58,9 +58,12 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 ```css
 @import "tailwindcss";
 @import "@thewrong/ui/tokens.css"; /* bg-bg-surface, rounded-control-medium, z-floating … 생성 */
+@custom-variant dark (&:where(.dark, .dark *)); /* 소비자 dark:도 .dark를 따르게 할 때 */
 ```
 
-`styles.css`(컴파일본)와 별개다. 컴포넌트를 쓰려면 `styles.css`도 그대로 import한다.
+컴포넌트의 토큰 치환(3단계) 전에는 `tokens.css`를 컴파일한 소비자 CSS를 `styles.css`보다 나중에 로드하지 않는다. 겹치는 변수와 `color-scheme`이 현재 컴포넌트의 색과 네이티브 컨트롤을 바꾸기 때문이다. 지금은 `styles.css`만 쓰거나 소비자 CSS를 `styles.css`보다 먼저 로드한다.
+
+`tokens.css`는 소비자의 variant를 강제하지 않으므로 `@custom-variant dark`를 포함하지 않는다. 위 선언이 없으면 소비자 Tailwind의 기본 `dark:`는 `prefers-color-scheme`을 따른다.
 
 > 지금 컴포넌트는 아직 옛 토큰 이름(`--color-primary-500`, `--color-text-primary`, `--color-bg-card` …)을 쓴다. 현재 컴포넌트 색을 바꾸려면 그 이름을 덮어야 한다. 옛 이름은 임시 별칭이며 컴포넌트를 새 토큰으로 옮긴 뒤 제거한다.
 

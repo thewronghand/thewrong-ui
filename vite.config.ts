@@ -35,7 +35,7 @@ export default defineConfig({
     // .d.ts는 산출물로 재방출하지 않되, 앰비언트 선언 파일(vite-env·css)은 dts 컴파일
     // 컨텍스트에 포함해야 import.meta.env / CSS side-effect import 타입이 해석된다.
     // (전체 *.d.ts를 빼면 그 참조가 끊겨 dts 빌드에서 경고가 난다.)
-    exclude: ["src/**/*.stories.tsx"],
+    exclude: ["src/**/*.stories.tsx", "src/**/*.test.ts"],
     // src/ 접두어를 떼고 dist 루트로 평탄화 → dist/index.d.ts (package.json "types"와 일치)
     entryRoot: "src"
   })],

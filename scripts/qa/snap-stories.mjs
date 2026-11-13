@@ -8,7 +8,7 @@
  * 사용:
  *   node scripts/qa/snap-stories.mjs --port 6108 --out <dir> \
  *     [--mode light|dark|both] [--viewport desktop|mobile|both] [--filter <substr>] \
- *     [--emulate-scheme] [--concurrency 4]
+ *     [--emulate-scheme] [--concurrency 4] [--allow-failures]
  *
  * 저장 위치: <out>/<mode>/<viewport>/<story-id>.png
  *   오버레이 계열(모달·드로어·토스트·셀렉트 패널 등)은 닫힌 상태만 찍히므로,
@@ -21,7 +21,8 @@
  * 안정화: prefers-reduced-motion: reduce 에뮬레이트, CSS transition·animation 정지,
  *   캐럿 숨김, 웹폰트 로드(document.fonts.ready) 대기 후 촬영.
  *
- * 실패한 스토리는 건너뛰고 <out>/failures-<mode>-<viewport>.json에 남긴다.
+ * 실패한 스토리는 건너뛰고 <out>/failures-<mode>-<viewport>.json에 남긴 뒤 종료 코드 1을
+ * 반환한다. 실패를 허용하려면 --allow-failures를 명시한다.
  *
  * 브라우저: 레포 playwright가 요구하는 빌드가 없으면
  *   ~/Library/Caches/ms-playwright/chromium_headless_shell-* 중 최신을 executablePath로 쓴다.
@@ -41,6 +42,7 @@ function parseArgs(argv) {
     filter: null,
     emulateScheme: false,
     concurrency: 4,
+    allowFailures: false,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -52,6 +54,7 @@ function parseArgs(argv) {
     else if (a === "--filter") args.filter = next();
     else if (a === "--emulate-scheme") args.emulateScheme = true;
     else if (a === "--concurrency") args.concurrency = Number(next());
+    else if (a === "--allow-failures") args.allowFailures = true;
     else throw new Error(`알 수 없는 인자: ${a}`);
   }
   if (!args.out) throw new Error("--out <dir> 필수");
@@ -249,6 +252,7 @@ async function main() {
   console.log(
     `[snap] 완료: 스토리 ${total}건 촬영, 실패 ${failedTotal}건 → ${args.out}`,
   );
+  if (failedTotal > 0 && !args.allowFailures) process.exitCode = 1;
 }
 
 main().catch((err) => {

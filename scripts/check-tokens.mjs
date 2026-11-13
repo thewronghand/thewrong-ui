@@ -10,13 +10,14 @@
  *   3. palette     — Tailwind 기본 팔레트(`bg-blue-500`)·white/black·hex 색 리터럴 (래칫)
  *   4. legacy      — 옛 토큰 클래스: 원시 스케일(`primary-500` 류), `neutral-N`,
  *                    옛 시맨틱(`text-text-*`, `bg-bg-card`, `border-border-primary` …) (래칫)
- *   5. undefined   — 색·radius·z·shadow 등 유틸이 가리키는 커스텀 프로퍼티가 CSS에 없음 (0이어야 통과)
+ *   5. undefined   — 토큰 유틸 후보를 Tailwind가 컴파일하지 못함 (0이어야 통과)
  *
  * 래칫: 1·3·4는 scripts/token-baseline.json의 파일별 카운트보다 늘면 실패한다.
  *   줄면 통과하고 기준선 갱신을 안내한다(`npm run check:tokens -- --update-baseline`).
  *   기준선에 없는 새 파일의 기준은 0이다.
+ *   기준선 갱신 때 카테고리별 전체 합계가 늘면 거부한다. 의도한 증가는 --force가 필요하다.
  *
- * 주석 제거: 문자열('…' "…" `…`) 밖의 `/* … *\/`와 `// …`를 공백으로 바꾼다(줄 수 유지).
+ * 주석 제거: JSX 텍스트와 문자열('…' "…" `…`) 밖의 주석을 공백으로 바꾼다(줄 수 유지).
  *   템플릿 리터럴의 `${}` 중첩은 따로 추적하지 않는다 — 클래스 문자열 검사에는 충분하다.
  *
  * 정규식 (variant 접두사 `hover:`·`md:` 등과 `!` 중요도 표기는 떼고 본다)
@@ -27,9 +28,10 @@
  *      #[0-9a-f]{3|4|6|8} (단어 경계)
  *   4. <색 접두사>-(primary|secondary|error|warning|success|info)-<50~950>,
  *      <색 접두사>-neutral-<50~950>, 옛 시맨틱 22개 이름
- *   5. 색 접두사 유틸의 값 v에 대해 --color-v, rounded-*의 --radius-v, shadow-*의 --shadow-v,
- *      text-*의 --color-v/--text-v, z-*의 @utility 정의가 src/styles/*.css 또는
- *      tailwindcss/theme.css에 없으면 위반. 키워드(transparent·none·숫자 등)와 임의값([…])은 제외.
+ *   5. 기존 색·rounded·shadow·z 유틸 및 역할 이름이 든 간격·크기·글꼴 유틸,
+ *      비숫자 모션·opacity 유틸을 후보로 모아 index.css를 Tailwind로 컴파일한다.
+ *      기본 키워드와 숫자, 임의값([…])은 제외한다. 클래스 문자열을 정적으로 추출하므로
+ *      동적으로 조합한 클래스와 역할 이름 자체의 오타는 찾지 못할 수 있다.
  *
  * 주의(3단계): 옛 시맨틱 중 border-primary·border-disabled·border-danger·bg-disabled·
  *   icon-primary/secondary/tertiary/disabled는 새 시맨틱과 이름이 같다(legacy.css 참조).
@@ -44,6 +46,8 @@ import {
 } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { compile } from "@tailwindcss/node";
+import ts from "typescript";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SCAN_DIRS = ["src/components", "src/hooks", "src/lib"];
@@ -68,11 +72,8 @@ const cssSources = [
   join(ROOT, "node_modules/tailwindcss/theme.css"),
 ].map((f) => readFileSync(f, "utf8"));
 const definedVars = new Set();
-const definedUtilities = new Set();
 for (const css of cssSources) {
   for (const m of css.matchAll(/(--[a-z0-9-]+)\s*:/gi)) definedVars.add(m[1]);
-  for (const m of css.matchAll(/@utility\s+([a-z0-9-]+)/gi))
-    definedUtilities.add(m[1]);
 }
 const PALETTE = [
   ...new Set(
@@ -143,11 +144,35 @@ const RE = {
 };
 
 // ── 주석 제거 ────────────────────────────────────────────────────────────────
-function stripComments(src) {
+function stripComments(src, file) {
+  // JSX 텍스트에서 따옴표나 //는 JS 문자열·주석의 시작이 아니다.
+  const jsxText = [];
+  if (file.endsWith(".tsx")) {
+    const tree = ts.createSourceFile(
+      file,
+      src,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TSX,
+    );
+    const visit = (node) => {
+      if (ts.isJsxText(node)) jsxText.push([node.pos, node.end]);
+      ts.forEachChild(node, visit);
+    };
+    visit(tree);
+  }
+  let jsxIndex = 0;
   let out = "";
   let i = 0;
   let quote = null;
   while (i < src.length) {
+    while (jsxText[jsxIndex]?.[1] <= i) jsxIndex++;
+    if (!quote && jsxText[jsxIndex]?.[0] === i) {
+      const end = jsxText[jsxIndex++][1];
+      out += src.slice(i, end);
+      i = end;
+      continue;
+    }
     const c = src[i];
     const n = src[i + 1];
     if (quote) {
@@ -248,22 +273,28 @@ function classTokens(src) {
   for (const piece of src.match(/[^\s"'`{}]+/g) ?? []) {
     if (piece.includes("[")) continue;
     for (const t of piece.split(/[(),;]+/)) {
-      if (/^!?(?:[a-z0-9-]+:)*!?[a-z][a-z0-9-]*(?:\/[0-9]+)?$/.test(t))
+      if (/^!?(?:[a-z0-9-]+:)*!?-?[a-z][a-z0-9-]*(?:\/[0-9]+)?!?$/.test(t))
         out.push(t);
     }
   }
   return out;
 }
-function isDefinedUtil(raw) {
-  const cls = raw
+function normalizeUtil(raw) {
+  return raw
     .replace(/^.*:/, "")
     .replace(/^!/, "")
+    .replace(/!$/, "")
     .replace(/\/[0-9]+$/, "");
-  if (cls.includes("[") || cls.includes("(")) return true;
+}
+const ROLE = /(?:^|-)(?:control|slot|button|toast|table|surface|overlay|floating|tooltip|badge|sheet|chip|checkbox|input|focus|radio|spinner|icon|body|display)(?:-|$)/;
+const ROLE_UTIL = /^-?(?:h|w|size|min-h|min-w|max-h|max-w|p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|gap|gap-x|gap-y|space-x|space-y|inset|inset-x|inset-y|top|right|bottom|left|start|end|translate|translate-x|translate-y|font|leading|tracking)-(.+)$/;
+const MOTION_UTIL = /^(?:duration|delay|ease|opacity|animate)-(.+)$/;
+
+function isTokenCandidate(cls) {
+  if (cls.includes("[") || cls.includes("(")) return false;
   let m;
   if ((m = /^z-(.+)$/.exec(cls))) {
-    if (/^\d+$/.test(m[1]) || m[1] === "auto") return true;
-    return definedUtilities.has(cls);
+    return !/^\d+$/.test(m[1]) && m[1] !== "auto";
   }
   if (
     (m =
@@ -272,13 +303,11 @@ function isDefinedUtil(raw) {
       ))
   ) {
     const v = m[1];
-    if (!v || KEYWORDS.has(v)) return true;
-    return definedVars.has(`--radius-${v}`);
+    return Boolean(v) && !KEYWORDS.has(v);
   }
   if ((m = /^shadow-(.+)$/.exec(cls))) {
     const v = m[1];
-    if (KEYWORDS.has(v) || v === "inner") return true;
-    return definedVars.has(`--shadow-${v}`) || definedVars.has(`--color-${v}`);
+    return !KEYWORDS.has(v) && v !== "inner";
   }
   if ((m = new RegExp(`^${COLOR_PREFIX}-(.+)$`).exec(cls))) {
     const v = m[1];
@@ -289,25 +318,16 @@ function isDefinedUtil(raw) {
         v,
       )
     )
-      return true;
-    if (/^(x|y)-\d+$/.test(v) || /^(x|y)-reverse$/.test(v)) return true;
+      return false;
+    if (/^(x|y)-\d+$/.test(v) || /^(x|y)-reverse$/.test(v)) return false;
     // border-b·border-t-2 같은 방향 폭 유틸 (접두사 정규식이 방향 문자를 값으로 잡은 경우)
     if (/^border$/.test(cls.slice(0, 6)) && /^[xytrblse](-\d+)?$/.test(v))
-      return true;
-    // text-* 크기, border/ring/outline 폭 역할, decoration 두께
-    if (
-      definedVars.has(`--color-${v}`) ||
-      definedVars.has(`--text-${v}`) ||
-      definedVars.has(`--border-width-${v}`) ||
-      definedVars.has(`--ring-width-${v}`) ||
-      definedVars.has(`--shadow-${v}`) ||
-      definedVars.has(`--inset-shadow-${v}`)
-    )
-      return true;
-    // fill-*·stroke-* 숫자 두께, text-wrap 등은 위 키워드로 처리됨
-    return false;
+      return false;
+    return true;
   }
-  return true;
+  if ((m = ROLE_UTIL.exec(cls))) return ROLE.test(m[1]);
+  if ((m = MOTION_UTIL.exec(cls))) return !/^\d+(?:\.\d+)?$/.test(m[1]);
+  return false;
 }
 
 // 이미 알려진 정의 없는 유틸 — 컴포넌트 치환(3단계)에서 고친다. 새로 추가하지 않는다.
@@ -338,24 +358,36 @@ const result = {
   undefined: {},
 };
 const examples = { primitive: [], undefined: [] };
+const candidates = [];
 for (const file of files) {
   const rel = relative(ROOT, file);
-  const src = stripComments(readFileSync(file, "utf8"));
+  const src = stripComments(readFileSync(file, "utf8"), file);
   for (const key of ["dark", "primitive", "palette", "legacy"]) {
     const hits = src.match(RE[key]) ?? [];
     if (hits.length) result[key][rel] = hits.length;
     if (key === "primitive")
       for (const h of hits) examples.primitive.push(`${rel}: ${h}`);
   }
-  let undef = 0;
   for (const token of classTokens(src)) {
     if (NOT_CLASS.has(token)) continue;
-    if (!isDefinedUtil(token) && !KNOWN_UNDEFINED.has(`${rel} ${token}`)) {
-      undef++;
-      examples.undefined.push(`${rel}: ${token}`);
-    }
+    const cls = normalizeUtil(token);
+    if (isTokenCandidate(cls) && !KNOWN_UNDEFINED.has(`${rel} ${token}`))
+      candidates.push({ rel, token, cls });
   }
-  if (undef) result.undefined[rel] = undef;
+}
+
+const cssPath = join(ROOT, "src/styles/index.css");
+const compiler = await compile(readFileSync(cssPath, "utf8"), {
+  base: dirname(cssPath),
+  onDependency: () => {},
+});
+const compiledCss = compiler.build([...new Set(candidates.map(({ cls }) => cls))]);
+for (const { rel, token, cls } of candidates) {
+  // 후보는 variant·중요도·불투명도를 떼어 단순 클래스 셀렉터로 컴파일한다.
+  if (!compiledCss.includes(`.${cls} {`)) {
+    result.undefined[rel] = (result.undefined[rel] ?? 0) + 1;
+    examples.undefined.push(`${rel}: ${token}`);
+  }
 }
 
 const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
@@ -375,8 +407,23 @@ for (const key of ZERO) {
 }
 
 if (updateBaseline) {
+  if (existsSync(BASELINE_PATH) && !process.argv.includes("--force")) {
+    const previous = JSON.parse(readFileSync(BASELINE_PATH, "utf8")).counts;
+    for (const key of RATCHET) {
+      const before = sum(previous[key] ?? {});
+      const after = sum(result[key]);
+      if (after > before) {
+        failed = true;
+        console.log(`\n✗ ${key} 전체 증가: ${before} → ${after} (갱신하려면 --force)`);
+      }
+    }
+  }
+  if (failed) {
+    console.log("\n[check:tokens] 실패 — 기준선을 갱신하지 않았다");
+    process.exit(1);
+  }
   const baseline = {
-    note: "check-tokens.mjs 래칫 기준선 — 파일별 카운트. 줄었을 때만 갱신한다.",
+    note: "check-tokens.mjs 래칫 기준선 — 파일별 카운트. 전체 합계 증가에는 --force가 필요하다.",
     counts: {},
   };
   for (const key of RATCHET) baseline.counts[key] = result[key];

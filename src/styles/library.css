@@ -6,3 +6,5 @@
 @source not "../**/*.stories.tsx";
 @source not "../**/*.mdx";
 @source not "../**/*.test.ts";
+/* cn 충돌 그룹 등록 문자열은 실제 컴포넌트의 클래스 사용처가 아니다. */
+@source not "../lib/utils.ts";
