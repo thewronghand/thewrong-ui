@@ -23,7 +23,7 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 ## 특징
 
 - **CSS 자체포함** — `styles.css` 한 줄이면 끝. Tailwind 설정 불필요.
-- **테마 오버라이드** — oklch 기반 2계층 토큰. `:root`에서 CSS Variable만 덮어쓰면 전체 테마가 바뀐다.
+- **토큰 2계층** — 프리미티브(`--p-*`) → 시맨틱(역할). 시맨틱 CSS Variable을 덮어쓰면 테마가 바뀐다. 다크는 `.dark` 클래스 하나.
 - **가벼운 코어** — 무거운 의존(motion, floating-ui, dnd-kit, react-virtual, date-fns, react-hot-toast)은 **optional peerDependency**. 해당 기능을 쓰는 컴포넌트만 그 패키지를 함께 설치하면 된다.
 - **React 19**, TypeScript, Vite(lib mode).
 
@@ -38,16 +38,31 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 | 레이아웃 | TablePageLayout · TableCard · Toolbar · PageTitle |
 | 모션/유틸 | AnimatedHeight · Collapsible · LoadingSpinner · cn |
 
-## 테마 오버라이드
+## 테마 · 토큰
+
+- **층**: 프리미티브(`--p-*`, 원료 — 직접 쓰지 않는다) → 시맨틱(`--color-bg-surface`, `--radius-control-medium` 같은 역할). 변수명이 곧 Tailwind 유틸 이름이다(`bg-bg-surface`, `rounded-control-medium`).
+- **다크**: 조상 요소에 `.dark` 클래스를 붙이면 된다(`<html>`이 아니어도 동작). OS 설정을 따르지 않는다.
+- **오버라이드**: 시맨틱 변수를 덮는다.
 
 ```css
 :root {
-  --color-primary-500: oklch(0.6 0.2 260); /* 브랜드 색 교체 */
+  --color-primary: #2563eb;
 }
 .dark {
-  /* 다크 토큰도 같은 방식으로 */
+  --color-bg-surface: #0b1220;
 }
 ```
+
+- **내 Tailwind에서 토큰 유틸 쓰기** (Tailwind v4):
+
+```css
+@import "tailwindcss";
+@import "@thewrong/ui/tokens.css"; /* bg-bg-surface, rounded-control-medium, z-floating … 생성 */
+```
+
+`styles.css`(컴파일본)와 별개다. 컴포넌트를 쓰려면 `styles.css`도 그대로 import한다.
+
+> 지금 컴포넌트는 아직 옛 토큰 이름(`--color-primary-500`, `--color-text-primary`, `--color-bg-card` …)을 쓴다. 현재 컴포넌트 색을 바꾸려면 그 이름을 덮어야 한다. 옛 이름은 임시 별칭이며 컴포넌트를 새 토큰으로 옮긴 뒤 제거한다.
 
 ## 개발
 
