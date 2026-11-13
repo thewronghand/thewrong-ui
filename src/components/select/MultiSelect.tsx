@@ -41,6 +41,7 @@ import {
 } from "@/components/input/utils";
 
 import { LoadingDots } from "./loading-dots";
+import { computeSelectPanelMaxWidth } from "./panel-width";
 import type { SelectCommonProps, SelectOption } from "./types";
 
 /**
@@ -169,15 +170,20 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
     const [isCollapsed, setIsCollapsed] = useState(false);
     const listRef = useRef<Array<HTMLElement | null>>([]);
     const searchInputRef = useRef<HTMLInputElement | null>(null);
+    const optionsScrollRef = useRef<HTMLDivElement | null>(null);
     const triggerTextRef = useRef<HTMLSpanElement | null>(null);
     const measureRef = useRef<HTMLSpanElement | null>(null);
     // a11y: aria-controls / aria-activedescendant 연결용 안정 ID.
     const listboxId = useId();
+    const generatedId = useId();
+    const triggerId = id ?? generatedId;
     const optionId = (index: number) => `${listboxId}-opt-${index}`;
     const activeOptionId =
       activeIndex !== null ? optionId(activeIndex) : undefined;
 
     const isExternalSearch = typeof onSearchChange === "function";
+    const onSearchChangeRef = useRef(onSearchChange);
+    onSearchChangeRef.current = onSearchChange;
 
     const filteredOptions = useMemo(() => {
       if (!searchable || isExternalSearch || searchQuery.length === 0)
@@ -202,9 +208,10 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
         flip({ padding: 8 }),
         shift({ padding: 8 }),
         floatingSize({
-          apply({ rects, elements, availableHeight }) {
+          apply({ rects, elements, availableHeight, availableWidth }) {
             Object.assign(elements.floating.style, {
               minWidth: `${rects.reference.width}px`,
+              maxWidth: `${computeSelectPanelMaxWidth(rects.reference.width, availableWidth)}px`,
               maxHeight: `${Math.min(availableHeight, 320)}px`,
             });
           },
@@ -227,13 +234,17 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
     const { getReferenceProps, getFloatingProps, getItemProps } =
       useInteractions([click, dismiss, role, listNav]);
 
+    const hasOpenedOnceRef = useRef(false);
+
     useEffect(() => {
-      if (!isOpen) {
+      if (isOpen) {
+        hasOpenedOnceRef.current = true;
+      } else {
         setSearchQuery("");
         setActiveIndex(null);
-        if (isExternalSearch) onSearchChange("");
+        if (hasOpenedOnceRef.current) onSearchChangeRef.current?.("");
       }
-    }, [isOpen, isExternalSearch, onSearchChange]);
+    }, [isOpen]);
 
     useEffect(() => {
       if (isOpen && searchable && searchInputRef.current) {
@@ -329,8 +340,12 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const next = e.target.value;
+      if (next !== searchQuery) {
+        if (optionsScrollRef.current) optionsScrollRef.current.scrollTop = 0;
+        setActiveIndex(null);
+      }
       setSearchQuery(next);
-      if (isExternalSearch) onSearchChange(next);
+      onSearchChangeRef.current?.(next);
     };
 
     // searchable 모드의 검색 input 키 처리. ArrowUp/Down은 floating-ui useListNavigation(virtual)이
@@ -390,7 +405,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
     return (
       <div
         ref={containerRef}
-        className={getInputContainerClasses()}
+        className={`${getInputContainerClasses()} min-w-0`}
         {...containerProps}
       >
         {/* 측정 전용 hidden span — 풀 텍스트의 자연 폭을 얻기 위해 nowrap + visibility:hidden.
@@ -408,7 +423,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
         {showLabel && label && (
           <label
             className={getInputLabelClasses(variant, hasError)}
-            htmlFor={id}
+            htmlFor={triggerId}
           >
             {label}
           </label>
@@ -420,7 +435,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
             else if (ref)
               (ref as React.RefObject<HTMLButtonElement | null>).current = node;
           }}
-          id={id}
+          id={triggerId}
           type="button"
           disabled={disabled}
           aria-haspopup="listbox"
@@ -429,7 +444,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
           aria-activedescendant={activeOptionId}
           data-testid={testId}
           {...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
-          className={`${variantClasses} flex w-full items-center ${slotGap} ${
+          className={`${variantClasses} flex w-full min-w-0 items-center ${slotGap} ${
             disabled ? "cursor-not-allowed" : "cursor-pointer"
           } ${className}`
             .trim()
@@ -437,7 +452,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
         >
           <span
             ref={triggerTextRef}
-            className={`flex-1 truncate text-left ${fontSize} ${triggerTextColor}`}
+            className={`min-w-0 flex-1 truncate text-left ${fontSize} ${triggerTextColor}`}
           >
             {triggerText}
           </span>
@@ -535,7 +550,10 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                     </span>
                   </button>
                 )}
-                <div className="max-h-72 overflow-y-auto py-1">
+                <div
+                  ref={optionsScrollRef}
+                  className="max-h-72 overflow-y-auto py-1"
+                >
                   {filteredOptions.length === 0 ? (
                     <div className="px-3 py-4 text-center text-sm text-text-tertiary">
                       {isSearchLoading ? "검색 중..." : "옵션이 없어요"}
