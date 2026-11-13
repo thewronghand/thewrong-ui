@@ -7,7 +7,8 @@
  * dirA 기준으로 하위 경로가 같은 PNG끼리 비교한다(재귀). 출력:
  *   - 달라진 파일과 달라진 픽셀 수·채널별 최대 차이(크기가 다르면 크기 차이로 보고)
  *   - 한쪽에만 있는 파일
- * --out을 주면 차이가 있는 파일마다 차이 픽셀을 빨갛게 칠한 PNG를 저장한다.
+ * --out을 주면 기존 차이 PNG를 지운 뒤 차이 픽셀을 빨갛게 칠한 PNG를 저장한다.
+ * 출력 폴더는 비교 대상과 겹칠 수 없고, 기존 파일 삭제 시 심볼릭 링크를 따라가지 않는다.
  *
  * 비교 기준: RGBA 네 채널이 하나라도 다르면 다른 픽셀.
  * 전체 채널의 최대 차이가 tolerance 이하인 파일은 흔들림으로 따로 집계한다(기본 0).
@@ -20,10 +21,12 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  realpathSync,
   statSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
 const require = createRequire(import.meta.url);
 const { PNG } = require("pngjs");
@@ -39,6 +42,20 @@ function listPngs(root) {
   };
   walk(root);
   return out.sort();
+}
+
+function containsPath(parent, child) {
+  const canonical = (dir) => existsSync(dir) ? realpathSync(dir) : resolve(dir);
+  const rel = relative(canonical(parent), canonical(child));
+  return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+}
+
+function removeOldDiffs(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const file = join(dir, entry.name);
+    if (entry.isDirectory()) removeOldDiffs(file);
+    else if (entry.isFile() && entry.name.endsWith(".png")) unlinkSync(file);
+  }
 }
 
 function compare(fileA, fileB) {
@@ -110,8 +127,13 @@ function main() {
     );
     process.exit(2);
   }
+  if (outDir && [dirA, dirB].some((dir) => containsPath(outDir, dir) || containsPath(dir, outDir))) {
+    console.error("--out은 비교 대상 폴더와 겹칠 수 없다.");
+    process.exit(2);
+  }
   const filesA = listPngs(dirA);
   const filesB = new Set(listPngs(dirB));
+  if (outDir && existsSync(outDir)) removeOldDiffs(outDir);
   const changed = [];
   const noise = [];
   const onlyA = [];

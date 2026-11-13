@@ -41,9 +41,7 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 프리미티브는 직접 쓰지 않고, 바꿀 때는 **시맨틱 변수**를 덮습니다. 시맨틱 변수명이 곧 Tailwind 유틸 이름입니다
 (`--color-bg-surface` → `bg-bg-surface`, `--radius-control-medium` → `rounded-control-medium`).
 주요 토큰 이름과 스와치는 **시작하기/토큰** 페이지에서 볼 수 있습니다.
-아래 예시는 별도 오버라이드 CSS에 두고 `styles.css` 뒤에 로드합니다. `:root`는 라이브러리의
-`@layer theme`보다 우선하므로 순서와 무관하지만, `.dark`는 같은 요소에서 `styles.css`의 레이어 밖
-`.dark`와 특이도가 같아 뒤에 로드해야 합니다.
+아래 예시는 별도 오버라이드 CSS에 두고 항상 `styles.css` 뒤에 로드하며, 다크 값은 `.dark` 블록에 따로 적습니다.
 
 ```css
 :root {
@@ -55,14 +53,14 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 ```
 
 **시맨틱 토큰은 조상 요소의 `.dark`를 따릅니다.** Modal·Drawer·Tooltip·Popover·Select·DatePicker 등
-`body`로 portal되는 컴포넌트까지 다크로 하려면 `<html>` 또는 `<body>`에 붙입니다.
+`body`로 portal되는 컴포넌트에도 적용하고 `:root` 오버라이드와 함께 쓰려면 `<html>`에 붙입니다.
+`<body>`에 붙여도 포털은 덮지만 `:root` 값이 body의 다크 선언보다 우선하지는 않습니다.
 `styles.css`의 `dark:` 유틸도 `.dark`를 따르며 OS 설정(`prefers-color-scheme`)은 따르지 않습니다.
 
 자기 앱의 Tailwind(v4)에서도 같은 토큰 유틸을 쓰려면 토큰 소스를 import합니다.
-컴포넌트 토큰 치환(3단계) 전에는 `tokens.css`를 컴파일한 소비자 CSS를 `styles.css`보다 나중에
-로드하지 않습니다. 겹치는 변수와 `color-scheme`이 현재 컴포넌트 색과 네이티브 컨트롤을 바꾸기 때문입니다.
-위 `.dark` 오버라이드는 이 소비자 CSS와 분리해 `styles.css` 뒤에 로드합니다.
-토큰 유틸을 사용하지 않는다면 `styles.css`와 별도 오버라이드 CSS만 로드해도 됩니다.
+컴포넌트 토큰 치환(3단계) 전에는 `tokens.css`를 컴파일한 소비자 CSS → `styles.css` → 별도 사용자
+오버라이드 CSS 순으로 로드합니다. 소비자 CSS가 뒤에 오면 겹치는 변수와 `color-scheme`이 현재 컴포넌트 색과
+네이티브 컨트롤을 바꾸기 때문입니다. 토큰 유틸을 사용하지 않는다면 `styles.css`와 별도 오버라이드 CSS만 이 순서로 로드해도 됩니다.
 
 ```css
 @import "tailwindcss";

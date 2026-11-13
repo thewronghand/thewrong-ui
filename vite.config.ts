@@ -90,7 +90,7 @@ export default defineConfig({
   },
   test: {
     projects: [{
-      // node 환경 단위 테스트 — src/**/*.test.ts (npm run test:unit)
+      // node 환경 단위 테스트 — src 및 스크립트 검사 (npm run test:unit)
       resolve: {
         alias: {
           "@": resolve(__dirname, "src")
@@ -99,7 +99,7 @@ export default defineConfig({
       test: {
         name: 'unit',
         environment: 'node',
-        include: ['src/**/*.test.ts']
+        include: ['src/**/*.test.ts', 'scripts/**/*.test.mjs']
       }
     }, {
       extends: true,

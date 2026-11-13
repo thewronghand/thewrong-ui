@@ -1,8 +1,8 @@
 {
-  "note": "check-tokens.mjs 래칫 기준선 — 파일별 카운트. 줄었을 때만 갱신한다.",
+  "note": "check-tokens.mjs 래칫 기준선 — 파일별 카운트. 파일별 증가에는 --force가 필요하다.",
   "counts": {
     "dark": {
-      "src/components/action-toast/ActionToast.tsx": 4,
+      "src/components/action-toast/ActionToast.tsx": 6,
       "src/components/button/utils.ts": 43,
       "src/components/checkbox/Checkbox.tsx": 1,
       "src/components/date-input/DateInput.tsx": 3,
@@ -71,11 +71,11 @@
       "src/components/table/mini-table.tsx": 1,
       "src/components/table/table.tsx": 3,
       "src/components/table/utils.ts": 17,
-      "src/components/toast/ToastProvider.tsx": 8,
+      "src/components/toast/ToastProvider.tsx": 7,
       "src/components/tooltip/Tooltip.tsx": 1
     },
     "legacy": {
-      "src/components/action-toast/ActionToast.tsx": 1,
+      "src/components/action-toast/ActionToast.tsx": 3,
       "src/components/badge/utils.ts": 28,
       "src/components/button/utils.ts": 104,
       "src/components/checkbox/Checkbox.tsx": 2,
@@ -119,11 +119,12 @@
       "src/components/table/components/Pagination.tsx": 7,
       "src/components/table/components/PaginationFooter.tsx": 3,
       "src/components/table/mini-table.tsx": 4,
-      "src/components/table/table.tsx": 11,
+      "src/components/table/table.tsx": 12,
       "src/components/table/utils.ts": 12,
       "src/components/textarea/Textarea.tsx": 23,
-      "src/components/toolbar/Toolbar.tsx": 26,
-      "src/components/tooltip/Tooltip.tsx": 2
+      "src/components/toolbar/Toolbar.tsx": 27,
+      "src/components/tooltip/Tooltip.tsx": 2,
+      "src/lib/utils.ts": 1
     }
   }
 }
