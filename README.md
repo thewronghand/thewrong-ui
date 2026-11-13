@@ -42,7 +42,7 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 
 - **층**: 프리미티브(`--p-*`, 원료 — 직접 쓰지 않는다) → 시맨틱(`--color-bg-surface`, `--radius-control-medium` 같은 역할). 변수명이 곧 Tailwind 유틸 이름이다(`bg-bg-surface`, `rounded-control-medium`).
 - **다크**: 시맨틱 토큰은 조상 요소의 `.dark`를 따른다. Modal·Drawer·Tooltip·Popover·Select·DatePicker 등 body로 portal되는 컴포넌트까지 다크로 표시하려면 `<html>` 또는 `<body>`에 붙인다. `styles.css`의 `dark:` 유틸도 `.dark`를 따르며 OS 설정은 따르지 않는다.
-- **오버라이드**: 시맨틱 변수를 덮는다.
+- **오버라이드**: 시맨틱 변수를 덮는다. 아래 예시는 별도 오버라이드 CSS에 두고 `styles.css` 뒤에 로드한다. `:root`는 라이브러리의 `@layer theme`보다 우선하므로 순서와 무관하지만, `.dark`는 같은 요소에서 `styles.css`의 레이어 밖 `.dark`와 특이도가 같아 뒤에 로드해야 한다.
 
 ```css
 :root {
@@ -61,7 +61,7 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 @custom-variant dark (&:where(.dark, .dark *)); /* 소비자 dark:도 .dark를 따르게 할 때 */
 ```
 
-컴포넌트의 토큰 치환(3단계) 전에는 `tokens.css`를 컴파일한 소비자 CSS를 `styles.css`보다 나중에 로드하지 않는다. 겹치는 변수와 `color-scheme`이 현재 컴포넌트의 색과 네이티브 컨트롤을 바꾸기 때문이다. 지금은 `styles.css`만 쓰거나 소비자 CSS를 `styles.css`보다 먼저 로드한다.
+컴포넌트의 토큰 치환(3단계) 전에는 `tokens.css`를 컴파일한 소비자 CSS를 `styles.css`보다 먼저 로드한다. 겹치는 변수와 `color-scheme`이 현재 컴포넌트의 색과 네이티브 컨트롤을 바꾸기 때문이다. 위 `.dark` 오버라이드는 이 소비자 CSS와 분리해 `styles.css` 뒤에 로드한다. 토큰 유틸을 사용하지 않는다면 `styles.css`와 별도 오버라이드 CSS만 로드해도 된다.
 
 `tokens.css`는 소비자의 variant를 강제하지 않으므로 `@custom-variant dark`를 포함하지 않는다. 위 선언이 없으면 소비자 Tailwind의 기본 `dark:`는 `prefers-color-scheme`을 따른다.
 

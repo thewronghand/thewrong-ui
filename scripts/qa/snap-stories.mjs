@@ -8,9 +8,10 @@
  * 사용:
  *   node scripts/qa/snap-stories.mjs --port 6108 --out <dir> \
  *     [--mode light|dark|both] [--viewport desktop|mobile|both] [--filter <substr>] \
- *     [--emulate-scheme] [--concurrency 4] [--allow-failures]
+ *     [--emulate-scheme] [--concurrency 4] [--allow-failures] [--keep]
  *
  * 저장 위치: <out>/<mode>/<viewport>/<story-id>.png
+ *   촬영 전 선택된 출력 폴더의 기존 PNG만 지운다. --keep을 주면 보존한다.
  *   오버레이 계열(모달·드로어·토스트·셀렉트 패널 등)은 닫힌 상태만 찍히므로,
  *   스토리 루트의 첫 버튼/트리거를 한 번 클릭한 열린 상태를 <story-id>-open.png로 추가 저장한다.
  *
@@ -29,7 +30,13 @@
  *   새로 내려받지 않는다.
  */
 import { chromium } from "playwright";
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -43,6 +50,7 @@ function parseArgs(argv) {
     emulateScheme: false,
     concurrency: 4,
     allowFailures: false,
+    keep: false,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -55,6 +63,7 @@ function parseArgs(argv) {
     else if (a === "--emulate-scheme") args.emulateScheme = true;
     else if (a === "--concurrency") args.concurrency = Number(next());
     else if (a === "--allow-failures") args.allowFailures = true;
+    else if (a === "--keep") args.keep = true;
     else throw new Error(`알 수 없는 인자: ${a}`);
   }
   if (!args.out) throw new Error("--out <dir> 필수");
@@ -178,6 +187,21 @@ async function snapOne(context, base, story, mode, outDir, isOverlay) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  const modes = args.mode === "both" ? ["light", "dark"] : [args.mode];
+  const viewports =
+    args.viewport === "both" ? ["desktop", "mobile"] : [args.viewport];
+  for (const mode of modes) {
+    for (const vp of viewports) {
+      const outDir = join(args.out, mode, vp);
+      mkdirSync(outDir, { recursive: true });
+      if (!args.keep) {
+        for (const entry of readdirSync(outDir, { withFileTypes: true })) {
+          if (entry.isFile() && entry.name.endsWith(".png"))
+            unlinkSync(join(outDir, entry.name));
+        }
+      }
+    }
+  }
   const base = `http://localhost:${args.port}`;
   const res = await fetch(`${base}/index.json`);
   if (!res.ok) throw new Error(`index.json 응답 ${res.status}`);
@@ -189,10 +213,6 @@ async function main() {
     );
   stories.sort((a, b) => a.id.localeCompare(b.id));
 
-  const modes = args.mode === "both" ? ["light", "dark"] : [args.mode];
-  const viewports =
-    args.viewport === "both" ? ["desktop", "mobile"] : [args.viewport];
-
   const browser = await launchBrowser();
   let total = 0;
   let failedTotal = 0;
@@ -200,7 +220,6 @@ async function main() {
     for (const mode of modes) {
       for (const vp of viewports) {
         const outDir = join(args.out, mode, vp);
-        mkdirSync(outDir, { recursive: true });
         const context = await browser.newContext({
           viewport: VIEWPORTS[vp],
           deviceScaleFactor: 1,

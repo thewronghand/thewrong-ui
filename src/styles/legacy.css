@@ -28,6 +28,7 @@
  * ── 새 .dark 블록이 바꾸는 속성 (지금은 되돌린다) ──────────────────────────────────
  *   color-scheme  새: .dark에서 dark(네이티브 체크박스·스크롤바·date picker가 다크 톤)
  *                 지금: normal 유지 — 기존 다크 화면의 네이티브 컨트롤이 바뀌지 않게
+ *                 같은 요소에 소비자가 `html { color-scheme: dark }`를 지정해도 덮어쓴다(legacy와 함께 제거).
  *
  * 옛 이름만 있고 새 시맨틱에 없는 것(text-*, bg-white, bg-card, bg-base-*, border-secondary/
  * tertiary, icon-danger, 원시 스케일)은 겹침이 없다. 새 대응은 3단계에서 정한다

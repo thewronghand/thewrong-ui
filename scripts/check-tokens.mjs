@@ -19,9 +19,10 @@
  *
  * 주석 제거: JSX 텍스트와 문자열('…' "…" `…`) 밖의 주석을 공백으로 바꾼다(줄 수 유지).
  *   템플릿 리터럴의 `${}` 중첩은 따로 추적하지 않는다 — 클래스 문자열 검사에는 충분하다.
+ *   정규식 리터럴은 따로 인식하지 않아 그 안의 따옴표·주석 표기에 영향을 받을 수 있다.
  *
- * 정규식 (variant 접두사 `hover:`·`md:` 등과 `!` 중요도 표기는 떼고 본다)
- *   유틸 토큰: 공백·따옴표·괄호·백틱으로 나뉜 조각 중 `[a-z-]+-…` 형태
+ * 유틸 후보는 대괄호·괄호 밖의 `:`로 variant와 실제 유틸을 나눈다.
+ *   중첩 대괄호와 그 안의 따옴표를 보존하고 `!` 중요도·숫자 불투명도는 떼고 본다.
  *   1. (?<![\w-])dark:
  *   2. --p-[a-z] 또는 <색 접두사>-p-[a-z]
  *   3. <색 접두사>-(<Tailwind 기본 팔레트 이름>)-<숫자>, <색 접두사>-(white|black),
@@ -30,8 +31,9 @@
  *      <색 접두사>-neutral-<50~950>, 옛 시맨틱 22개 이름
  *   5. 기존 색·rounded·shadow·z 유틸 및 역할 이름이 든 간격·크기·글꼴 유틸,
  *      비숫자 모션·opacity 유틸을 후보로 모아 index.css를 Tailwind로 컴파일한다.
- *      기본 키워드와 숫자, 임의값([…])은 제외한다. 클래스 문자열을 정적으로 추출하므로
+ *      기본 키워드와 숫자, 실제 유틸에 임의값([…])이 든 경우는 제외한다. 클래스 문자열을 정적으로 추출하므로
  *      동적으로 조합한 클래스와 역할 이름 자체의 오타는 찾지 못할 수 있다.
+ *      임의값의 hex와 옛 이름은 각각 palette·legacy 래칫에서 별도로 검사한다.
  *
  * 주의(3단계): 옛 시맨틱 중 border-primary·border-disabled·border-danger·bg-disabled·
  *   icon-primary/secondary/tertiary/disabled는 새 시맨틱과 이름이 같다(legacy.css 참조).
@@ -106,7 +108,7 @@ const PALETTE = [
 
 // ── 패턴 ─────────────────────────────────────────────────────────────────────
 const COLOR_PREFIX =
-  "(?:bg|text|border(?:-[xytrblse])?|ring|ring-offset|fill|stroke|outline|divide|from|via|to|shadow|inset-shadow|decoration|accent|caret|placeholder)";
+  "(?:ring-offset|inset-ring|inset-shadow|bg|text|border(?:-[xytrblse])?|ring|fill|stroke|outline|divide|from|via|to|shadow|decoration|accent|caret|placeholder)";
 const SCALE = "(?:50|100|200|300|400|500|600|700|800|900|950)";
 const LEGACY_SEMANTIC = [
   "text-primary",
@@ -271,22 +273,95 @@ const KEYWORDS = new Set([
   // radius
   "full",
 ]);
-// 공백·따옴표·중괄호로 자른 조각. 임의값(`[…]`)이 든 조각은 통째로 건너뛰고(쉼표가 든
-// `transition-[color,border-color]`를 쪼개지 않기 위해), 나머지는 괄호·쉼표로 한 번 더 자른다.
+// 대괄호·괄호 안의 구분자와 따옴표는 보존한다. 배열의 여는 대괄호는 조각을 나눈다.
 function classTokens(src) {
   const out = [];
-  for (const piece of src.match(/[^\s"'`{}]+/g) ?? []) {
-    if (piece.includes("[")) continue;
-    for (const t of piece.split(/[(),;]+/)) {
-      if (/^!?(?:[a-z0-9-]+:)*!?-?[a-z][a-z0-9-]*(?:\/[0-9]+)?!?$/.test(t))
-        out.push(t);
+  let piece = "";
+  const stack = [];
+  let quote = null;
+  let escapedQuote = false;
+  const flush = () => {
+    if (piece) out.push(piece);
+    piece = "";
+  };
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (quote) {
+      if (escapedQuote && c === "\\" && src[i + 1] === quote) {
+        piece += src[++i];
+        quote = null;
+        escapedQuote = false;
+      } else {
+        piece += c;
+        if (c === "\\" && i + 1 < src.length) piece += src[++i];
+        else if (c === quote) {
+          quote = null;
+          escapedQuote = false;
+        }
+      }
+    } else if (
+      stack.length &&
+      c === "\\" &&
+      /["'`]/.test(src[i + 1] ?? "")
+    ) {
+      quote = src[++i];
+      escapedQuote = true;
+      piece += quote;
+    } else if (stack.length && (c === '"' || c === "'" || c === "`")) {
+      quote = c;
+      piece += c;
+    } else if (
+      c === "[" &&
+      (stack.length ||
+        (piece && /[a-z0-9:!\]-]$/.test(piece)) ||
+        (!piece && !/[\s"'`\]]/.test(src[i + 1] ?? "")))
+    ) {
+      stack.push("]");
+      piece += c;
+    } else if (c === "(" && (stack.length || piece.endsWith("-"))) {
+      stack.push(")");
+      piece += c;
+    } else if (stack.length && c === stack.at(-1)) {
+      stack.pop();
+      piece += c;
+    } else if (!stack.length && /[\s"'`{}\[\](),;]/.test(c)) {
+      flush();
+    } else {
+      piece += c;
     }
   }
+  flush();
   return out;
 }
 function normalizeUtil(raw) {
-  return raw
-    .replace(/^.*:/, "")
+  const segments = [];
+  const stack = [];
+  let quote = null;
+  let start = 0;
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (quote) {
+      if (c === "\\") i++;
+      else if (c === quote) quote = null;
+    } else if (stack.length && (c === '"' || c === "'" || c === "`")) {
+      quote = c;
+    } else if (c === "[" || c === "(") {
+      stack.push(c === "[" ? "]" : ")");
+    } else if (stack.length && c === stack.at(-1)) {
+      stack.pop();
+    } else if (!stack.length && c === ":") {
+      segments.push(raw.slice(start, i));
+      start = i + 1;
+    } else if (!stack.length && !/[a-z0-9!\-/]/.test(c)) {
+      return null;
+    }
+  }
+  if (stack.length || quote) return null;
+  const util = raw.slice(start);
+  if (segments.some((segment) => !segment)) return null;
+  if (util.includes("[") || util.includes("(")) return null;
+  if (!/^!?-?[a-z][a-z0-9-]*(?:\/[0-9]+)?!?$/.test(util)) return null;
+  return util
     .replace(/^!/, "")
     .replace(/!$/, "")
     .replace(/\/[0-9]+$/, "");
@@ -391,7 +466,7 @@ for (const file of files) {
   for (const token of classTokens(src)) {
     if (NOT_CLASS.has(token)) continue;
     const cls = normalizeUtil(token);
-    if (isTokenCandidate(cls) && !KNOWN_UNDEFINED.has(`${rel} ${token}`))
+    if (cls && isTokenCandidate(cls) && !KNOWN_UNDEFINED.has(`${rel} ${token}`))
       candidates.push({ rel, token, cls });
   }
 }
