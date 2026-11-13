@@ -102,8 +102,7 @@ let isActive = false;
 let activeGeneration = 0;
 
 /**
- * 사용자 결정이 필요한 액션 토스트. 자동 dismiss 없음.
- * `duration`을 지정하면 해당 시간이 지난 뒤 자동으로 닫힌다.
+ * 사용자 결정이 필요한 액션 토스트. 기본적으로 자동 닫힘이 없으며, `duration`을 지정하면 해당 시간이 지난 뒤 닫힌다.
  * 위치는 전역 Toaster를 따름(데스크탑=bottom-center, 모바일=top-center).
  * 한 번에 최대 1개만 노출(같은 id로 덮어쓰기).
  *

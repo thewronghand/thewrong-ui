@@ -18,6 +18,8 @@ export interface DrawerProps {
   title?: string;
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
+  /** false면 Tab 가두기와 배경 포커스 복귀를 끈다. 초기 포커스와 닫힐 때 복원은 유지한다. @default true */
+  trapFocus?: boolean;
   /** 닫힘 모션이 끝난 뒤 호출한다. open을 false로 바꾸지 않고 컴포넌트를 언마운트하면 호출되지 않는다. */
   onExitComplete?: () => void;
   /** 데스크탑(sm+) 드로어 폭(px). 기본 480. 모바일은 무관 (바텀시트). */
@@ -39,12 +41,18 @@ export interface DrawerProps {
  *
  * **레이어드 오버레이**: ESC/백드롭은 `overlayStack`에서 자신이 top일 때만 반응한다.
  * ActionToast가 위에 떠 있으면(priority) 자동으로 양보된다.
+ *
+ * **포커스 트랩**: `aria-controls`로 연결된 Floating UI 포털 또는 `data-focus-trap-layer`가
+ * 붙은 포털만 부유 레이어로 인정한다. 연결을 알 수 없는 포털의 Tab은 드로어로 돌아오므로
+ * 해당 포털에 표식을 붙이거나 `trapFocus={false}`를 사용한다. 표식은 문서 전체에서 찾으므로
+ * 현재 트랩에 편입할 포털에만 붙인다. 액션 토스트가 top이면 트랩은 양보한다.
  */
 export function Drawer({
   open,
   onClose,
   title,
   dismissible = true,
+  trapFocus = true,
   onExitComplete,
   widthPx = 480,
   className,
@@ -80,6 +88,7 @@ export function Drawer({
   useScrollLock(open);
   useFocusTrap(sheet, {
     enabled: open,
+    trapFocus,
     canTrap: () => overlayStack.isTop(overlayId),
   });
 

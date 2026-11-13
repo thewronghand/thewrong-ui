@@ -11,6 +11,7 @@ import { overlayStack } from "@/lib/overlay-stack";
 import { Portal } from "@/lib/Portal";
 import { cn } from "@/lib/utils";
 import { useFocusTrap, useIsMobile, useScrollLock } from "@/hooks";
+import { ModalFocusTrapContext } from "./ModalFocusTrapContext";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -18,6 +19,11 @@ export interface ModalProps {
   title?: string;
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
+  /**
+   * false면 Tab 가두기와 배경 포커스 복귀를 끈다. 초기 포커스와 닫힐 때 복원은 유지한다.
+   * ModalSubView에도 같은 설정이 적용된다. @default true
+   */
+  trapFocus?: boolean;
   /** 닫힘 모션이 끝난 뒤 호출한다. isOpen을 false로 바꾸지 않고 컴포넌트를 언마운트하면 호출되지 않는다. */
   onExitComplete?: () => void;
   /**
@@ -73,12 +79,18 @@ export interface ModalProps {
  * **레이어드 오버레이**: ESC/백드롭은 `overlayStack`에서 자신이 top일 때만 반응한다.
  * ActionToast나 ModalSubView가 위에 떠 있으면(더 높은 priority/나중 push) 자동으로 양보된다.
  * 모달 위에 또 모달을 쌓는 대신 ModalSubView(푸시 네비)나 ActionToast(재확인)로 푸는 것을 권장.
+ *
+ * **포커스 트랩**: `aria-controls`로 연결된 Floating UI 포털 또는 `data-focus-trap-layer`가
+ * 붙은 포털만 부유 레이어로 인정한다. 연결을 알 수 없는 포털의 Tab은 모달로 돌아오므로
+ * 해당 포털에 표식을 붙이거나 `trapFocus={false}`를 사용한다. 표식은 문서 전체에서 찾으므로
+ * 현재 트랩에 편입할 포털에만 붙인다. 액션 토스트가 top이면 트랩은 양보한다.
  */
 export function Modal({
   isOpen,
   onClose,
   title,
   dismissible = true,
+  trapFocus = true,
   onExitComplete,
   widthPx,
   footer,
@@ -113,6 +125,7 @@ export function Modal({
   useScrollLock(isOpen);
   useFocusTrap(sheet, {
     enabled: isOpen,
+    trapFocus,
     canTrap: () => overlayStack.isTop(overlayId),
   });
 
@@ -127,7 +140,7 @@ export function Modal({
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose, overlayId, dismissible]);
 
-  return (
+  const content = (
     <Portal>
       {/* 백드롭 */}
       <AnimatePresence>
@@ -289,5 +302,11 @@ export function Modal({
         )}
       </AnimatePresence>
     </Portal>
+  );
+
+  return (
+    <ModalFocusTrapContext.Provider value={trapFocus}>
+      {content}
+    </ModalFocusTrapContext.Provider>
   );
 }

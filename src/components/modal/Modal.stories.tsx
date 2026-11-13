@@ -12,6 +12,7 @@ import { AnimatedHeight } from "@/components/animated-height";
 import { showActionToast } from "@/components/action-toast";
 import { Popover } from "@/components/popover";
 import { DatePicker } from "@/components/date-picker";
+import { Portal } from "@/lib/Portal";
 
 /**
  * 모달 — 데스크탑(sm+)에서는 중앙 카드, 모바일에서는 하단 바텀시트로 자동 분기.
@@ -646,7 +647,7 @@ export const 모달_안_Popover_DatePicker: Story = {
   name: "모달 안 Popover·DatePicker",
   args: { isOpen: false, onClose: () => {}, children: null },
   parameters: story(
-    "팝오버와 날짜 선택기를 키보드로 열고 패널과 모달 사이의 Tab 순환을 확인한다. 마지막 필드는 Select다.",
+    "팝오버와 날짜 선택기를 키보드로 열면 Tab과 Shift+Tab 모두 매 바퀴 패널을 지난다. 마지막 필드는 Select다.",
   ),
   render: () => {
     const [open, setOpen] = useState(false);
@@ -722,6 +723,78 @@ export const 모달_위_모달: Story = {
               </div>
             </Modal>
           </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 포커스_트랩_끄기: Story = {
+  name: "포커스 트랩 끄기",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "트랩을 꺼도 열릴 때 모달에 포커스하고 닫히면 여는 버튼으로 복원한다. Tab은 모달 밖으로 이동할 수 있다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>트랩 없는 모달 열기</Button>
+        <Button>배경 버튼</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="트랩 없는 모달"
+          trapFocus={false}
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" placeholder="트랩 없는 입력" />
+            <Button onClick={() => setOpen(false)}>모달 닫기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 표식으로_편입한_포털: Story = {
+  name: "표식으로 편입한 포털",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "자체 포털 루트에 data-focus-trap-layer를 붙이면 모달과 팝업이 하나의 Tab 고리로 순환한다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const close = () => {
+      setOpen(false);
+      setPopupOpen(false);
+    };
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>포털 모달 열기</Button>
+        <Modal
+          isOpen={open}
+          onClose={close}
+          title="표식 포털"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Button onClick={() => setPopupOpen((value) => !value)}>
+              자체 포털 열기
+            </Button>
+            <Button onClick={close}>모달 닫기</Button>
+          </div>
+          {popupOpen && (
+            <Portal>
+              <div
+                data-focus-trap-layer
+                className="fixed right-6 top-6 z-9999 flex gap-2 rounded-lg bg-white p-4 shadow-lg"
+              >
+                <Button>포털 첫 버튼</Button>
+                <Button>포털 마지막 버튼</Button>
+              </div>
+            </Portal>
+          )}
         </Modal>
       </>
     );

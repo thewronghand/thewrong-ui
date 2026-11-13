@@ -1,9 +1,10 @@
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { useContext, useEffect, useId, useState, type ReactNode } from "react";
 
 import { useFocusTrap } from "@/hooks";
 import { overlayStack } from "@/lib/overlay-stack";
+import { ModalFocusTrapContext } from "./ModalFocusTrapContext";
 
 export interface ModalSubViewProps {
   open: boolean;
@@ -78,6 +79,7 @@ export function ModalSubView({
   const overlayId = useId();
   const prefersReducedMotion = useReducedMotion();
   const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
+  const trapFocus = useContext(ModalFocusTrapContext);
 
   useEffect(() => {
     if (!open) return;
@@ -89,6 +91,7 @@ export function ModalSubView({
 
   useFocusTrap(sheet, {
     enabled: open,
+    trapFocus,
     canTrap: () => overlayStack.isTop(overlayId),
   });
 
