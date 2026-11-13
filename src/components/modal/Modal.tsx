@@ -56,6 +56,7 @@ export interface ModalProps {
 
 /**
  * 데스크탑(`sm`+)에서는 중앙 정렬 모달, 모바일에서는 화면 하단에서 올라오는 bottom-sheet으로 동작.
+ * 열리면 첫 tabbable(제목과 활성 닫기 버튼이 있으면 닫기 버튼)에 포커스하며, 다른 필드는 `autoFocus`를 준다.
  *
  * - 모바일: 시트가 화면 하단에 붙고 상단 모서리만 둥글다. 핸들 바 표시.
  *   진입/퇴장 모션은 화면 밖에서 슬라이드 (`y: "100%" → 0 → "100%"`).
@@ -197,7 +198,7 @@ export function Modal({
             // 사이에 백드롭이 비치는 현상을 막기 위해, 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 콘텐츠는 그대로 두면서 바닥 틈을 항상 메운다.
             className={cn(
-              "fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
+              "fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl outline-none sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
               className,
             )}
             style={

@@ -33,6 +33,7 @@ export interface DrawerProps {
 /**
  * 데스크탑(`sm`+)에서는 화면 우측에서 슬라이드 인 하는 사이드 드로어,
  * 모바일에서는 화면 하단에서 올라오는 bottom-sheet으로 동작.
+ * 열리면 첫 tabbable(제목과 활성 닫기 버튼이 있으면 닫기 버튼)에 포커스하며, 다른 필드는 `autoFocus`를 준다.
  *
  * 모바일 분기·드래그-다운 닫기·바텀시트 하단 틈 방지 패턴은 Modal과 동일.
  *
@@ -153,7 +154,7 @@ export function Drawer({
             // 모바일 바텀시트 하단 틈 방지: 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 오버슈트/드래그 시에도 바닥 틈을 메운다. (Modal과 동일)
             className={cn(
-              "fixed z-50 flex flex-col overflow-x-hidden bg-bg-white dark:bg-neutral-800 -bottom-8 left-0 right-0 max-h-[88vh] w-full rounded-t-2xl pb-8 sm:bottom-0 sm:left-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-auto sm:rounded-none sm:pb-0",
+              "fixed z-50 flex flex-col overflow-x-hidden bg-bg-white outline-none dark:bg-neutral-800 -bottom-8 left-0 right-0 max-h-[88vh] w-full rounded-t-2xl pb-8 sm:bottom-0 sm:left-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-auto sm:rounded-none sm:pb-0",
               className,
             )}
             style={!isMobile ? desktopStyle : undefined}

@@ -365,7 +365,7 @@ function ActionToastView({
       {backdrop &&
         createPortal(
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
             animate={{ opacity: toastInstance.visible ? 1 : 0 }}
             transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
             onClick={() => {
@@ -384,7 +384,7 @@ function ActionToastView({
         시트도 visible=false 동안 pointer-events-none.
       */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.98 }}
         animate={
           toastInstance.visible
             ? { opacity: 1, scale: 1 }
@@ -400,6 +400,7 @@ function ActionToastView({
         )}
         style={{ width: `min(${widthPx}px, calc(100vw - 32px))` }}
         role="alertdialog"
+        data-ui-action-toast=""
         aria-modal={backdrop ? "true" : undefined}
         aria-label="확인이 필요한 알림"
       >
