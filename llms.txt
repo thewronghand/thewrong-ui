@@ -36,7 +36,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 
 - **모든 export는 named export.** default export 없음.
 - **무거운 의존은 optional peerDependency** — 해당 컴포넌트를 쓸 때만 그 패키지를 함께 설치한다:
-  - `motion` → Modal, Drawer, ActionToast, Popover, DatePicker류, Table, AnimatedHeight
+  - `motion` → Modal, Drawer, ActionToast, Popover, DatePicker류, Table, AnimatedHeight, FieldMessage(animated), TypingDots, TypewriterText, useBottomSheetDrag
   - `@floating-ui/react` → Select, Popover, Tooltip, DatePicker류, SearchBox, Table
   - `react-hot-toast` → Toast, ActionToast, SearchBox, Table
   - `@dnd-kit/*`, `@tanstack/react-virtual` → Table (컬럼 DnD / 가상화)
@@ -52,6 +52,9 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - `Select` — 단일 선택. `searchable`로 필터(클라이언트). 서버 검색 시 호출부가 selected snapshot 보존.
 - `MultiSelect` — 다중 선택. 값은 `string[]`. 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
 - `Switch`, `Checkbox`, `Badge`.
+- `Radio.Group`, `Radio.Item` — 네이티브 라디오 행. 같은 name과 fieldset/legend를 사용한다.
+- `SegmentedControl` — controlled 라디오 선택지. 그룹에 aria-label 또는 aria-labelledby를 전달한다.
+- `Field`, `FieldMessage` — 라벨과 폼 메시지. animated 메시지는 컴포넌트를 유지하고 children을 변경한다.
 
 ### 오버레이
 - `Modal` — 데스크탑 중앙 카드 / 모바일 바텀시트 자동 분기. 너비 고정(`widthPx`). 헤더-바디-푸터 3단(`footer`).
@@ -75,8 +78,14 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ### 레이아웃 / 유틸
 - `TablePageLayout`, `TableCard`, `Toolbar`, `PageTitle`.
 - `AnimatedHeight`(높이 트랜지션), `Collapsible`, `LoadingSpinner`.
+- `Progress` — 0~100 결정형 진행률. `Skeleton` — 크기를 className으로 지정하는 장식용 로딩 블록.
+- `TypingDots` — 상위 글자 크기·색을 따르는 로딩 표시. `TypewriterText` — 글자/단어 단위 텍스트 표시.
+- `ErrorBoundary` — 렌더 오류 폴백과 재시도. 청크 자동 복구에는 영속 저장·보고·reload를 담은 `chunkReloadPort`가 필요하다.
 - `cn`(clsx+tailwind-merge), `Portal`, `overlayStack`, `formatYearMonth`, `ColumnPresetStorage`.
-- hooks: `useClickOutside`, `useMediaQuery`, `useIsMobile`, `useBottomSheetDrag`, `useScrollLock`.
+- hooks: `useClickOutside`, `useMediaQuery`, `useIsMobile`, `useBottomSheetDrag`, `useScrollLock`, `useFocusTrap`, `useInfiniteScroll`, `useFillEmptyRows`, `useTableDragSelection`. 모두 `@thewrong/ui/hooks`에서도 가져올 수 있다.
+  - `@thewrong/ui/hooks` 배럴은 기존 `useBottomSheetDrag`를 함께 내보내므로 직접 실행 시 motion이 필요하다. 미사용 export를 트리셰이킹하는 번들러에서는 나머지 훅만 사용할 때 motion을 제외할 수 있다.
+  - `useInfiniteScroll`은 `onLoadMore`, `hasMore`, `isFetching`, 선택적인 `scrollElementRef`/`rootMarginPx`를 받는다. 기존 `fetchNextPage`/`hasNextPage`/`isFetchingNextPage` 옵션도 지원한다.
+  - `useFillEmptyRows`는 테이블 컨테이너와 행 높이를 측정한다. `useTableDragSelection`은 행 선택 콜백과 선택적 스크롤 컨테이너를 받는다.
 
 ## 선택 가이드 (언제 무엇을 쓰나)
 
