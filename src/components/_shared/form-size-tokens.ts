@@ -6,6 +6,14 @@
 
 export type FormFieldSize = "mini" | "small" | "medium" | "large";
 
+/** 필드 텍스트의 크기와 줄 높이. */
+export const CONTROL_TEXT_CLASS: Record<FormFieldSize, string> = {
+  mini: "text-control-mini",
+  small: "text-control-small",
+  medium: "text-control-medium",
+  large: "text-control-large",
+};
+
 /** 빌트인 clearable의 X 아이콘과 호출부 trailingIcon의 svg에 적용할 height/width 클래스. */
 export const SLOT_ICON_SIZE_CLASS: Record<FormFieldSize, string> = {
   mini: "h-slot-icon-mini w-slot-icon-mini",
@@ -30,12 +38,12 @@ export const SLOT_CHILD_ICON_CLASS: Record<FormFieldSize, string> = {
   large: "[&>svg]:h-slot-icon-large [&>svg]:w-slot-icon-large",
 };
 
-/** badge wrapper의 mini text-[10px]은 줄 높이를 상속하지만 text-slot-badge-mini는 14px로 고정한다. */
+/** badge wrapper의 텍스트 크기와 줄 높이. */
 export const SLOT_BADGE_TEXT_CLASS: Record<FormFieldSize, string> = {
-  mini: "text-[10px]",
-  small: "text-xs",
-  medium: "text-xs",
-  large: "text-sm",
+  mini: "text-slot-badge-mini",
+  small: "text-slot-badge-small",
+  medium: "text-slot-badge-medium",
+  large: "text-slot-badge-large",
 };
 
 /** 슬롯 간 gap — 디자인 시안 medium 기준 12px. */

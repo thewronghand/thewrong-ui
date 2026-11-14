@@ -1,6 +1,7 @@
 import { Calendar } from "lucide-react";
 
 import { DatePicker } from "@/components/date-picker";
+import { cn } from "@/lib/utils";
 
 interface Props {
   /** yyyy-MM-dd 또는 빈 문자열. */
@@ -37,24 +38,30 @@ export function DateInput({
   className = "",
   disableMobileSheet = false,
 }: Props) {
-  // size별 분기 — mini는 모바일/협소 영역, small은 데스크톱 폼.
-  // small=h-10: SearchBox의 FloatingInput/Select와 정렬 (form-size-tokens과 별개로 SearchBox 영역 통일).
+  // DateInput mini/small은 avocado의 다른 필드 small/medium 높이에 대응한다.
   const isMini = size === "mini";
-  const inputHeight = isMini ? "h-8" : "h-10";
+  const inputHeight = isMini ? "h-control-small" : "h-control-medium";
   const wrapperWidth = isMini ? "w-30" : "w-36";
-  const wrapperPad = isMini ? "pl-2 pr-0.5" : "pl-2.5 pr-1";
-  const inputTextSize = isMini ? "text-xs" : "text-sm";
+  const wrapperPad = isMini ? "pl-control-pad-mini pr-0.5" : "pl-control-pad-small pr-1";
+  const wrapperRadius = isMini ? "rounded-control-small" : "rounded-control-medium";
+  const inputTextSize = isMini ? "text-control-mini" : "text-control-small";
   const calendarBtnSize = isMini ? "h-5 w-5" : "h-6 w-6";
   const calendarIconSize = isMini ? "h-3 w-3" : "h-3.5 w-3.5";
 
-  // SearchBox 서치필드 토큰과 통일: rounded-lg, border-border-tertiary, bg-bg-white, focus는 primary-500.
   // focus-within으로 자식(input + 캘린더 트리거 버튼) 어느 쪽이 포커스 받든 보더 강조.
   // 라벨도 같은 group의 focus-within에 반응해 primary로 변색.
-  const wrapperClass = `group relative ${inputHeight} ${wrapperWidth} ${wrapperPad} flex items-center gap-1 rounded-lg border border-border-tertiary dark:border-border-secondary bg-bg-white transition-colors focus-within:border-primary-500 ${className}`;
-  // value 비어있으면 placeholder만 보이는 상태 — placeholder 색을 text-tertiary로 강제.
+  const wrapperClass = cn(
+    "group relative flex items-center gap-1 border border-border-subtle bg-bg-surface transition-colors focus-within:border-primary",
+    inputHeight,
+    wrapperWidth,
+    wrapperPad,
+    wrapperRadius,
+    className,
+  );
+  // value 비어있으면 placeholder만 보이는 상태 — placeholder 색을 fg-subtle로 강제.
   const inputColor = value
-    ? "text-text-primary"
-    : "text-text-tertiary";
+    ? "text-fg-default"
+    : "text-fg-subtle";
 
   // <input type="date">는 빈 값에서도 브라우저 placeholder("연도-월-일")가 보임 → label 있으면
   // 항상 floated 상태로 띄워서 SearchBox의 다른 플로팅 라벨과 톤 일치 (placeholder 위에 라벨이
@@ -70,7 +77,11 @@ export function DateInput({
         min="1900-01-01"
         max="9999-12-31"
         aria-label={ariaLabel ?? label}
-        className={`search-box-date-input flex-1 bg-transparent ${inputTextSize} outline-none ${inputColor}`}
+        className={cn(
+          "search-box-date-input flex-1 bg-transparent outline-none",
+          inputTextSize,
+          inputColor,
+        )}
       />
       <DatePicker
         value={value || null}
@@ -80,7 +91,10 @@ export function DateInput({
         <button
           type="button"
           aria-label="달력에서 날짜 선택"
-          className={`flex ${calendarBtnSize} items-center justify-center rounded text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-200`}
+          className={cn(
+            "flex items-center justify-center rounded text-fg-subtle transition-colors hover:bg-bg-subtle hover:text-fg-default",
+            calendarBtnSize,
+          )}
         >
           <Calendar className={calendarIconSize} />
         </button>
@@ -88,9 +102,10 @@ export function DateInput({
       {showFloatingLabel && (
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute -top-2 left-2 bg-bg-white px-1 text-text-secondary group-focus-within:text-primary-500 ${
-            isMini ? "text-[10px]" : "text-xs"
-          }`}
+          className={cn(
+            "pointer-events-none absolute -top-2 left-2 bg-bg-surface px-1 text-fg-muted group-focus-within:text-primary-fg",
+            isMini ? "text-[10px]" : "text-xs",
+          )}
         >
           {label}
         </span>

@@ -100,7 +100,8 @@ export const Button = forwardRef<
     getButtonDisplayClasses(display),
     getButtonFocusRing(variant),
     loading && "opacity-70 cursor-wait",
-    isLink && isDisabled && "pointer-events-none opacity-button-disabled",
+    isLink && isDisabled && "pointer-events-none",
+    isLink && isDisabled && !loading && "opacity-button-disabled",
     className,
   );
 

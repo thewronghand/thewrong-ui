@@ -31,24 +31,25 @@ export function getSwitchTrackClasses(size: SwitchSize, disabled: boolean) {
     return [
       "relative inline-flex shrink-0 items-center rounded-full",
       track,
-      "bg-bg-disabled cursor-not-allowed",
+      "bg-bg-disabled ring-1 ring-inset ring-border-default cursor-not-allowed",
     ].join(" ");
   }
   return [
     "relative inline-flex shrink-0 items-center rounded-full cursor-pointer",
     track,
-    "bg-neutral-200 dark:bg-neutral-700",
-    "peer-checked:bg-primary-500",
-    "peer-focus-visible:ring-2 peer-focus-visible:ring-primary-300 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-card",
+    "bg-bg-muted",
+    "peer-checked:bg-primary",
+    "peer-focus-visible:ring-control peer-focus-visible:ring-focus-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-surface",
     "transition-colors duration-200 ease-out",
   ].join(" ");
 }
 
 /** 노브(원형) 클래스. translateX로 좌→우 이동. wrapper 기준 absolute로 트랙 위에 뜬다. */
-export function getSwitchThumbClasses(size: SwitchSize) {
+export function getSwitchThumbClasses(size: SwitchSize, disabled = false) {
   const { thumb, translate } = SWITCH_SIZE_MAP[size];
   return [
-    "pointer-events-none absolute left-[3px] top-[3px] inline-block rounded-full bg-white shadow-sm",
+    "pointer-events-none absolute left-[3px] top-[3px] inline-block rounded-full",
+    disabled ? "bg-fg-disabled shadow-none" : "bg-fg-inverse shadow-control",
     thumb,
     translate,
     "transition-transform duration-200 ease-out",

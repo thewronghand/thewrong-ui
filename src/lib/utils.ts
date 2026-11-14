@@ -62,6 +62,7 @@ const twMerge = extendTailwindMerge({
         "px-control-pad-medium",
         "px-control-pad-large",
       ],
+      pl: ["pl-control-pad-mini", "pl-control-pad-small"],
       // --spacing-slot-* · --spacing-button-*
       gap: [
         "gap-slot-mini",

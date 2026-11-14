@@ -77,8 +77,16 @@ describe("Button className 덮어쓰기", () => {
     const classes = classesFromMarkup(markup);
     expectButtonOverrides(classes);
     expect(classes).toContain("pointer-events-none");
-    expect(classes).toContain("opacity-button-disabled");
+    expect(classes).toContain("opacity-70");
+    expect(classes).not.toContain("opacity-button-disabled");
     expect(markup).toContain('aria-disabled="true"');
+  });
+
+  it("loading button과 anchor는 같은 opacity를 사용한다", () => {
+    const button = renderToStaticMarkup(createElement(Button, { loading: true }));
+    const link = renderToStaticMarkup(createElement(Button, { as: "a", href: "/", loading: true }));
+    expect(classesFromMarkup(button)).toContain("opacity-70");
+    expect(classesFromMarkup(link)).toContain("opacity-70");
   });
 });
 

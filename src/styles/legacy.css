@@ -22,10 +22,11 @@
  *
  * 4단계에서 legacy를 지우면 avocado 값으로 바뀌는 사용처(화면 대조):
  *   bg-bg-disabled: button/utils.ts의 primary·secondary·danger filled disabled와 tertiary filled active,
- *     input/utils.ts·select/utils.ts·textarea/Textarea.tsx·switch/utils.ts의 disabled 배경.
- *   border-border-danger: button/utils.ts의 danger outlined, input/utils.ts·select/utils.ts·textarea/Textarea.tsx의 오류 보더.
+ *     input/utils.ts·select/utils.ts의 box와 비-box disabled, textarea/Textarea.tsx·switch/utils.ts의 disabled 배경.
+ *   border-border-danger: button/utils.ts의 danger outlined, input/utils.ts·select/utils.ts·textarea/Textarea.tsx의 오류 보더,
+ *     input/Input.tsx의 비-box 오류 보더와 focus 보더.
  *   border-border-primary: input/utils.ts·select/utils.ts·textarea/Textarea.tsx의 focus-within 보더.
- *   text-icon-secondary·tertiary·disabled: input/utils.ts·select/utils.ts·select/Select.tsx·select/MultiSelect.tsx와 search-box의 아이콘.
+ *   text-icon-secondary·tertiary·disabled: 아직 치환하지 않은 search-box 등의 아이콘.
  *
  * ── Tailwind 기본값을 새 시맨틱이 바꾸는 변수 (지금은 Tailwind 기본값으로 되돌린다) ──
  *   --default-transition-duration  Tailwind 150ms ≠ 새 200ms (transition 유틸 전체의 길이)

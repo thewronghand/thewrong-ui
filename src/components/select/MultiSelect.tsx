@@ -27,6 +27,7 @@ import {
 
 import {
   CHEVRON_SIZE_CLASS,
+  CONTROL_TEXT_CLASS,
   SLOT_BADGE_TEXT_CLASS,
   SLOT_CHILD_ICON_CLASS,
   SLOT_GAP_CLASS,
@@ -39,6 +40,7 @@ import {
   getInputTrailingIconColor,
   getInputVariantClasses,
 } from "@/components/input/utils";
+import { cn } from "@/lib/utils";
 
 import { LoadingDots } from "./loading-dots";
 import { computeSelectPanelMaxWidth } from "./panel-width";
@@ -396,24 +398,19 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
       filled || isOpen,
     );
 
-    const fontSize =
-      selectSize === "mini"
-        ? "text-xs"
-        : selectSize === "large"
-          ? "text-base"
-          : "text-sm";
+    const fontSize = CONTROL_TEXT_CLASS[selectSize];
     const triggerTextColor = disabled
-      ? "text-text-disabled"
+      ? "text-fg-disabled"
       : hasError
-        ? "text-text-danger"
+        ? "text-fg-danger"
         : filled
-          ? "text-text-primary"
-          : "text-text-tertiary";
+          ? "text-fg-default"
+          : "text-fg-subtle";
 
     return (
       <div
         ref={containerRef}
-        className={`${getInputContainerClasses()} min-w-0`}
+        className={cn(getInputContainerClasses(), "min-w-0")}
         {...containerProps}
       >
         {/* 측정 전용 hidden span — 풀 텍스트의 자연 폭을 얻기 위해 nowrap + visibility:hidden.
@@ -423,7 +420,10 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
           <span
             ref={measureRef}
             aria-hidden
-            className={`pointer-events-none fixed left-0 -top-[9999px] whitespace-nowrap ${fontSize}`}
+            className={cn(
+              "pointer-events-none fixed left-0 -top-[9999px] whitespace-nowrap",
+              fontSize,
+            )}
           >
             {fullText}
           </span>
@@ -452,28 +452,30 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
           aria-activedescendant={activeOptionId}
           data-testid={testId}
           {...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
-          className={`${variantClasses} flex w-full min-w-0 items-center ${slotGap} ${
-            disabled ? "cursor-not-allowed" : "cursor-pointer"
-          } ${className}`
-            .trim()
-            .replace(/\s+/g, " ")}
+          className={cn(
+            variantClasses,
+            "flex w-full min-w-0 items-center",
+            slotGap,
+            disabled ? "cursor-not-allowed" : "cursor-pointer",
+            className,
+          )}
         >
           <span
             ref={triggerTextRef}
-            className={`min-w-0 flex-1 truncate text-left ${fontSize} ${triggerTextColor}`}
+            className={cn("min-w-0 flex-1 truncate text-left", fontSize, triggerTextColor)}
           >
             {triggerText}
           </span>
           {suffix && (
             <span
-              className={`shrink-0 whitespace-nowrap ${fontSize} ${trailingIconColor}`}
+              className={cn("shrink-0 whitespace-nowrap", fontSize, trailingIconColor)}
             >
               {suffix}
             </span>
           )}
           {trailingIcon && (
             <span
-              className={`flex shrink-0 items-center ${trailingIconColor} ${slotIconSize}`}
+              className={cn("flex shrink-0 items-center", trailingIconColor, slotIconSize)}
             >
               {trailingIcon}
             </span>
@@ -484,7 +486,11 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
               tabIndex={-1}
               onClick={handleClear}
               aria-label="선택 모두 지우기"
-              className={`flex shrink-0 cursor-pointer items-center ${trailingIconColor} hover:text-text-primary`}
+              className={cn(
+                "flex shrink-0 cursor-pointer items-center",
+                trailingIconColor,
+                "hover:text-fg-default",
+              )}
             >
               <CircleX
                 className={builtinIconSize}
@@ -495,15 +501,18 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
           )}
           {badge && (
             <span
-              className={`flex shrink-0 items-center ${slotIconSize} ${slotBadgeText}`}
+              className={cn("flex shrink-0 items-center", slotIconSize, slotBadgeText)}
             >
               {badge}
             </span>
           )}
           <ChevronDown
-            className={`shrink-0 transition-transform ${chevronSize} ${trailingIconColor} ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "shrink-0 transition-transform",
+              chevronSize,
+              trailingIconColor,
+              isOpen && "rotate-180",
+            )}
             strokeWidth={1.5}
             aria-hidden
           />
@@ -522,12 +531,15 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                 id={listboxId}
                 style={floatingStyles}
                 {...getFloatingProps()}
-                className={`z-9999 overflow-hidden rounded-lg border border-border-tertiary bg-bg-white shadow-lg dark:border-border-secondary dark:bg-neutral-800 ${panelClassName}`}
+                className={cn(
+                  "z-9999 overflow-hidden rounded-surface border border-border-subtle bg-bg-surface shadow-overlay",
+                  panelClassName,
+                )}
               >
                 {searchable && (
-                  <div className="flex items-center gap-2 border-b border-border-tertiary px-3 py-2 dark:border-border-secondary">
+                  <div className="flex items-center gap-2 border-b border-border-subtle px-3 py-2">
                     <Search
-                      className="h-4 w-4 shrink-0 text-icon-tertiary"
+                      className="h-4 w-4 shrink-0 text-fg-subtle"
                       aria-hidden
                     />
                     <input
@@ -537,10 +549,10 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                       onChange={handleSearchChange}
                       onKeyDown={handleSearchKeyDown}
                       placeholder={searchPlaceholder}
-                      className="flex-1 bg-transparent text-sm outline-hidden placeholder:text-text-tertiary"
+                      className="flex-1 bg-transparent text-sm outline-hidden placeholder:text-fg-subtle"
                     />
                     {isSearchLoading && (
-                      <LoadingDots className="h-4 w-4 shrink-0 text-icon-tertiary" />
+                      <LoadingDots className="h-4 w-4 shrink-0 text-fg-subtle" />
                     )}
                   </div>
                 )}
@@ -548,12 +560,12 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                   <button
                     type="button"
                     onClick={handleToggleAll}
-                    className="flex w-full items-center justify-between border-b border-border-tertiary px-3 py-2 text-xs text-text-secondary transition-colors hover:bg-neutral-50 dark:border-border-secondary dark:hover:bg-neutral-700"
+                    className="flex w-full items-center justify-between border-b border-border-subtle px-3 py-2 text-xs text-fg-muted transition-colors hover:bg-bg-subtle"
                   >
                     <span>
                       {allDisplayedSelected ? "전체 해제" : "전체 선택"}
                     </span>
-                    <span className="text-text-tertiary">
+                    <span className="text-fg-subtle">
                       {selectableValues.length}개
                     </span>
                   </button>
@@ -563,7 +575,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                   className="max-h-72 overflow-y-auto py-1"
                 >
                   {filteredOptions.length === 0 ? (
-                    <div className="px-3 py-4 text-center text-sm text-text-tertiary">
+                    <div className="px-3 py-4 text-center text-sm text-fg-subtle">
                       {isSearchLoading ? "검색 중..." : "옵션이 없어요"}
                     </div>
                   ) : (
@@ -595,20 +607,22 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                               }
                             },
                           })}
-                          className={`flex cursor-pointer items-start gap-3 px-3 py-2 text-sm transition-colors ${
+                          className={cn(
+                            "flex cursor-pointer items-start gap-3 px-3 py-2 text-sm transition-colors",
                             option.disabled
-                              ? "cursor-not-allowed text-text-disabled"
+                              ? "cursor-not-allowed text-fg-disabled"
                               : isActive
-                                ? "bg-neutral-100 text-text-primary dark:bg-neutral-700"
-                                : "text-text-primary hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                          }`}
+                                ? "bg-bg-subtle text-fg-default"
+                                : "text-fg-default hover:bg-bg-subtle",
+                          )}
                         >
                           <span
-                            className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                            className={cn(
+                              "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-checkbox border",
                               checked
-                                ? "border-primary-500 bg-primary-500 text-white"
-                                : "border-border-tertiary dark:border-border-secondary"
-                            }`}
+                                ? "border-primary bg-primary text-fg-inverse"
+                                : "border-border-subtle",
+                            )}
                             aria-hidden
                           >
                             {checked && (
@@ -617,18 +631,18 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                           </span>
                           <div className="min-w-0 flex-1">
                             <div
-                              className={`truncate ${checked ? "font-medium" : ""}`}
+                              className={cn("truncate", checked && "font-medium")}
                             >
                               {option.label}
                             </div>
                             {option.description && (
-                              <div className="mt-0.5 truncate text-xs text-text-tertiary">
+                              <div className="mt-0.5 truncate text-xs text-fg-subtle">
                                 {option.description}
                               </div>
                             )}
                           </div>
                           {option.trailing && (
-                            <span className="shrink-0 text-xs text-text-tertiary">
+                            <span className="shrink-0 text-xs text-fg-subtle">
                               {option.trailing}
                             </span>
                           )}

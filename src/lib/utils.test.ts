@@ -92,6 +92,13 @@ describe("h · w · px · gap · size", () => {
     expect(cn("px-4", "px-control-pad-medium")).toBe("px-control-pad-medium");
   });
 
+  it("왼쪽 control 패딩도 표준 패딩과 충돌한다", () => {
+    expect(cn("pl-control-pad-mini", "pl-4")).toBe("pl-4");
+    expect(cn("pl-4", "pl-control-pad-small")).toBe("pl-control-pad-small");
+    expect(cn("pl-control-pad-small", "px-4")).toBe("px-4");
+    expect(cn("px-4", "pl-control-pad-small")).toBe("px-4 pl-control-pad-small");
+  });
+
   it("gap 커스텀 ↔ 표준 양방향", () => {
     expect(cn("gap-slot-medium", "gap-2")).toBe("gap-2");
     expect(cn("gap-2", "gap-slot-medium")).toBe("gap-slot-medium");
