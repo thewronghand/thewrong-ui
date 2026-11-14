@@ -3,10 +3,9 @@
  * 토큰 사용 검사 (래칫 방식).
  * 라이브러리 CSS의 source 설정으로 스캔되는 코드에서 후보와 문자열 리터럴을 검사한다.
  * Tailwind 후보는 주석도 스캔하고, 문자열 리터럴은 TypeScript AST로 추출한다.
- * dark·palette·legacy는 파일별 기준선보다 증가할 수 없고, primitive·undefined는 0이어야 한다.
+ * dark·palette는 파일별 기준선보다 증가할 수 없고, primitive·undefined는 0이어야 한다.
  * 기준선 갱신 시 파일별 증가가 하나라도 있으면 --force가 필요하다 (파일명 변경 포함).
  * 동적으로 조합한 클래스와 역할 이름 자체의 오타는 스캐너가 찾지 못할 수 있다.
- * 3단계에서 옛 이름과 새 의미가 겹치는 LEGACY_SEMANTIC 항목을 정리해야 한다.
  */
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
@@ -18,7 +17,7 @@ import ts from "typescript";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASELINE_PATH = join(ROOT, "scripts/token-baseline.json");
-const RATCHET = ["dark", "palette", "legacy"];
+const RATCHET = ["dark", "palette"];
 const ZERO = ["primitive", "undefined"];
 // 현재 검사 대상에는 런타임에서만 주입되는 변수 참조가 없다.
 const RUNTIME_VARIABLE_ALLOWLIST = new Set();
@@ -61,63 +60,20 @@ const PALETTE = [
           defaultCss.includes(`--color-${f}-500`),
       ),
   ),
-].filter(
-  (f) =>
-    ![
-      "primary",
-      "secondary",
-      "error",
-      "warning",
-      "success",
-      "info",
-      "neutral",
-    ].includes(f),
-);
+];
 
 // ── 패턴 ─────────────────────────────────────────────────────────────────────
 const COLOR_PREFIX =
   "(?:ring-offset|inset-ring|inset-shadow|bg|text|border(?:-[xytrblse])?|ring|fill|stroke|outline|divide|from|via|to|shadow|decoration|accent|caret|placeholder)";
 const SCALE = "(?:50|100|200|300|400|500|600|700|800|900|950)";
-const LEGACY_SEMANTIC = [
-  "text-primary",
-  "text-secondary",
-  "text-tertiary",
-  "text-disabled",
-  "text-inverse",
-  "text-danger",
-  "border-primary",
-  "border-secondary",
-  "border-tertiary",
-  "border-disabled",
-  "border-danger",
-  "bg-base-primary",
-  "bg-base-secondary",
-  "bg-base-tertiary",
-  "bg-white",
-  "bg-disabled",
-  "bg-card",
-  "icon-primary",
-  "icon-secondary",
-  "icon-tertiary",
-  "icon-disabled",
-  "icon-danger",
-];
-
 const RE = {
   primitive: new RegExp(`--p-[a-z]|(?<![\\w-])${COLOR_PREFIX}-p-[a-z]`, "g"),
   palette: new RegExp(
     `(?<![\\w-])${COLOR_PREFIX}-(?:(?:${PALETTE.join("|")})-${SCALE}|white|black)(?![\\w-])|#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\\b`,
     "g",
   ),
-  legacy: new RegExp(
-    `(?<![\\w-])${COLOR_PREFIX}-(?:(?:primary|secondary|error|warning|success|info|neutral)-${SCALE}|${LEGACY_SEMANTIC.join("|")})(?![\\w-])`,
-    "g",
-  ),
 };
 
-const LEGACY_VARIABLE = new RegExp(
-  `^--color-(?:(?:primary|secondary|error|warning|success|info|neutral)-${SCALE}|${LEGACY_SEMANTIC.join("|")})$`,
-);
 const LITERAL_PRIMITIVE = /--p-[a-z][a-z0-9_-]*/gi;
 const LITERAL_HEX = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})\b/gi;
 const LITERAL_VARIABLE = /(?<![a-z0-9-])var\(\s*(--[a-z0-9_-]+)/gi;
@@ -350,8 +306,8 @@ export async function analyzeContents(contents, { allowedRuntimeVars = RUNTIME_V
   ]);
   const scanner = new Scanner({ sources: [] });
   const cache = new Map();
-  const result = { dark: {}, primitive: {}, palette: {}, legacy: {}, undefined: {} };
-  const details = { dark: [], primitive: [], palette: [], legacy: [], undefined: [] };
+  const result = { dark: {}, primitive: {}, palette: {}, undefined: {} };
+  const details = { dark: [], primitive: [], palette: [], undefined: [] };
   const toCompile = [];
   let candidateCount = 0;
   const record = (key, rel, token, position, reason = token) => {
@@ -360,7 +316,7 @@ export async function analyzeContents(contents, { allowedRuntimeVars = RUNTIME_V
   };
 
   for (const { rel, content, extension = "tsx" } of contents) {
-    const covered = { primitive: [], palette: [], legacy: [], undefined: [] };
+    const covered = { primitive: [], palette: [], undefined: [] };
     const candidates = scanner.getCandidatesWithPositions({ content, extension });
     candidateCount += candidates.length;
     for (const { candidate: token, position } of candidates) {
@@ -383,7 +339,7 @@ export async function analyzeContents(contents, { allowedRuntimeVars = RUNTIME_V
       }
       const { utility, unmodified, dark, refs } = info;
       if (dark) record("dark", rel, token, position);
-      for (const key of ["primitive", "palette", "legacy"]) {
+      for (const key of ["primitive", "palette"]) {
         let offset = 0;
         for (const match of utility.matchAll(RE[key])) {
           record(key, rel, token, position, match[0]);
@@ -420,7 +376,6 @@ export async function analyzeContents(contents, { allowedRuntimeVars = RUNTIME_V
       for (const match of value.matchAll(LITERAL_VARIABLE)) {
         const name = match[1];
         const position = start + match.index + match[0].lastIndexOf(name);
-        if (LEGACY_VARIABLE.test(name)) recordLiteral("legacy", name, position);
         if (!definedTokenVars.has(name) && !allowedRuntimeVars.has(name))
           recordLiteral("undefined", name, position, `정의되지 않은 변수: ${name}`);
       }
@@ -453,9 +408,13 @@ export function baselineLargeDecreases(previous, current) {
 async function main() {
   const canary = await analyzeContents([{
     rel: "canary.tsx",
-    content: 'const dark = "dark:bg-white"; const typo = "bg-bg-surfce"; const primitive = "var(--p-color-gray-100)";',
+    content: 'const dark = "dark:bg-white"; const typo = "bg-bg-surfce"; const removed = "text-text-primary"; const old = "var(--color-secondary-700)"; const valid = "border-border-primary text-icon-tertiary"; const primitive = "var(--p-color-gray-100)";',
   }]);
-  if (["dark", "undefined", "primitive"].some((key) => sum(canary.counts[key]) !== 1)) {
+  if (
+    ["dark", "primitive"].some((key) => sum(canary.counts[key]) !== 1) ||
+    sum(canary.counts.undefined) !== 3 ||
+    !canary.details.undefined.some(({ token }) => token === "text-text-primary")
+  ) {
     console.error("[check:tokens] 카나리 자가검사 실패 — 스캐너와 토큰 분석 경로를 확인하라");
     process.exitCode = 2;
     return;

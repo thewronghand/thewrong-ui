@@ -9,7 +9,7 @@ import { Button } from "./Button";
 import { getButtonSizeClasses } from "./utils";
 
 const overrides =
-  "h-10 px-4 gap-2 bg-red-500 border-border-tertiary! dark:bg-white/10";
+  "h-10 px-4 gap-2 bg-red-500 border-border-faint! dark:bg-white/10";
 
 function classesFromMarkup(markup: string): string[] {
   const match = markup.match(/class="([^"]+)"/);
@@ -24,7 +24,7 @@ function expectButtonOverrides(classes: string[]) {
       "px-4",
       "gap-2",
       "bg-red-500",
-      "border-border-tertiary!",
+      "border-border-faint!",
       "dark:bg-white/10",
       "border-button",
     ]),
@@ -44,7 +44,7 @@ describe("Button className 덮어쓰기", () => {
         "px-4",
         "gap-2",
         "bg-red-500",
-        "border-border-tertiary!",
+        "border-border-faint!",
         "dark:bg-white/10",
       ]),
     );

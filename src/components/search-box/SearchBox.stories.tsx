@@ -65,7 +65,7 @@ export const 기본: Story = {
     return (
       <div className="flex flex-col gap-4">
         <SearchBox fields={FIELDS} values={applied} onSearch={setApplied} />
-        <pre className="rounded-lg bg-bg-base-secondary p-3 text-xs text-text-secondary">
+        <pre className="rounded-lg bg-bg-subtle p-3 text-xs text-fg-muted">
           {JSON.stringify(applied, null, 2)}
         </pre>
       </div>

@@ -73,7 +73,7 @@ export const AllColors: Story = {
     <div className="flex flex-col gap-4">
       {(["fill", "weak"] as const).map((variant) => (
         <div key={variant} className="flex items-center gap-2">
-          <span className="w-12 text-sm text-secondary-500">{variant}</span>
+          <span className="w-12 text-sm text-fg-muted">{variant}</span>
           {COLORS.map((color) => (
             <Badge key={color} color={color} variant={variant}>
               {color}
@@ -122,7 +122,7 @@ export const 카운트: Story = {
     docs: { description: { story: "메뉴/탭 옆 개수 표시. fill로 강조, xsmall로 작게." } },
   },
   render: () => (
-    <div className="flex items-center gap-4 text-sm text-text-primary">
+    <div className="flex items-center gap-4 text-sm text-fg-default">
       <span className="flex items-center gap-1.5">
         받은 정산 <Badge color="primary" size="xsmall">12</Badge>
       </span>
@@ -143,7 +143,7 @@ export const 인라인: Story = {
     docs: { description: { story: "제목 옆 카테고리/상태를 인라인으로. 텍스트와 같은 줄에 둔다." } },
   },
   render: () => (
-    <p className="max-w-md text-sm leading-7 text-text-primary">
+    <p className="max-w-md text-sm leading-7 text-fg-default">
       6월 정산 보고서 <Badge color="success" variant="weak" size="xsmall">확정</Badge> 가
       업로드되었습니다. 일부 항목은 <Badge color="warning" variant="weak" size="xsmall">검토 필요</Badge>{" "}
       상태이니 마감 전에 확인해주세요.

@@ -29,7 +29,7 @@ export const Default: Story = {
 export const WithLabel: Story = {
   args: { content: "" },
   render: () => (
-    <div className="flex items-center gap-1.5 text-sm text-text-primary">
+    <div className="flex items-center gap-1.5 text-sm text-fg-default">
       <span>정산 수수료</span>
       <InfoTooltip content="정산 시 차감되는 수수료입니다. VAT 별도." />
     </div>

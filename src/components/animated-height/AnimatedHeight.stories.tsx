@@ -51,12 +51,12 @@ export const Default: Story = {
             행 제거
           </Button>
         </div>
-        <AnimatedHeight className="rounded-xl border border-border-tertiary bg-bg-card">
+        <AnimatedHeight className="rounded-xl border border-border-faint bg-bg-surface">
           <div className="flex flex-col gap-2 p-4">
             {Array.from({ length: rows }, (_, i) => (
               <div
                 key={i}
-                className="rounded-lg bg-bg-base-secondary px-3 py-2 text-sm text-text-primary"
+                className="rounded-lg bg-bg-subtle px-3 py-2 text-sm text-fg-default"
               >
                 행 {i + 1}
               </div>

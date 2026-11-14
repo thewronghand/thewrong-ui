@@ -4,20 +4,6 @@
     "dark": {},
     "palette": {
       "src/components/modal/ModalSubView.tsx": 1
-    },
-    "legacy": {
-      "src/components/button/utils.ts": 5,
-      "src/components/input/Input.tsx": 2,
-      "src/components/input/utils.ts": 4,
-      "src/components/search-box/ExactMatchToggle.tsx": 1,
-      "src/components/search-box/SearchBox.tsx": 1,
-      "src/components/search-box/SearchBoxFloatingSelect.tsx": 1,
-      "src/components/search-box/SearchBoxMultiSelect.tsx": 1,
-      "src/components/select/utils.ts": 4,
-      "src/components/switch/utils.ts": 1,
-      "src/components/table/components/ColumnPresetSelector.tsx": 4,
-      "src/components/table/components/ColumnSettingsTable.tsx": 1,
-      "src/components/textarea/Textarea.tsx": 3
     }
   }
 }

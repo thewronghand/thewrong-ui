@@ -48,7 +48,7 @@ export const AllVariants: Story = {
       {(["primary", "secondary", "tertiary", "danger"] as const).map(
         (variant) => (
           <div key={variant} className="flex items-center gap-3">
-            <span className="w-24 text-sm text-secondary-500">{variant}</span>
+            <span className="w-24 text-sm text-fg-muted">{variant}</span>
             <Button variant={variant} appearance="filled">
               Filled
             </Button>

@@ -34,7 +34,7 @@ interface Props {
  * 시그니처를 유지한다. 빈 값이면 미선택, "A,B"면 두 항목 선택.
  *
  * SearchBoxFloatingInput/Select와 동일한 플로팅 라벨 UX. 보더와 라벨이 포커스/오픈 시
- * primary-500으로 통일된다.
+ * 시맨틱 primary 색을 따른다.
  *
  * number[] 전용 드롭다운은 적합하지 않아 별도 inline 컴포넌트로 둔다.
  *

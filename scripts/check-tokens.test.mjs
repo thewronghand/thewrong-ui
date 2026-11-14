@@ -26,6 +26,11 @@ const invalid = [
   "bg-[var(--color-bg-surfce)]",
   "unknown-variant:bg-(--color-bg-surfce)",
   "w-(--spacing-control-mediun)",
+  "text-text-primary",
+  "bg-bg-card",
+  "border-border-tertiary",
+  "text-secondary-500",
+  "bg-primary-500",
 ];
 const valid = [
   "bg-bg-surface",
@@ -37,6 +42,14 @@ const valid = [
   "bg-bg-surface/[0.5]",
   "w-[200px]",
   "bottom-sheet",
+  "border-border-primary",
+  "border-border-disabled",
+  "border-border-danger",
+  "bg-bg-disabled",
+  "text-icon-primary",
+  "text-icon-secondary",
+  "text-icon-tertiary",
+  "text-icon-disabled",
 ];
 const fixture = `
 const a = [base, "bg-bg-surfce"].join(" ");
@@ -87,6 +100,11 @@ describe("Tailwind 후보에서 토큰 검사", () => {
     ]);
   });
 
+  it("Tailwind 기본 neutral 스케일은 팔레트 사용으로 잡는다", async () => {
+    const result = await analyzeContents([{ rel: "palette.tsx", content: '"text-neutral-500"' }]);
+    expect(result.details.palette.map(({ token }) => token)).toEqual(["text-neutral-500"]);
+  });
+
   it("같은 클래스가 반복되면 파일별 출현 횟수를 센다", async () => {
     const result = await analyzeContents([
       { rel: "a.ts", content: '"dark:bg-white dark:bg-white"' },
@@ -116,9 +134,8 @@ describe("문자열 리터럴의 토큰 검사", () => {
       "--p-color-violet-600", "--p-color-gray-100", "--p-color-gray-100",
     ]);
     expect(result.details.palette.map(({ token }) => token)).toEqual(["#FFFFFF"]);
-    expect(result.details.legacy.map(({ token }) => token)).toEqual(["--color-secondary-700"]);
     expect(result.details.undefined.map(({ token }) => token)).toEqual([
-      "--color-bg-toastt", "--z-floatng", "--z-floatng",
+      "--color-bg-toastt", "--color-secondary-700", "--z-floatng", "--z-floatng",
     ]);
     const denied = await analyzeContents([{ rel: "runtime.ts", content: 'const x = "var(--overlay-viewport-width)";' }]);
     expect(denied.details.undefined.map(({ token }) => token)).toEqual(["--overlay-viewport-width"]);
@@ -129,8 +146,7 @@ describe("문자열 리터럴의 토큰 검사", () => {
     const result = await analyzeContents([{ rel: "overlap.tsx", content }]);
     expect(result.counts.primitive["overlap.tsx"]).toBe(1);
     expect(result.counts.palette["overlap.tsx"]).toBe(1);
-    expect(result.counts.legacy["overlap.tsx"]).toBe(1);
-    expect(result.counts.undefined["overlap.tsx"]).toBe(1);
+    expect(result.counts.undefined["overlap.tsx"]).toBe(2);
   });
 });
 
@@ -147,23 +163,23 @@ describe("라이브러리 소스 범위", () => {
 
 describe("기준선 파일별 증가", () => {
   it("합계가 그대로여도 다른 파일의 증가를 보고한다", () => {
-    const previous = { dark: { "a.ts": 2, "b.ts": 1 }, palette: {}, legacy: {} };
-    const current = { dark: { "a.ts": 1, "b.ts": 2 }, palette: {}, legacy: {} };
+    const previous = { dark: { "a.ts": 2, "b.ts": 1 }, palette: {} };
+    const current = { dark: { "a.ts": 1, "b.ts": 2 }, palette: {} };
     expect(baselineIncreases(previous, current)).toEqual([
       { key: "dark", file: "b.ts", before: 1, after: 2 },
     ]);
   });
 
   it("파일 이름이 바뀌어도 자동으로 허용하지 않는다", () => {
-    expect(baselineIncreases({ legacy: { "old.ts": 1 } }, { legacy: { "new.ts": 1 } })).toEqual([
-      { key: "legacy", file: "new.ts", before: 0, after: 1 },
+    expect(baselineIncreases({ palette: { "old.ts": 1 } }, { palette: { "new.ts": 1 } })).toEqual([
+      { key: "palette", file: "new.ts", before: 0, after: 1 },
     ]);
   });
 
   it("카테고리 전체가 50%를 초과해 감소한 경우만 보고한다", () => {
     expect(baselineLargeDecreases(
-      { dark: { a: 10 }, palette: { a: 10 }, legacy: { a: 1 } },
-      { dark: { a: 5 }, palette: { a: 4 }, legacy: { a: 1 } },
+      { dark: { a: 10 }, palette: { a: 10 } },
+      { dark: { a: 5 }, palette: { a: 4 } },
     )).toEqual([{ key: "palette", before: 10, after: 4 }]);
   });
 });
