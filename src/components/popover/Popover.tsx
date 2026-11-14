@@ -130,7 +130,7 @@ export function Popover({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
                 className={cn(
-                  "bg-bg-surface rounded-surface shadow-tooltip border border-border-subtle p-4 min-w-60 max-w-[320px]",
+                  "bg-bg-surface text-fg-default rounded-surface shadow-tooltip border border-border-subtle p-4 min-w-60 max-w-[320px]",
                   className,
                 )}
               >
