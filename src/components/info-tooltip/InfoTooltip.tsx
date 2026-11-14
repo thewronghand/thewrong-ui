@@ -34,7 +34,7 @@ export function InfoTooltip({ content, position = "top" }: InfoTooltipProps) {
 
       {/* 툴팁 */}
       <div
-        className={`absolute ${positionClasses[position]} z-50 px-3 py-2 bg-neutral-900 dark:bg-neutral-700 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none w-64 whitespace-normal`}
+        className={`absolute ${positionClasses[position]} z-floating px-3 py-2 bg-neutral-900 dark:bg-neutral-700 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none w-64 whitespace-normal`}
       >
         {content}
         {/* 화살표 */}

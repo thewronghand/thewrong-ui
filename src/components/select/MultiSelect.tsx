@@ -532,7 +532,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                 style={floatingStyles}
                 {...getFloatingProps()}
                 className={cn(
-                  "z-9999 overflow-hidden rounded-surface border border-border-subtle bg-bg-surface shadow-overlay",
+                  "z-floating overflow-hidden rounded-surface border border-border-subtle bg-bg-surface shadow-overlay",
                   panelClassName,
                 )}
               >

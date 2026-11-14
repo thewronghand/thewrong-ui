@@ -173,7 +173,7 @@ export function Modal({
               if (!dismissible || !isTop()) return;
               onClose();
             }}
-            className="fixed inset-0 z-50 bg-black/50"
+            className="fixed inset-0 z-overlay bg-black/50"
           />
         )}
       </AnimatePresence>
@@ -228,7 +228,7 @@ export function Modal({
             // 사이에 백드롭이 비치는 현상을 막기 위해, 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 콘텐츠는 그대로 두면서 바닥 틈을 항상 메운다.
             className={cn(
-              "fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl outline-none sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
+              "fixed -bottom-8 left-0 right-0 z-overlay mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl outline-none sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
               className,
             )}
             style={

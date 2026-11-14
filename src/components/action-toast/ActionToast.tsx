@@ -371,7 +371,7 @@ function ActionToastView({
               toast.dismiss(toastInstance.id);
               setActionToastActive(false);
             }}
-            className={`fixed inset-0 z-9998 bg-black/15 ${
+            className={`fixed inset-0 z-toast-backdrop bg-black/15 ${
               toastInstance.visible ? "" : "pointer-events-none"
             }`}
             aria-hidden

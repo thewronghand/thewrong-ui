@@ -90,7 +90,7 @@ export function Tooltip({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-9999 pointer-events-none rounded bg-neutral-800 px-2 py-1 text-xs whitespace-nowrap text-white dark:bg-neutral-700"
+            className="z-floating pointer-events-none rounded bg-neutral-800 px-2 py-1 text-xs whitespace-nowrap text-white dark:bg-neutral-700"
           >
             {content}
           </div>

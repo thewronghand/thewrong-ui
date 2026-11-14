@@ -38,11 +38,10 @@ export function ToastProvider({ children }: ToastProviderProps) {
       {children}
       <Toaster
         position={position}
-        containerStyle={
-          isMobile
-            ? { top: "calc(16px + env(safe-area-inset-top))" }
-            : undefined
-        }
+        containerStyle={{
+          zIndex: "var(--z-toast)",
+          ...(isMobile ? { top: "calc(16px + env(safe-area-inset-top))" } : {}),
+        }}
         toastOptions={{
           duration: 3000,
           style: {

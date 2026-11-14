@@ -122,7 +122,7 @@ export function Popover({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-9999"
+              className="z-floating"
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}

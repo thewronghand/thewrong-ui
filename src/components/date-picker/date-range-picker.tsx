@@ -122,7 +122,7 @@ export function DateRangePicker({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-50 bg-black/40"
+                  className="fixed inset-0 z-overlay bg-black/40"
                   onClick={() => setIsOpen(false)}
                 />
               )}
@@ -146,7 +146,7 @@ export function DateRangePicker({
                   dragConstraints={{ top: 0 }}
                   dragElastic={{ top: 0, bottom: 0.4 }}
                   onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-5 rounded-t-2xl bg-bg-card p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-2xl"
+                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-card p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-2xl"
                 >
                   <div
                     className="self-center h-1 w-10 rounded-full bg-bg-base-tertiary cursor-grab touch-none active:cursor-grabbing"
@@ -168,7 +168,7 @@ export function DateRangePicker({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-9999 rounded-2xl border border-border-tertiary bg-bg-card p-6 shadow-md"
+              className="z-floating rounded-2xl border border-border-tertiary bg-bg-card p-6 shadow-md"
             >
               <DateRangeBody
                 value={value}
