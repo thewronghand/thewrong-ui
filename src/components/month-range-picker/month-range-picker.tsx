@@ -53,6 +53,7 @@ function MonthPanel({
   onMove,
   focusedMonth,
   onFocusMonth,
+  focusOnMount,
   showPrev = true,
   showNext = true,
 }: {
@@ -64,14 +65,26 @@ function MonthPanel({
   onMove: (value: MonthValue) => void;
   focusedMonth: MonthValue;
   onFocusMonth: (value: MonthValue) => void;
+  focusOnMount: boolean;
   showPrev?: boolean;
   showNext?: boolean;
 }) {
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
+  const initialFocus = useRef({ focusedMonth, year });
+  const hasMoved = useRef(false);
   useEffect(() => {
+    // 플로팅 패널은 처음에 트리거에 포커스를 남기고, 시트는 기존 초기 포커스를 유지한다.
+    if (!focusOnMount && !hasMoved.current) {
+      if (
+        initialFocus.current.focusedMonth === focusedMonth &&
+        initialFocus.current.year === year
+      )
+        return;
+      hasMoved.current = true;
+    }
     if (focusedMonth.year !== year) return;
     refs.current[focusedMonth.month - 1]?.focus();
-  }, [focusedMonth, year]);
+  }, [focusOnMount, focusedMonth, year]);
   const move = (month: number) => {
     const next = shiftMonth({ year, month: 1 }, month - 1);
     onMove(next);
@@ -252,6 +265,7 @@ export function MonthRangePicker({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         useSheet={useSheet}
+        context={context}
         setFloating={refs.setFloating}
         floatingStyles={floatingStyles}
         getFloatingProps={(props) =>
@@ -262,6 +276,7 @@ export function MonthRangePicker({
         <MonthRangeBody
           value={value}
           isMobile={isMobile}
+          focusOnMount={useSheet}
           onClose={() => setIsOpen(false)}
           onApply={(next) => {
             onApply(next);
@@ -276,11 +291,13 @@ export function MonthRangePicker({
 function MonthRangeBody({
   value,
   isMobile,
+  focusOnMount,
   onApply,
   onClose,
 }: {
   value?: MonthRange;
   isMobile: boolean;
+  focusOnMount: boolean;
   onApply: (value: MonthRange) => void;
   onClose: () => void;
 }) {
@@ -326,6 +343,7 @@ function MonthRangeBody({
           onMove={move}
           focusedMonth={focusedMonth}
           onFocusMonth={setFocusedMonth}
+          focusOnMount={focusOnMount}
           showPrev
           showNext={isMobile}
         />
@@ -341,6 +359,7 @@ function MonthRangeBody({
               onMove={move}
               focusedMonth={focusedMonth}
               onFocusMonth={setFocusedMonth}
+              focusOnMount={focusOnMount}
               showPrev={false}
               showNext
             />

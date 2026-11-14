@@ -1,4 +1,9 @@
-import { FloatingPortal, type useInteractions } from "@floating-ui/react";
+import {
+  FloatingFocusManager,
+  FloatingPortal,
+  type FloatingContext,
+  type useInteractions,
+} from "@floating-ui/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useContext, type CSSProperties, type ReactNode } from "react";
 
@@ -24,6 +29,7 @@ interface PickerSheetProps {
   isOpen: boolean;
   onClose: () => void;
   useSheet: boolean;
+  context: FloatingContext;
   setFloating: (node: HTMLElement | null) => void;
   floatingStyles: CSSProperties;
   getFloatingProps: ReturnType<typeof useInteractions>["getFloatingProps"];
@@ -36,6 +42,7 @@ export function PickerSheet({
   isOpen,
   onClose,
   useSheet,
+  context,
   setFloating,
   floatingStyles,
   getFloatingProps,
@@ -104,14 +111,22 @@ export function PickerSheet({
         </>
       ) : (
         isOpen && (
-          <div
-            ref={setFloating}
-            style={floatingStyles}
-            {...getFloatingProps()}
-            className={desktopClassName}
+          <FloatingFocusManager
+            context={context}
+            modal={false}
+            initialFocus={-1}
+            // Tab으로 패널을 벗어나도 닫지 않아 Modal의 다음 순환에서 다시 진입한다.
+            closeOnFocusOut={false}
           >
-            {children}
-          </div>
+            <div
+              ref={setFloating}
+              style={floatingStyles}
+              {...getFloatingProps()}
+              className={desktopClassName}
+            >
+              {children}
+            </div>
+          </FloatingFocusManager>
         )
       )}
     </FloatingPortal>

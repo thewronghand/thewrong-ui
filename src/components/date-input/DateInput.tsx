@@ -18,6 +18,7 @@ interface Props {
   /**
    * true면 trailing 캘린더 버튼이 모바일에서도 popover로만 떠 자체 바텀시트를 만들지 않는다.
    * 호출부가 이미 시트(예: SearchBox 모바일 바텀시트) 안에 있을 때 시트 두 개 겹침 회피.
+   * 생략하면 Modal·Drawer 안에서 자동 적용되며, false를 명시하면 시트를 유지한다.
    */
   disableMobileSheet?: boolean;
 }
@@ -36,7 +37,7 @@ export function DateInput({
   ariaLabel,
   label,
   className = "",
-  disableMobileSheet = false,
+  disableMobileSheet,
 }: Props) {
   // DateInput mini/small은 avocado의 다른 필드 small/medium 높이에 대응한다.
   const isMini = size === "mini";

@@ -107,6 +107,7 @@ export function DatePicker({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         useSheet={useSheet}
+        context={context}
         setFloating={refs.setFloating}
         floatingStyles={floatingStyles}
         getFloatingProps={getFloatingProps}
