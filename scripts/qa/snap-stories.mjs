@@ -200,33 +200,33 @@ async function main() {
     stories = stories.filter(
       (s) => s.id.includes(args.filter) || s.title.includes(args.filter),
     );
+  if (stories.length === 0) throw new Error("촬영할 스토리가 없다.");
   stories.sort((a, b) => a.id.localeCompare(b.id));
-
-  const selectedPngs = new Set(
-    stories.flatMap(({ id }) => [`${id}.png`, `${id}-open.png`]),
-  );
-  for (const mode of modes) {
-    for (const vp of viewports) {
-      const outDir = join(args.out, mode, vp);
-      mkdirSync(outDir, { recursive: true });
-      if (!args.keep) {
-        for (const entry of readdirSync(outDir, { withFileTypes: true })) {
-          if (
-            entry.isFile() &&
-            entry.name.endsWith(".png") &&
-            (!args.filter || selectedPngs.has(entry.name))
-          )
-            unlinkSync(join(outDir, entry.name));
-        }
-      }
-    }
-  }
-  console.log("[snap] 주의: 다른 모드·뷰포트의 이전 failures JSON은 남는다.");
 
   const browser = await launchBrowser();
   let total = 0;
   let failedTotal = 0;
   try {
+    const selectedPngs = new Set(
+      stories.flatMap(({ id }) => [`${id}.png`, `${id}-open.png`]),
+    );
+    for (const mode of modes) {
+      for (const vp of viewports) {
+        const outDir = join(args.out, mode, vp);
+        mkdirSync(outDir, { recursive: true });
+        if (!args.keep) {
+          for (const entry of readdirSync(outDir, { withFileTypes: true })) {
+            if (
+              entry.isFile() &&
+              entry.name.endsWith(".png") &&
+              (!args.filter || selectedPngs.has(entry.name))
+            )
+              unlinkSync(join(outDir, entry.name));
+          }
+        }
+      }
+    }
+    console.log("[snap] 주의: 다른 모드·뷰포트의 이전 failures JSON은 남는다.");
     for (const mode of modes) {
       for (const vp of viewports) {
         const outDir = join(args.out, mode, vp);

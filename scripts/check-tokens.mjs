@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * 토큰 사용 검사 (래칫 방식).
- * src/components · src/hooks · src/lib의 ts/tsx에서 스토리와 테스트를 제외한다.
- * Tailwind의 스캐너가 보는 후보를 파일별 출현 횟수로 집계한다. 주석도 스캔된다.
+ * 라이브러리 CSS의 source 설정으로 스캔되는 코드에서 후보와 문자열 리터럴을 검사한다.
+ * Tailwind 후보는 주석도 스캔하고, 문자열 리터럴은 TypeScript AST로 추출한다.
  * dark·palette·legacy는 파일별 기준선보다 증가할 수 없고, primitive·undefined는 0이어야 한다.
  * 기준선 갱신 시 파일별 증가가 하나라도 있으면 --force가 필요하다 (파일명 변경 포함).
  * 동적으로 조합한 클래스와 역할 이름 자체의 오타는 스캐너가 찾지 못할 수 있다.
@@ -14,12 +14,14 @@ import { fileURLToPath } from "node:url";
 import { Scanner } from "@tailwindcss/oxide";
 import { __unstable__loadDesignSystem, compile } from "@tailwindcss/node";
 import postcss from "postcss";
+import ts from "typescript";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SCAN_DIRS = ["src/components", "src/hooks", "src/lib"];
 const BASELINE_PATH = join(ROOT, "scripts/token-baseline.json");
 const RATCHET = ["dark", "palette", "legacy"];
 const ZERO = ["primitive", "undefined"];
+// 현재 검사 대상에는 런타임에서만 주입되는 변수 참조가 없다.
+const RUNTIME_VARIABLE_ALLOWLIST = new Set();
 
 function listFiles(dir, filter) {
   const out = [];
@@ -112,6 +114,13 @@ const RE = {
     "g",
   ),
 };
+
+const LEGACY_VARIABLE = new RegExp(
+  `^--color-(?:(?:primary|secondary|error|warning|success|info|neutral)-${SCALE}|${LEGACY_SEMANTIC.join("|")})$`,
+);
+const LITERAL_PRIMITIVE = /--p-[a-z][a-z0-9_-]*/gi;
+const LITERAL_HEX = /#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})\b/gi;
+const LITERAL_VARIABLE = /(?<![a-z0-9-])var\(\s*(--[a-z0-9_-]+)/gi;
 
 const KEYWORDS = new Set([
   "transparent",
@@ -300,8 +309,41 @@ function customPropertyRefs(utility, parsed) {
   ))];
 }
 
+function stringLiterals(content, extension) {
+  const kinds = { ts: ts.ScriptKind.TS, tsx: ts.ScriptKind.TSX, js: ts.ScriptKind.JS, jsx: ts.ScriptKind.JSX };
+  const tree = ts.createSourceFile(`source.${extension}`, content, ts.ScriptTarget.Latest, true, kinds[extension] ?? ts.ScriptKind.TSX);
+  const literals = [];
+  const visit = (node) => {
+    let endOffset;
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateTail(node)) endOffset = 1;
+    else if (ts.isTemplateHead(node) || ts.isTemplateMiddle(node)) endOffset = 2;
+    if (endOffset !== undefined) {
+      const start = node.getStart(tree) + 1;
+      literals.push({ value: content.slice(start, node.end - endOffset), start });
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(tree);
+  return literals;
+}
+
+// Vite 플러그인과 같은 컴파일러 source·스캐너 파일 목록을 사용한다.
+export async function librarySourceFiles() {
+  const cssPath = join(ROOT, "src/styles/library.css");
+  const compiler = await compile(readFileSync(cssPath, "utf8"), {
+    base: dirname(cssPath), onDependency: () => {},
+  });
+  const roots = compiler.root === "none" ? [] : compiler.root === null
+    ? [{ base: ROOT, pattern: "**/*", negated: false }]
+    : [{ ...compiler.root, negated: false }];
+  const scanner = new Scanner({ sources: [...roots, ...compiler.sources] });
+  scanner.scan();
+  // CSS는 토큰의 정의이므로 컴포넌트의 사용처로 검사하지 않는다.
+  return scanner.files.filter((file) => !file.endsWith(".css")).sort();
+}
+
 // 테스트와 CLI가 같은 스캐너·분류·컴파일 경로를 사용한다.
-export async function analyzeContents(contents) {
+export async function analyzeContents(contents, { allowedRuntimeVars = RUNTIME_VARIABLE_ALLOWLIST } = {}) {
   const cssPath = join(ROOT, "src/styles/index.css");
   const css = readFileSync(cssPath, "utf8");
   const options = { base: dirname(cssPath), onDependency: () => {} };
@@ -314,13 +356,17 @@ export async function analyzeContents(contents) {
   const result = { dark: {}, primitive: {}, palette: {}, legacy: {}, undefined: {} };
   const details = { dark: [], primitive: [], palette: [], legacy: [], undefined: [] };
   const toCompile = [];
+  let candidateCount = 0;
   const record = (key, rel, token, position, reason = token) => {
     result[key][rel] = (result[key][rel] ?? 0) + 1;
     details[key].push({ rel, token, position, reason });
   };
 
   for (const { rel, content, extension = "tsx" } of contents) {
-    for (const { candidate: token, position } of scanner.getCandidatesWithPositions({ content, extension })) {
+    const covered = { primitive: [], palette: [], legacy: [], undefined: [] };
+    const candidates = scanner.getCandidatesWithPositions({ content, extension });
+    candidateCount += candidates.length;
+    for (const { candidate: token, position } of candidates) {
       let info = cache.get(token);
       if (!info) {
         const parsed = design.parseCandidate(token)[0];
@@ -341,17 +387,45 @@ export async function analyzeContents(contents) {
       const { utility, unmodified, dark, refs } = info;
       if (dark) record("dark", rel, token, position);
       for (const key of ["primitive", "palette", "legacy"]) {
-        for (const match of utility.matchAll(RE[key])) record(key, rel, token, position, match[0]);
+        let offset = 0;
+        for (const match of utility.matchAll(RE[key])) {
+          record(key, rel, token, position, match[0]);
+          const index = token.indexOf(match[0], offset);
+          if (index < 0) covered[key].push([position, position + token.length]);
+          else {
+            covered[key].push([position + index, position + index + match[0].length]);
+            offset = index + match[0].length;
+          }
+        }
       }
-      const missing = refs.filter((name) => !definedTokenVars.has(name));
+      const missing = refs.filter((name) => !definedTokenVars.has(name) && !allowedRuntimeVars.has(name));
       if (missing.length) {
         record("undefined", rel, token, position, `정의되지 않은 변수: ${missing.join(", ")}`);
+        covered.undefined.push([position, position + token.length]);
       } else if (
         !NOT_CLASS.has(unmodified) &&
         (isTokenCandidate(unmodified) || refs.length > 0) &&
         !KNOWN_UNDEFINED.has(`${rel} ${token}`)
       ) {
         toCompile.push({ rel, token, position, utility });
+      }
+    }
+    const recordLiteral = (key, token, start, reason = token) => {
+      const end = start + token.length;
+      if (!covered[key].some(([from, to]) => start < to && end > from))
+        record(key, rel, token, start, reason);
+    };
+    for (const { value, start } of stringLiterals(content, extension)) {
+      for (const match of value.matchAll(LITERAL_PRIMITIVE))
+        recordLiteral("primitive", match[0], start + match.index);
+      for (const match of value.matchAll(LITERAL_HEX))
+        recordLiteral("palette", match[0], start + match.index);
+      for (const match of value.matchAll(LITERAL_VARIABLE)) {
+        const name = match[1];
+        const position = start + match.index + match[0].lastIndexOf(name);
+        if (LEGACY_VARIABLE.test(name)) recordLiteral("legacy", name, position);
+        if (!definedTokenVars.has(name) && !allowedRuntimeVars.has(name))
+          recordLiteral("undefined", name, position, `정의되지 않은 변수: ${name}`);
       }
     }
   }
@@ -361,7 +435,7 @@ export async function analyzeContents(contents) {
     if (!compiledCss.includes(`.${escapeIdentifier(utility)} {`))
       record("undefined", rel, token, position, "Tailwind CSS 미생성");
   }
-  return { counts: result, details };
+  return { counts: result, details, candidateCount };
 }
 
 export function baselineIncreases(previous, current) {
@@ -371,18 +445,38 @@ export function baselineIncreases(previous, current) {
 }
 
 const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
+export function baselineLargeDecreases(previous, current) {
+  return RATCHET.flatMap((key) => {
+    const before = sum(previous[key] ?? {});
+    const after = sum(current[key] ?? {});
+    return after * 2 < before ? [{ key, before, after }] : [];
+  });
+}
+
 async function main() {
-  const files = SCAN_DIRS.flatMap((d) => listFiles(join(ROOT, d), (n) =>
-    /\.(ts|tsx)$/.test(n) && !/\.stories\.tsx$/.test(n) && !/\.test\.tsx?$/.test(n),
-  )).sort();
+  const canary = await analyzeContents([{
+    rel: "canary.tsx",
+    content: 'const dark = "dark:bg-white"; const typo = "bg-bg-surfce"; const primitive = "var(--p-color-gray-100)";',
+  }]);
+  if (["dark", "undefined", "primitive"].some((key) => sum(canary.counts[key]) !== 1)) {
+    console.error("[check:tokens] 카나리 자가검사 실패 — 스캐너와 토큰 분석 경로를 확인하라");
+    process.exitCode = 2;
+    return;
+  }
+  const files = await librarySourceFiles();
   const contents = files.map((file) => ({
     rel: relative(ROOT, file), content: readFileSync(file, "utf8"),
-    extension: file.endsWith(".tsx") ? "tsx" : "ts",
+    extension: file.split(".").at(-1),
   }));
-  const { counts: result, details } = await analyzeContents(contents);
+  const { counts: result, details, candidateCount } = await analyzeContents(contents);
+  if (candidateCount === 0) {
+    console.error("[check:tokens] 전체 스캔 후보가 0건이다 — 기준선을 갱신하지 않았다");
+    process.exitCode = 2;
+    return;
+  }
   const updateBaseline = process.argv.includes("--update-baseline");
 
-  console.log("[check:tokens] 집계 (스토리·테스트 제외)");
+  console.log("[check:tokens] 집계 (라이브러리 CSS의 스캔 대상)");
   for (const key of [...RATCHET, ...ZERO]) console.log(`  ${key.padEnd(10)} ${sum(result[key])}`);
   let failed = false;
   for (const key of ZERO) {
@@ -401,6 +495,10 @@ async function main() {
       for (const { key, file, before, after } of increases) {
         failed = true;
         console.log(`\n✗ ${key} 파일별 증가: ${file} ${before} → ${after} (갱신하려면 --force)`);
+      }
+      for (const { key, before, after } of baselineLargeDecreases(previous, result)) {
+        failed = true;
+        console.log(`\n✗ ${key} 전체 50% 초과 감소: ${before} → ${after} (갱신하려면 --force)`);
       }
     }
     if (failed) {

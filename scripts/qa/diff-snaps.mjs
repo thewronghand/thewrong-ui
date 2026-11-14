@@ -26,7 +26,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
 const require = createRequire(import.meta.url);
 const { PNG } = require("pngjs");
@@ -45,7 +45,15 @@ function listPngs(root) {
 }
 
 function containsPath(parent, child) {
-  const canonical = (dir) => existsSync(dir) ? realpathSync(dir) : resolve(dir);
+  const canonical = (dir) => {
+    let ancestor = isAbsolute(dir) ? dir : `${process.cwd()}${sep}${dir}`;
+    const missing = [];
+    while (!existsSync(ancestor)) {
+      missing.unshift(basename(ancestor));
+      ancestor = dirname(ancestor);
+    }
+    return resolve(realpathSync.native(ancestor), ...missing);
+  };
   const rel = relative(canonical(parent), canonical(child));
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
 }
@@ -126,6 +134,12 @@ function main() {
       "사용: node scripts/qa/diff-snaps.mjs <dirA> <dirB> [--out <diffDir>] [--tolerance <0~255>]",
     );
     process.exit(2);
+  }
+  for (const dir of [dirA, dirB]) {
+    if (!existsSync(dir) || !statSync(dir).isDirectory()) {
+      console.error(`비교 대상 폴더가 없다: ${dir}`);
+      process.exit(2);
+    }
   }
   if (outDir && [dirA, dirB].some((dir) => containsPath(outDir, dir) || containsPath(dir, outDir))) {
     console.error("--out은 비교 대상 폴더와 겹칠 수 없다.");
