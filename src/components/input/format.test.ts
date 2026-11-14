@@ -35,11 +35,14 @@ describe("입력 포맷", () => {
 });
 
 describe("포맷 입력의 커서 위치", () => {
-  it("1,000의 첫 숫자 뒤에 2를 입력하면 12,000의 2 뒤에 남는다", () => {
-    expect(getFormattedCursorPosition("12,000", "12,000", 2)).toBe(2);
+  it("쉼표 삽입과 삭제 뒤에도 커서 앞의 숫자 개수를 유지한다", () => {
+    expect(getFormattedCursorPosition("12300", "12,300", 3)).toBe(4);
+    expect(getFormattedCursorPosition("1,2345", "12,345", 3)).toBe(2);
   });
   it("끝에 입력하면 포맷이 바뀌어도 끝에 남는다", () => {
     expect(getFormattedCursorPosition("1,0002", "10,002", 6)).toBe(6);
+    expect(getFormattedCursorPosition("9999", "9,999", 4)).toBe(5);
+    expect(getFormattedCursorPosition("000123", "123", 6)).toBe(3);
   });
   it("쉼표 바로 뒤에서 지우면 다시 삽입된 쉼표 앞에 남는다", () => {
     expect(getFormattedCursorPosition("1000", "1,000", 1)).toBe(1);
@@ -53,5 +56,11 @@ describe("포맷 입력의 커서 위치", () => {
   });
   it("숫자가 없는 사용자 정의 포맷은 가능한 한 기존 위치를 유지한다", () => {
     expect(getFormattedCursorPosition("abcd", "ABC", 2)).toBe(2);
+  });
+  it("숫자 앞 문자가 바뀌어도 길이가 같으면 커서를 유지한다", () => {
+    expect(getFormattedCursorPosition("a123", "A123", 1)).toBe(1);
+    expect(getFormattedCursorPosition("-123", "+123", 1)).toBe(1);
+    expect(getFormattedCursorPosition(".a12", ".A12", 2)).toBe(2);
+    expect(getFormattedCursorPosition("a123", "123", 1)).toBe(0);
   });
 });

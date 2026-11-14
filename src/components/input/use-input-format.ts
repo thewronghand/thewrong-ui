@@ -13,7 +13,11 @@ export function applyInputFormat(
   return { display, raw };
 }
 
-/** 포맷 변경 전 커서 앞의 숫자 개수를 포맷된 값에서도 유지한다. */
+/**
+ * 포맷 변경 전 커서 앞의 숫자 개수를 포맷된 값에서도 유지한다.
+ * 커서 보존은 내장 price·phoneNumber·businessNumber처럼 숫자 기반 포맷을 전제로 한다.
+ * 다른 구분자나 문자의 위치까지 보존해야 하면 format 대신 제어 입력과 별도 커서 관리를 사용한다.
+ */
 export function getFormattedCursorPosition(
   typedValue: string,
   formattedValue: string,
@@ -28,7 +32,9 @@ export function getFormattedCursorPosition(
     return Math.min(position, formattedValue.length);
   }
   const digitsBefore = (typedValue.slice(0, position).match(/\d/g) ?? []).length;
-  if (digitsBefore === 0) return 0;
+  if (digitsBefore === 0) {
+    return typedValue.length === formattedValue.length ? position : 0;
+  }
 
   let digitsSeen = 0;
   for (let index = 0; index < formattedValue.length; index++) {
@@ -60,6 +66,8 @@ function setNativeValue(node: HTMLInputElement, value: string): void {
  * 이렇게 하면 `e.target`이 실제 DOM 엘리먼트라 `name`·`type` 등 모든 속성이 보존된다.
  * `{ ...e.target, value }` 스프레드는 prototype 속성을 복사하지 않으므로 사용하지 않는다.
  * 원본 값은 onChange 호출 중 읽어야 하며, 호출 직후에는 표시 값으로 돌아간다.
+ * format 사용 중 IME 조합 단계에서는 포맷하지 않은 입력 원문을 onChange로 전달하고,
+ * 조합 확정 시 변환 및 reset을 적용한 원본 값을 onChange로 한 번 더 전달한다.
  *
  * @returns displayValue — 화면에 표시할 포맷팅된 값
  * @returns handleChange — onChange 핸들러 (format 적용 후 부모 onChange 호출)
