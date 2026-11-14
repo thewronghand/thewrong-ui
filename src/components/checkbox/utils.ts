@@ -60,9 +60,9 @@ export function getCheckboxLineTransparentClasses(
     primary:
       "border-border-subtle peer-checked:border-primary text-primary-fg",
     secondary:
-      "border-border-subtle peer-checked:border-neutral-fill text-neutral-fill",
+      "border-border-subtle peer-checked:border-neutral-fill text-neutral-fg",
     neutral:
-      "border-border-subtle peer-checked:border-neutral-fg text-neutral-fg",
+      "border-border-subtle peer-checked:border-neutral-fill text-neutral-fg",
   };
 
   return `${getCheckboxInputBaseClasses()} rounded-checkbox border-2 bg-transparent ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;
