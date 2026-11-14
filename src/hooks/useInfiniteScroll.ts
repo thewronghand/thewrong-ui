@@ -27,8 +27,7 @@ export interface LegacyInfiniteScrollOptions extends CommonOptions {
 }
 
 export type UseInfiniteScrollOptions =
-  | InfiniteScrollOptions
-  | LegacyInfiniteScrollOptions;
+  InfiniteScrollOptions | LegacyInfiniteScrollOptions;
 export interface UseInfiniteScrollReturn {
   /** 스크롤 영역 끝에 렌더할 감지 요소의 ref. */
   sentinelRef: RefObject<HTMLDivElement | null>;

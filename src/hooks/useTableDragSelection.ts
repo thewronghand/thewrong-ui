@@ -64,10 +64,10 @@ export function useTableDragSelection<T>({
     const map = new Map<string | number, number>();
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (row !== undefined) map.set(getRowId(row), i);
+      if (row !== undefined) map.set(getRowIdRef.current(row), i);
     }
     return map;
-  }, [rows, getRowId]);
+  }, [rows]);
   const idToIndexRef = useRef(idToIndex);
   idToIndexRef.current = idToIndex;
 
@@ -133,39 +133,45 @@ export function useTableDragSelection<T>({
     return idToIndexRef.current.get(id) ?? -1;
   };
 
-  const onRowMouseDown = useCallback((index: number) => {
-    if (!enabled) return;
-    const rowsNow = rowsRef.current;
-    const row = rowsNow[index];
-    if (row === undefined) return;
-    isDraggingRef.current = true;
-    lastIdRef.current = getRowIdRef.current(row);
-    dragModeRef.current = !isSelectedRef.current(row);
-    setSelectedRef.current(row, dragModeRef.current);
-  }, [enabled]);
+  const onRowMouseDown = useCallback(
+    (index: number) => {
+      if (!enabled) return;
+      const rowsNow = rowsRef.current;
+      const row = rowsNow[index];
+      if (row === undefined) return;
+      isDraggingRef.current = true;
+      lastIdRef.current = getRowIdRef.current(row);
+      dragModeRef.current = !isSelectedRef.current(row);
+      setSelectedRef.current(row, dragModeRef.current);
+    },
+    [enabled],
+  );
 
-  const onRowMouseEnter = useCallback((index: number) => {
-    if (!enabled || !isDraggingRef.current) return;
-    const rowsNow = rowsRef.current;
-    const row = rowsNow[index];
-    if (row === undefined) return;
-    const enterId = getRowIdRef.current(row);
-    if (enterId === lastIdRef.current) return;
-    // 마지막 ID의 현재 인덱스를 동적으로 탐색 — 데이터가 바뀌어도 안전.
-    const lastIndex = indexOfId(lastIdRef.current);
-    const fromIndex = lastIndex === -1 ? index : lastIndex;
-    const from = Math.min(fromIndex, index);
-    const to = Math.max(fromIndex, index);
-    for (let i = from; i <= to; i++) {
-      const r = rowsNow[i];
-      if (r === undefined) continue;
-      const cur = isSelectedRef.current(r);
-      if (cur !== dragModeRef.current) {
-        setSelectedRef.current(r, dragModeRef.current);
+  const onRowMouseEnter = useCallback(
+    (index: number) => {
+      if (!enabled || !isDraggingRef.current) return;
+      const rowsNow = rowsRef.current;
+      const row = rowsNow[index];
+      if (row === undefined) return;
+      const enterId = getRowIdRef.current(row);
+      if (enterId === lastIdRef.current) return;
+      // 마지막 ID의 현재 인덱스를 동적으로 탐색 — 데이터가 바뀌어도 안전.
+      const lastIndex = indexOfId(lastIdRef.current);
+      const fromIndex = lastIndex === -1 ? index : lastIndex;
+      const from = Math.min(fromIndex, index);
+      const to = Math.max(fromIndex, index);
+      for (let i = from; i <= to; i++) {
+        const r = rowsNow[i];
+        if (r === undefined) continue;
+        const cur = isSelectedRef.current(r);
+        if (cur !== dragModeRef.current) {
+          setSelectedRef.current(r, dragModeRef.current);
+        }
       }
-    }
-    lastIdRef.current = enterId;
-  }, [enabled]);
+      lastIdRef.current = enterId;
+    },
+    [enabled],
+  );
 
   return {
     onRowMouseDown,

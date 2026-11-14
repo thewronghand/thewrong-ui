@@ -61,7 +61,7 @@ export const Message: Story = {
             id="field-email"
             variant="box"
             hasError={show}
-            aria-describedby="field-error"
+            aria-describedby={show ? "field-error" : undefined}
           />
           <FieldMessage
             animated

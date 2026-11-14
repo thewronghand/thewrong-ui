@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export interface AnimatedHeightProps {
@@ -36,6 +36,7 @@ export function AnimatedHeight({
   ease = [0.16, 1, 0.3, 1],
   className = "",
 }: AnimatedHeightProps) {
+  const prefersReducedMotion = useReducedMotion();
   const innerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number | "auto">("auto");
   // 첫 ResizeObserver 콜백은 transition 없이 즉시 적용 — 진입 시점 점프 방지.
@@ -65,7 +66,9 @@ export function AnimatedHeight({
     <motion.div
       animate={{ height }}
       transition={
-        animateEnabled ? { duration: durationMs / 1000, ease } : { duration: 0 }
+        animateEnabled && !prefersReducedMotion
+          ? { duration: durationMs / 1000, ease }
+          : { duration: 0 }
       }
       style={{ overflow: "hidden" }}
       className={className}

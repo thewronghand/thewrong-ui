@@ -62,13 +62,15 @@ export function calculateFillEmptyRows({
   tbodyHeight: number;
   emptyRowsHeight: number;
 }): UseFillEmptyRowsReturn | null {
-  if (rowHeights.length === 0) return { emptyRowCount: 0, measuredRowHeight: null };
+  if (rowHeights.length === 0)
+    return { emptyRowCount: 0, measuredRowHeight: null };
   const realRowsHeight = rowHeights.reduce((sum, height) => sum + height, 0);
   const average = realRowsHeight / rowHeights.length;
   if (average <= 0) return null;
-  const occupied = remainingMode === "tbody-height"
-    ? Math.max(0, tbodyHeight - emptyRowsHeight)
-    : realRowsHeight;
+  const occupied =
+    remainingMode === "tbody-height"
+      ? Math.max(0, tbodyHeight - emptyRowsHeight)
+      : realRowsHeight;
   const remaining = containerHeight - headerHeight - occupied;
   return {
     emptyRowCount: remaining > 0 ? Math.floor(remaining / average) : 0,
@@ -108,13 +110,17 @@ export function useFillEmptyRows({
     if (!container || !thead || !tbody) return;
 
     const recalc = () => {
-      const rows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>(excludeRowsSelector));
+      const rows = Array.from(
+        tbody.querySelectorAll<HTMLTableRowElement>(excludeRowsSelector),
+      );
       const rowHeights = rows.map((row) => row.offsetHeight);
       // 이미 렌더된 빈 행이 점유 높이에 다시 들어가면 개수가 0과 원래 값 사이에서 진동한다.
-      const emptyRowsHeight = remainingMode === "tbody-height"
-        ? Array.from(tbody.querySelectorAll<HTMLTableRowElement>("tr[data-empty-row]"))
-            .reduce((sum, row) => sum + row.offsetHeight, 0)
-        : 0;
+      const emptyRowsHeight =
+        remainingMode === "tbody-height"
+          ? Array.from(
+              tbody.querySelectorAll<HTMLTableRowElement>("tr[data-empty-row]"),
+            ).reduce((sum, row) => sum + row.offsetHeight, 0)
+          : 0;
       const result = calculateFillEmptyRows({
         containerHeight: container.clientHeight,
         headerHeight: thead.offsetHeight,
@@ -124,8 +130,12 @@ export function useFillEmptyRows({
         emptyRowsHeight,
       });
       if (!result) return;
-      setMeasuredRowHeight((prev) => prev === result.measuredRowHeight ? prev : result.measuredRowHeight);
-      setEmptyRowCount((prev) => prev === result.emptyRowCount ? prev : result.emptyRowCount);
+      setMeasuredRowHeight((prev) =>
+        prev === result.measuredRowHeight ? prev : result.measuredRowHeight,
+      );
+      setEmptyRowCount((prev) =>
+        prev === result.emptyRowCount ? prev : result.emptyRowCount,
+      );
     };
 
     recalc();

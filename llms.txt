@@ -13,12 +13,12 @@ import "@thewrong/ui/styles.css";
 // 2. 컴포넌트 import (전부 named export)
 import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 
-// 훅만 필요하면 서브패스로 — 무거운 UI 의존(motion/floating)이 안 끌려온다.
+// 훅만 필요하면 서브패스로 — 미사용 훅은 번들러가 트리셰이킹한다.
 import { useIsMobile } from "@thewrong/ui/hooks";
 ```
 
 - 패키지명: `@thewrong/ui` · React `>=18` peerDependency.
-- 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅만, motion/floating 의존 0) · `@thewrong/ui/styles.css`(스타일, 한 번만 import) · `@thewrong/ui/tokens.css`(토큰 소스 — 소비자 Tailwind v4에서 `@import`하면 `bg-bg-surface`·`rounded-control-medium`·`z-floating` 등 유틸 생성). 컴파일한 소비자 CSS와 `styles.css`를 함께 사용할 수 있다.
+- 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅 전용, 직접 실행 시 motion 필요) · `@thewrong/ui/styles.css`(스타일, 한 번만 import) · `@thewrong/ui/tokens.css`(토큰 소스 — 소비자 Tailwind v4에서 `@import`하면 `bg-bg-surface`·`rounded-control-medium`·`z-floating` 등 유틸 생성). 컴파일한 소비자 CSS와 `styles.css`를 함께 사용할 수 있다.
 - 라이브러리는 컴포넌트별 코드분할되어 있어 소비자 번들러가 안 쓰는 컴포넌트를 트리셰이킹한다.
 
 ## 스타일 커스터마이징 (소비자가 색/스타일 바꾸기)
@@ -36,7 +36,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 
 - **모든 export는 named export.** default export 없음.
 - **무거운 의존은 optional peerDependency** — 해당 컴포넌트를 쓸 때만 그 패키지를 함께 설치한다:
-  - `motion` → Modal, Drawer, ActionToast, Popover, DatePicker류, Table, AnimatedHeight, FieldMessage(animated), TypingDots, TypewriterText, useBottomSheetDrag
+  - `motion` → Modal, Drawer, ActionToast, Popover, DatePicker류, Table, AnimatedHeight, FieldMessage(animated 여부와 무관), TypingDots, TypewriterText, useBottomSheetDrag
   - `@floating-ui/react` → Select, Popover, Tooltip, DatePicker류, SearchBox, Table
   - `react-hot-toast` → Toast, ActionToast, SearchBox, Table
   - `@dnd-kit/*`, `@tanstack/react-virtual` → Table (컬럼 DnD / 가상화)
