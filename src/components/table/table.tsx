@@ -76,7 +76,7 @@ const restrictHeaderDrag: Modifier = ({
  *
  * 페이지네이션이 없는 조회 API 또는 페이지네이션 영역을 별도로 렌더하는 경우 사용.
  * PaginatedTable은 이 컴포넌트를 wrap해서 footer(Pagination/PageJump/PageSize)를 추가.
- * 컬럼 너비 합이 컨테이너보다 작아 열이 늘어나면 브라우저가 남는 폭을 재분배하므로 드래그 이동량과 화면 변화량이 비례하지 않는다. 컬럼 합을 컨테이너 이상으로 두거나 마지막에 여백 컬럼을 둔다(AccordionTable 방식).
+ * 컬럼 너비 합이 컨테이너보다 작아 열이 늘어나면 브라우저가 남는 폭을 재분배하므로 드래그 이동량과 화면 변화량이 비례하지 않는다. 컬럼 합을 컨테이너 이상으로 지정한다(여백 컬럼이 필요하면 AccordionTable을 쓴다 — Table에는 여백 컬럼 옵션이 없다).
  */
 // forwardRef가 제네릭 인자를 그대로 보존하지 못해서 `any`로 우회 후 아래에서 제네릭 시그니처로 cast.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
