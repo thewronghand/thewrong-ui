@@ -1,5 +1,4 @@
 import {
-  FloatingPortal,
   autoUpdate,
   flip,
   offset,
@@ -28,11 +27,10 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState, type ReactNode } from "react";
 
-import { useBottomSheetDrag, useIsMobile, useScrollLock } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { PickerSheet, usePickerMobile } from "./PickerSheet";
 
 export interface DateRange {
   from: string | null;
@@ -45,6 +43,8 @@ interface DateRangePickerProps {
   value?: DateRange;
   onApply: (range: DateRange) => void;
   disabled?: boolean;
+  /** 이미 바텀시트 안에 있으면 모바일에서도 popover로 표시한다. */
+  disableMobileSheet?: boolean;
 }
 
 const MONTH_LIST_RANGE = 24;
@@ -61,9 +61,10 @@ export function DateRangePicker({
   value,
   onApply,
   disabled,
+  disableMobileSheet = false,
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const { isMobile, useSheet } = usePickerMobile(disableMobileSheet);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -90,13 +91,6 @@ export function DateRangePicker({
     role,
   ]);
 
-  useScrollLock(isOpen && isMobile);
-
-  // 모바일 바텀시트 드래그-다운 닫기 (공용 훅).
-  const { dragControls, handleDragEnd, startDrag } = useBottomSheetDrag({
-    onDismiss: () => setIsOpen(false),
-  });
-
   const handleApply = (range: DateRange) => {
     onApply(range);
     setIsOpen(false);
@@ -111,75 +105,22 @@ export function DateRangePicker({
       >
         {children}
       </span>
-      <FloatingPortal>
-        {isMobile ? (
-          <>
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="date-range-picker-dimmer"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-overlay bg-bg-overlay"
-                  onClick={() => setIsOpen(false)}
-                />
-              )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="date-range-picker-sheet"
-                  ref={refs.setFloating}
-                  {...getFloatingProps()}
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{
-                    y: "100%",
-                    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
-                  }}
-                  transition={{ type: "spring", damping: 30, stiffness: 320 }}
-                  drag="y"
-                  dragListener={false}
-                  dragControls={dragControls}
-                  dragConstraints={{ top: 0 }}
-                  dragElastic={{ top: 0, bottom: 0.4 }}
-                  onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface text-fg-default p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
-                >
-                  <div
-                    className="self-center h-1 w-10 rounded-full bg-bg-handle cursor-grab touch-none active:cursor-grabbing"
-                    onPointerDown={startDrag}
-                  />
-                  <DateRangeBody
-                    value={value}
-                    isMobile
-                    onApply={handleApply}
-                    onClose={() => setIsOpen(false)}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
-        ) : (
-          isOpen && (
-            <div
-              ref={refs.setFloating}
-              style={floatingStyles}
-              {...getFloatingProps()}
-              className="z-floating rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-6 shadow-tooltip"
-            >
-              <DateRangeBody
-                value={value}
-                isMobile={false}
-                onApply={handleApply}
-                onClose={() => setIsOpen(false)}
-              />
-            </div>
-          )
-        )}
-      </FloatingPortal>
+      <PickerSheet
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        useSheet={useSheet}
+        setFloating={refs.setFloating}
+        floatingStyles={floatingStyles}
+        getFloatingProps={getFloatingProps}
+        desktopClassName="z-floating rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-6 shadow-tooltip"
+      >
+        <DateRangeBody
+          value={value}
+          isMobile={isMobile}
+          onApply={handleApply}
+          onClose={() => setIsOpen(false)}
+        />
+      </PickerSheet>
     </>
   );
 }

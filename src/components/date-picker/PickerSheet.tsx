@@ -1,0 +1,120 @@
+import { FloatingPortal, type useInteractions } from "@floating-ui/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useContext, type CSSProperties, type ReactNode } from "react";
+
+import {
+  ModalFocusTrapContext,
+  defaultModalFocusTrapContext,
+} from "@/components/modal/ModalFocusTrapContext";
+import { useBottomSheetDrag, useIsMobile, useScrollLock } from "@/hooks";
+
+/** Modal 안과 disableMobileSheet를 지정한 시트 안에서는 popover로 표시한다. */
+export function usePickerMobile(disableMobileSheet = false) {
+  const isMobile = useIsMobile();
+  const modal = useContext(ModalFocusTrapContext);
+  return {
+    isMobile,
+    useSheet:
+      isMobile &&
+      !disableMobileSheet &&
+      modal === defaultModalFocusTrapContext,
+  };
+}
+
+interface PickerSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  useSheet: boolean;
+  setFloating: (node: HTMLElement | null) => void;
+  floatingStyles: CSSProperties;
+  getFloatingProps: ReturnType<typeof useInteractions>["getFloatingProps"];
+  desktopClassName: string;
+  children: ReactNode;
+}
+
+/** 피커의 floating 패널과 모바일 시트 표면. 내용과 선택 상태는 호출부가 소유한다. */
+export function PickerSheet({
+  isOpen,
+  onClose,
+  useSheet,
+  setFloating,
+  floatingStyles,
+  getFloatingProps,
+  desktopClassName,
+  children,
+}: PickerSheetProps) {
+  const reducedMotion = useReducedMotion();
+  const { dragControls, handleDragEnd, startDrag } = useBottomSheetDrag({
+    onDismiss: onClose,
+  });
+  useScrollLock(isOpen && useSheet);
+
+  return (
+    <FloatingPortal>
+      {useSheet ? (
+        <>
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                key="picker-dimmer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reducedMotion ? 0 : 0.2 }}
+                className="fixed inset-0 z-overlay bg-bg-overlay"
+                onClick={onClose}
+              />
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                key="picker-sheet"
+                ref={setFloating}
+                {...getFloatingProps()}
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{
+                  y: "100%",
+                  transition: {
+                    duration: reducedMotion ? 0 : 0.2,
+                    ease: [0.4, 0, 1, 1],
+                  },
+                }}
+                transition={
+                  reducedMotion
+                    ? { duration: 0 }
+                    : { type: "spring", damping: 30, stiffness: 320 }
+                }
+                drag="y"
+                dragListener={false}
+                dragControls={dragControls}
+                dragConstraints={{ top: 0 }}
+                dragElastic={{ top: 0, bottom: 0.4 }}
+                onDragEnd={handleDragEnd}
+                className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface text-fg-default p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
+              >
+                <div
+                  className="self-center h-1 w-10 rounded-full bg-bg-handle cursor-grab touch-none active:cursor-grabbing"
+                  onPointerDown={startDrag}
+                />
+                {children}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      ) : (
+        isOpen && (
+          <div
+            ref={setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+            className={desktopClassName}
+          >
+            {children}
+          </div>
+        )
+      )}
+    </FloatingPortal>
+  );
+}
