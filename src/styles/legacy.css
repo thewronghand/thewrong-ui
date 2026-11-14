@@ -27,10 +27,9 @@
  *     input/Input.tsx의 비-box 오류 보더와 focus 보더.
  *   border-border-primary: input/utils.ts·select/utils.ts·textarea/Textarea.tsx의 focus-within 보더.
  *   text-icon-primary·secondary: table/components/ColumnPresetSelector.tsx 설정 아이콘,
- *     text-icon-secondary는 search-box/SearchBox.tsx 모바일 액션과 table/accordion-table.tsx 펼침 아이콘에도 쓰인다.
+ *     text-icon-secondary는 search-box/SearchBox.tsx 모바일 액션에도 쓰인다.
  *   text-icon-tertiary: search-box/ExactMatchToggle.tsx·SearchBoxFloatingSelect.tsx·SearchBoxMultiSelect.tsx와
- *     table/table.tsx·table/components/ColumnSettingsTable.tsx의 드래그 아이콘.
- *   bg-icon-tertiary: table/table.tsx의 리사이즈 핸들(같은 --color-icon-tertiary 변수).
+ *     table/components/ColumnSettingsTable.tsx의 드래그 아이콘.
  *
  * ── Tailwind 기본값을 새 시맨틱이 바꾸는 변수 (지금은 Tailwind 기본값으로 되돌린다) ──
  *   --default-transition-duration  Tailwind 150ms ≠ 새 200ms (transition 유틸 전체의 길이)

@@ -15,10 +15,8 @@
       "src/components/search-box/SearchBoxMultiSelect.tsx": 1,
       "src/components/select/utils.ts": 4,
       "src/components/switch/utils.ts": 1,
-      "src/components/table/accordion-table.tsx": 1,
       "src/components/table/components/ColumnPresetSelector.tsx": 4,
       "src/components/table/components/ColumnSettingsTable.tsx": 1,
-      "src/components/table/table.tsx": 3,
       "src/components/textarea/Textarea.tsx": 3
     }
   }

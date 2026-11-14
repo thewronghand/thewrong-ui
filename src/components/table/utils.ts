@@ -132,12 +132,12 @@ export const getTableCellClassesNoTruncate = (): string => {
 
 /**
  * 스트라이프 행 스타일
- * 첫 번째(index 0): 회색, 두 번째(index 1): 흰색
+ * 첫 번째(index 0): row-even(라이트 흰색), 두 번째(index 1): row-odd — avocado와 같은 위상
  */
 export const getStripedRowClasses = (index: number): string => {
   return index % 2 === 0
-    ? "bg-bg-table-row-odd hover:bg-bg-table-row-hover"
-    : "bg-bg-table-row-even hover:bg-bg-table-row-hover";
+    ? "bg-bg-table-row-even hover:bg-bg-table-row-hover"
+    : "bg-bg-table-row-odd hover:bg-bg-table-row-hover";
 };
 
 /**

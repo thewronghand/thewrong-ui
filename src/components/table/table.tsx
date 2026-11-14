@@ -379,7 +379,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
             </div>
             <div
               ref={scrollContainerRef}
-              className="scrollbar-table overflow-auto flex-1 bg-bg-table-row-odd"
+              className="scrollbar-table overflow-auto flex-1 bg-bg-page"
             >
             {displayData.length === 0 ? (
               <div className="flex items-center justify-center p-8 h-full">
@@ -472,7 +472,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                             >
                               {columnStateEnabled && (
                                 <span
-                                  className="absolute left-0.5 top-1/2 -translate-y-1/2 text-icon-tertiary opacity-0 transition-opacity group-hover/header-cell:opacity-100"
+                                  className="absolute left-0.5 top-1/2 -translate-y-1/2 text-fg-subtle opacity-0 transition-opacity group-hover/header-cell:opacity-100"
                                   aria-hidden="true"
                                 >
                                   <GripVertical className="h-3.5 w-3.5" />
@@ -510,7 +510,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                           >
                             {!dragDisabled && (
                               <span
-                                className="absolute left-0.5 top-1/2 -translate-y-1/2 text-icon-tertiary opacity-0 transition-opacity group-hover/header-cell:opacity-100"
+                                className="absolute left-0.5 top-1/2 -translate-y-1/2 text-fg-subtle opacity-0 transition-opacity group-hover/header-cell:opacity-100"
                                 aria-hidden="true"
                               >
                                 <GripVertical className="h-3.5 w-3.5" />
@@ -544,7 +544,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                               >
                                 <span
                                   aria-hidden="true"
-                                  className="h-1/2 w-0.5 rounded-full bg-transparent transition-colors group-hover/header-cell:bg-icon-tertiary group-hover/resize:!bg-primary group-active/resize:!bg-primary-hover"
+                                  className="h-1/2 w-0.5 rounded-full bg-transparent transition-colors group-hover/header-cell:bg-border-default group-hover/resize:!bg-primary group-active/resize:!bg-primary-hover"
                                 />
                               </div>
                             )}

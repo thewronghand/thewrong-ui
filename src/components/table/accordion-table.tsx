@@ -398,7 +398,7 @@ export const AccordionTable = forwardRef<
       <div className="flex flex-1 flex-col min-h-0">
         <div
           ref={scrollContainerRef}
-          className="overflow-auto flex-1 bg-bg-table-row-odd"
+          className="overflow-auto flex-1 bg-bg-page"
         >
           {displayData.length === 0 ? (
             <div className="flex items-center justify-center p-8 h-full">
@@ -601,7 +601,7 @@ export const AccordionTable = forwardRef<
                               <ChevronRight
                                 aria-hidden="true"
                                 className={cn(
-                                  "mx-auto h-4 w-4 text-icon-secondary transition-transform duration-200",
+                                  "mx-auto h-4 w-4 text-fg-muted hover:text-fg-default transition-transform duration-200",
                                   isExpanded && "rotate-90",
                                 )}
                               />
@@ -652,7 +652,7 @@ export const AccordionTable = forwardRef<
                         {expandableEnabled && (
                           <tr
                             data-expanded-row
-                            className="bg-bg-table-row-odd"
+                            className="bg-bg-surface"
                           >
                             {/*
                               펼침 패널이 가로스크롤에 따라오려면 sticky가 overflow:hidden 안에
