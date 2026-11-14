@@ -122,7 +122,7 @@ export function DateRangePicker({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-overlay bg-black/40"
+                  className="fixed inset-0 z-overlay bg-bg-overlay"
                   onClick={() => setIsOpen(false)}
                 />
               )}
@@ -146,10 +146,10 @@ export function DateRangePicker({
                   dragConstraints={{ top: 0 }}
                   dragElastic={{ top: 0, bottom: 0.4 }}
                   onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-card p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-2xl"
+                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
                 >
                   <div
-                    className="self-center h-1 w-10 rounded-full bg-bg-base-tertiary cursor-grab touch-none active:cursor-grabbing"
+                    className="self-center h-1 w-10 rounded-full bg-bg-handle cursor-grab touch-none active:cursor-grabbing"
                     onPointerDown={startDrag}
                   />
                   <DateRangeBody
@@ -168,7 +168,7 @@ export function DateRangePicker({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-floating rounded-2xl border border-border-tertiary bg-bg-card p-6 shadow-md"
+              className="z-floating rounded-2xl border border-border-subtle bg-bg-surface p-6 shadow-tooltip"
             >
               <DateRangeBody
                 value={value}
@@ -231,14 +231,14 @@ function DateRangeBody({ value, isMobile, onApply, onClose }: DateRangeBodyProps
       <button
         type="button"
         onClick={onClose}
-        className="cursor-pointer rounded-full bg-bg-base-primary px-5 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-bg-base-secondary"
+        className="cursor-pointer rounded-full bg-bg-subtle px-5 py-2 text-sm font-semibold text-fg-muted transition-colors hover:bg-bg-muted"
       >
         닫기
       </button>
       <button
         type="button"
         onClick={handleApply}
-        className="cursor-pointer rounded-full bg-primary-500 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+        className="cursor-pointer rounded-full bg-primary px-5 py-2 text-sm font-semibold text-fg-inverse transition-opacity hover:opacity-90"
       >
         적용
       </button>
@@ -278,7 +278,7 @@ function DateRangeBody({ value, isMobile, onApply, onClose }: DateRangeBodyProps
           rangeTo={pendingTo}
           onDayClick={handleDayClick}
         />
-        <div className="w-px bg-border-tertiary" />
+        <div className="w-px bg-border-subtle" />
         <CalendarPanel
           month={rightMonth}
           onMonthChange={(m) => setLeftMonth(subMonths(m, 1))}
@@ -341,13 +341,13 @@ function CalendarPanel({
           <button
             type="button"
             onClick={() => setDropdownOpen((v) => !v)}
-            className="flex cursor-pointer items-center gap-1 rounded px-3 py-1.5 text-sm font-semibold text-text-primary transition-colors hover:bg-bg-base-primary"
+            className="flex cursor-pointer items-center gap-1 rounded px-3 py-1.5 text-sm font-semibold text-fg-default transition-colors hover:bg-bg-subtle"
           >
             {format(month, "yyyy. MM.")}
-            <ChevronDown className="h-3.5 w-3.5 text-text-tertiary" />
+            <ChevronDown className="h-3.5 w-3.5 text-fg-subtle" />
           </button>
           {dropdownOpen && (
-            <div className="scrollbar-brand absolute top-full z-20 mt-1 max-h-[240px] w-[140px] overflow-y-auto rounded-lg border border-border-tertiary bg-bg-card py-1 shadow-lg">
+            <div className="scrollbar-brand absolute top-full z-20 mt-1 max-h-[240px] w-[140px] overflow-y-auto rounded-lg border border-border-subtle bg-bg-surface py-1 shadow-overlay">
               {monthOptions.map((m) => {
                 const selected = isSameMonth(m, month);
                 return (
@@ -359,10 +359,10 @@ function CalendarPanel({
                       setDropdownOpen(false);
                     }}
                     className={cn(
-                      "w-full cursor-pointer bg-bg-card px-4 py-2 text-left text-sm transition-colors",
+                      "w-full cursor-pointer bg-bg-surface px-4 py-2 text-left text-sm transition-colors",
                       selected
-                        ? "bg-bg-base-secondary font-semibold text-text-primary"
-                        : "text-text-secondary hover:bg-bg-base-primary",
+                        ? "bg-bg-muted font-semibold text-fg-default"
+                        : "text-fg-muted hover:bg-bg-subtle",
                     )}
                   >
                     {format(m, "yyyy. MM.")}
@@ -379,7 +379,7 @@ function CalendarPanel({
         {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
           <div
             key={d}
-            className="py-1 text-center text-xs font-medium text-text-tertiary"
+            className="py-1 text-center text-xs font-medium text-fg-subtle"
           >
             {d}
           </div>
@@ -412,28 +412,28 @@ function CalendarPanel({
             >
               {fillLeft && (
                 <span
-                  className="absolute inset-y-0 left-0 right-1/2 bg-bg-base-secondary"
+                  className="absolute inset-y-0 left-0 right-1/2 bg-bg-muted"
                   aria-hidden
                 />
               )}
               {fillRight && (
                 <span
-                  className="absolute inset-y-0 left-1/2 right-0 bg-bg-base-secondary"
+                  className="absolute inset-y-0 left-1/2 right-0 bg-bg-muted"
                   aria-hidden
                 />
               )}
               {isEdge && (
                 <span
-                  className="absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500"
+                  className="absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
                   aria-hidden
                 />
               )}
               <span
                 className={cn(
                   "relative z-10",
-                  !inMonth && "text-text-disabled",
-                  inMonth && !isEdge && "text-text-primary",
-                  isEdge && "font-bold text-white",
+                  !inMonth && "text-fg-disabled",
+                  inMonth && !isEdge && "text-fg-default",
+                  isEdge && "font-bold text-fg-inverse",
                 )}
               >
                 {format(day, "d")}
@@ -461,7 +461,7 @@ function NavButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-tertiary text-text-secondary transition-colors hover:bg-bg-base-primary"
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-subtle text-fg-muted transition-colors hover:bg-bg-subtle"
       aria-label={direction === "left" ? "이전 달" : "다음 달"}
     >
       <Icon className="h-4 w-4" />
