@@ -40,6 +40,28 @@ export function resetFromPhoneNumber(value: InputValue): string {
 }
 
 /**
+ * 사업자등록번호에 하이픈을 추가해요
+ * @example "1234567890" → "12-345-67890"
+ */
+export function transformToBusinessNumber(value: InputValue): string {
+  const cleaned = value.toString().replace(/[^\d]/g, "").slice(0, 10);
+
+  if (cleaned.length <= 2) return cleaned;
+  if (cleaned.length <= 5) {
+    return `${cleaned.slice(0, 2)}-${cleaned.slice(2)}`;
+  }
+  return `${cleaned.slice(0, 2)}-${cleaned.slice(2, 5)}-${cleaned.slice(5)}`;
+}
+
+/**
+ * 사업자등록번호에서 하이픈을 제거해요
+ * @example "12-345-67890" → "1234567890"
+ */
+export function resetFromBusinessNumber(value: InputValue): string {
+  return value.toString().replace(/[^\d]/g, "").slice(0, 10);
+}
+
+/**
  * 금액에 콤마를 추가해요
  * @example "1000000" → "1,000,000"
  */
@@ -69,6 +91,16 @@ export const inputFormats = {
   phoneNumber: {
     transform: transformToPhoneNumber,
     reset: resetFromPhoneNumber,
+  } as InputFormat,
+
+  /**
+   * 사업자등록번호 포맷
+   * transform: "1234567890" → "12-345-67890"
+   * reset: "12-345-67890" → "1234567890"
+   */
+  businessNumber: {
+    transform: transformToBusinessNumber,
+    reset: resetFromBusinessNumber,
   } as InputFormat,
 
   /**

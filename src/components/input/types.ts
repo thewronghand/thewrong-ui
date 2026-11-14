@@ -27,7 +27,7 @@ export type InputValue = string | number;
 /**
  * Format 함수 타입
  */
-export type FormatTransform = (value: InputValue) => InputValue;
+export type FormatTransform = (value: InputValue, inputType?: string) => InputValue;
 export type FormatReset = (formattedValue: InputValue) => InputValue;
 
 /**
