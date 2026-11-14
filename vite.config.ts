@@ -8,16 +8,34 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import { playwright } from '@vitest/browser-playwright';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+
+// 소비자용 토큰 소스 — dist/tokens.css.
+// 소비자가 자기 Tailwind 빌드에서 `@import "@thewrong/ui/tokens.css"` 하면 @theme·@utility가 살아 있어
+// bg-bg-surface·rounded-control-medium·z-floating 같은 유틸이 생성된다(컴파일된 styles.css와 별개).
+// 층 순서대로 원본 CSS를 이어 붙이기만 한다. legacy.css(옛 이름 임시 별칭)는 넣지 않는다.
+const TOKEN_SOURCES = ["primitives.css", "semantic.css", "component-utils.css"];
+function emitTokensCss() {
+  return {
+    name: "thewrong-ui:emit-tokens-css",
+    apply: "build" as const,
+    closeBundle() {
+      const body = TOKEN_SOURCES.map((file) => `/* ── ${file} ── */\n${readFileSync(resolve(__dirname, "src/styles", file), "utf8")}`).join("\n");
+      mkdirSync(resolve(__dirname, "dist"), { recursive: true });
+      writeFileSync(resolve(__dirname, "dist/tokens.css"), `/* @thewrong/ui 토큰 소스 — Tailwind v4 빌드에서 @import한다. 생성물: 수정 금지 */\n${body}`);
+    }
+  };
+}
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [react(), tailwindcss(), dts({
+  plugins: [react(), tailwindcss(), emitTokensCss(), dts({
     include: ["src"],
     // .d.ts는 산출물로 재방출하지 않되, 앰비언트 선언 파일(vite-env·css)은 dts 컴파일
     // 컨텍스트에 포함해야 import.meta.env / CSS side-effect import 타입이 해석된다.
     // (전체 *.d.ts를 빼면 그 참조가 끊겨 dts 빌드에서 경고가 난다.)
-    exclude: ["src/**/*.stories.tsx"],
+    exclude: ["src/**/*.stories.tsx", "src/**/*.test.ts"],
     // src/ 접두어를 떼고 dist 루트로 평탄화 → dist/index.d.ts (package.json "types"와 일치)
     entryRoot: "src"
   })],
@@ -72,6 +90,18 @@ export default defineConfig({
   },
   test: {
     projects: [{
+      // node 환경 단위 테스트 — src 및 스크립트 검사 (npm run test:unit)
+      resolve: {
+        alias: {
+          "@": resolve(__dirname, "src")
+        }
+      },
+      test: {
+        name: 'unit',
+        environment: 'node',
+        include: ['src/**/*.test.ts', 'scripts/**/*.test.mjs']
+      }
+    }, {
       extends: true,
       plugins: [
       // The plugin will run tests for the stories defined in your Storybook config

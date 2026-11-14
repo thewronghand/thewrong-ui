@@ -1,0 +1,10 @@
+/*
+ * 라이브러리 빌드 진입(dist/ui.css) — src/index.ts가 import한다.
+ * 스토리·mdx·테스트에만 있는 유틸이 배포 CSS에 섞이지 않도록 스캔에서 뺀다.
+ */
+@import "./index.css";
+@source not "../**/*.stories.tsx";
+@source not "../**/*.mdx";
+@source not "../**/*.test.ts";
+/* cn 충돌 그룹 등록 문자열은 실제 컴포넌트의 클래스 사용처가 아니다. */
+@source not "../lib/utils.ts";

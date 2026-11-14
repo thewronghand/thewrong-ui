@@ -1,4 +1,4 @@
-import "./styles/index.css";
+import "./styles/library.css";
 
 export * from "./components/button";
 export * from "./components/badge";
