@@ -72,6 +72,7 @@ function getTabbableElements(
 const FLOATING_PORTAL = "[data-floating-ui-portal]";
 const MARKED_LAYER = "[data-focus-trap-layer]";
 const FOCUS_GUARD = "[data-floating-ui-focus-guard]";
+const PICKER_PANEL = "[data-picker-panel]";
 const MODAL_DIALOG = '[role="dialog"][aria-modal="true"]';
 const MODIFIER_KEYS = ["Shift", "Alt", "Control", "Meta"];
 
@@ -519,7 +520,7 @@ export function useFocusTrap(
         const layerItems = getTabbableElements(activeLayer, true);
         const pickerPanel =
           active instanceof Element
-            ? active.closest("[data-picker-sheet]")
+            ? active.closest(PICKER_PANEL)
             : null;
         const afterInsideGuard = pickerPanel?.nextElementSibling;
         // 마지막 피커 트리거 뒤에 다음 필드가 없으면 포털 가드가 포커스를 옮길 곳이 없다.

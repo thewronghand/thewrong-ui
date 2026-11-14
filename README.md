@@ -20,7 +20,7 @@ import "@thewrong/ui/styles.css";
 import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 ```
 
-TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodenext"`의 ESM에서 사용한다. CJS 런타임의 `require`는 지원하며, 타입 사용에는 `nodenext` ESM을 권장한다 (`node16` CJS에서는 TS1471이 발생한다).
+TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodenext"`의 ESM에서 사용한다. CJS 런타임의 `require`는 지원하며, 타입 사용에는 `nodenext` ESM을 권장한다 (`node16` CJS에서 일반 `import`는 TS1479, `import x = require()`는 TS1471이 발생한다).
 
 ## 특징
 

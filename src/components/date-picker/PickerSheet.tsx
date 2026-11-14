@@ -127,7 +127,7 @@ export function PickerSheet({
               ref={setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              data-picker-sheet=""
+              data-picker-panel=""
               className={desktopClassName}
             >
               {children}
