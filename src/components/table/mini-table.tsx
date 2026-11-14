@@ -1,6 +1,7 @@
 import { forwardRef, useMemo, useRef } from "react";
 
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { cn } from "@/lib/utils";
 
 import { useFillEmptyRows } from "./hooks/useFillEmptyRows";
 import type { TableColumn } from "./types";
@@ -121,14 +122,14 @@ export const MiniTable = forwardRef<
     const getRowClasses = (_row: unknown, index: number) => {
       const classes: string[] = [getStripedRowClasses(index)];
       if (onRowClick) classes.push(getHoverableRowClasses());
-      return classes.join(" ");
+      return cn(classes);
     };
 
     if (loading) {
       return (
         <div
           ref={ref}
-          className={`flex items-center justify-center p-8 flex-1 ${className}`}
+          className={cn("flex items-center justify-center p-8 flex-1", className)}
           style={containerStyle}
           data-testid={testId}
           {...restProps}
@@ -141,7 +142,10 @@ export const MiniTable = forwardRef<
     return (
       <div
         ref={ref}
-        className={`relative flex flex-col min-h-0 gap-4 md:gap-5 xl:gap-6 ${className}`}
+        className={cn(
+          "relative flex flex-col min-h-0 gap-4 md:gap-5 xl:gap-6",
+          className,
+        )}
         style={containerStyle}
         data-testid={testId}
         {...restProps}
@@ -149,9 +153,10 @@ export const MiniTable = forwardRef<
         <div className="flex flex-1 flex-col min-h-0 gap-4 md:gap-5 xl:gap-6">
           <div className="relative flex flex-1 flex-col min-h-0">
             <div
-              className={`pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-white/50 backdrop-blur-[2px] transition-opacity duration-150 dark:bg-neutral-900/50 ${
-                isFetching ? "opacity-100" : "opacity-0"
-              }`}
+              className={cn(
+                "pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-bg-surface/60 backdrop-blur-[2px] transition-opacity duration-150",
+                isFetching ? "opacity-100" : "opacity-0",
+              )}
               {...(isFetching
                 ? { role: "status", "aria-live": "polite" as const }
                 : { "aria-hidden": true as const })}
@@ -160,11 +165,11 @@ export const MiniTable = forwardRef<
             </div>
             <div
               ref={scrollContainerRef}
-              className="scrollbar-table overflow-x-auto overflow-y-hidden flex-1 bg-bg-base-secondary"
+              className="scrollbar-table overflow-x-auto overflow-y-hidden flex-1 bg-bg-table-row-odd"
             >
               {data.length === 0 ? (
                 <div className="flex items-center justify-center p-8 h-full">
-                  <p className="text-neutral-600 dark:text-neutral-400">
+                  <p className="text-fg-muted">
                     {emptyMessage}
                   </p>
                 </div>
@@ -172,7 +177,12 @@ export const MiniTable = forwardRef<
                 <table
                   ref={tableRef}
                   // table-fixed는 base에 박혀있어 inline style만으론 못 이김 → 명시 클래스로 override.
-                  className={`${baseClasses} ${variantClasses} ${sizeClasses} !table-auto`}
+                  className={cn(
+                    baseClasses,
+                    variantClasses,
+                    sizeClasses,
+                    "!table-auto",
+                  )}
                   style={{ minWidth: "100%" }}
                 >
                   <colgroup>
@@ -204,9 +214,11 @@ export const MiniTable = forwardRef<
                       {visibleColumns.map((column) => (
                         <th
                           key={column.key}
-                          className={`${getTableHeaderCellClasses()} ${getColumnAlignClasses(column.align ?? "center")} ${
-                            column.hideOnMobile ? "hidden md:table-cell" : ""
-                          }`}
+                          className={cn(
+                            getTableHeaderCellClasses(),
+                            getColumnAlignClasses(column.align ?? "center"),
+                            column.hideOnMobile && "hidden md:table-cell",
+                          )}
                           style={{
                             ...(column.minWidth
                               ? { minWidth: `${column.minWidth}px` }
@@ -236,9 +248,11 @@ export const MiniTable = forwardRef<
                             <td
                               key={column.key}
                               // 잘림 없이 가로 스크롤로 다 보여주는 게 통계 카드 의도.
-                              className={`${getTableCellClassesNoTruncate()} ${getColumnAlignClasses(column.align ?? "left")} ${
-                                column.hideOnMobile ? "hidden md:table-cell" : ""
-                              }`}
+                              className={cn(
+                                getTableCellClassesNoTruncate(),
+                                getColumnAlignClasses(column.align ?? "left"),
+                                column.hideOnMobile && "hidden md:table-cell",
+                              )}
                               style={
                                 rowHeight
                                   ? {
@@ -274,11 +288,10 @@ export const MiniTable = forwardRef<
                             {visibleColumns.map((column) => (
                               <td
                                 key={column.key}
-                                className={`${getTableCellClassesNoTruncate()} ${
-                                  column.hideOnMobile
-                                    ? "hidden md:table-cell"
-                                    : ""
-                                }`}
+                                className={cn(
+                                  getTableCellClassesNoTruncate(),
+                                  column.hideOnMobile && "hidden md:table-cell",
+                                )}
                                 style={
                                   fillerHeight
                                     ? { height: `${fillerHeight}px` }

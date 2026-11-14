@@ -28,6 +28,7 @@ import {
 import { Checkbox } from "@/components/checkbox";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { Select } from "@/components/select";
+import { cn } from "@/lib/utils";
 
 import { KeyboardNavButton } from "./components/KeyboardNavButton";
 import { PageJumpInput } from "./components/PageJumpInput";
@@ -333,7 +334,7 @@ export const AccordionTable = forwardRef<
     const classes: string[] = [getStripedRowClasses(index)];
     if (isRowSelected(row)) classes.push(getSelectedRowClasses());
     if (onRowClick || expandableEnabled) classes.push(getHoverableRowClasses());
-    return classes.join(" ");
+    return cn(classes);
   };
 
   const showFooter =
@@ -367,7 +368,7 @@ export const AccordionTable = forwardRef<
     return (
       <div
         ref={ref}
-        className={`flex items-center justify-center p-8 flex-1 ${className}`}
+        className={cn("flex items-center justify-center p-8 flex-1", className)}
         style={containerStyle}
         data-testid={testId}
         {...restProps}
@@ -383,7 +384,7 @@ export const AccordionTable = forwardRef<
   return (
     <div
       ref={ref}
-      className={`relative flex flex-col min-h-0 ${className}`}
+      className={cn("relative flex flex-col min-h-0", className)}
       style={containerStyle}
       data-testid={testId}
       {...restProps}
@@ -397,11 +398,11 @@ export const AccordionTable = forwardRef<
       <div className="flex flex-1 flex-col min-h-0">
         <div
           ref={scrollContainerRef}
-          className="overflow-auto flex-1 bg-[#f9fafb] dark:bg-slate-900/50"
+          className="overflow-auto flex-1 bg-bg-table-row-odd"
         >
           {displayData.length === 0 ? (
             <div className="flex items-center justify-center p-8 h-full">
-              <p className="text-neutral-600 dark:text-neutral-400">
+              <p className="text-fg-muted">
                 {emptyMessage}
               </p>
             </div>
@@ -413,7 +414,7 @@ export const AccordionTable = forwardRef<
             >
               <table
                 ref={tableRef}
-                className={`${baseClasses} ${variantClasses} ${sizeClasses}`}
+                className={cn(baseClasses, variantClasses, sizeClasses)}
                 style={{ tableLayout: "fixed", minWidth: "100%", width: "100%" }}
               >
                 <colgroup>
@@ -441,13 +442,16 @@ export const AccordionTable = forwardRef<
                     position: stickyHeader ? "sticky" : "relative",
                     top: stickyHeader ? 0 : undefined,
                     zIndex: stickyHeader ? 10 : undefined,
-                    backgroundColor: stickyHeader ? "white" : undefined,
                   }}
                 >
                   <tr>
                     {enableRowSelection && enableSelectAll && (
                       <th
-                        className={`${getTableHeaderCellClasses()} ${getColumnAlignClasses("center")} border-r-0 w-12`}
+                        className={cn(
+                          getTableHeaderCellClasses(),
+                          getColumnAlignClasses("center"),
+                          "border-r-0 w-12",
+                        )}
                       >
                         <Checkbox.Circle
                           id="accordion-table-select-all"
@@ -460,7 +464,7 @@ export const AccordionTable = forwardRef<
                     {expandableEnabled && (
                       <th
                         aria-hidden="true"
-                        className={`${getTableHeaderCellClasses()} border-r-0`}
+                        className={cn(getTableHeaderCellClasses(), "border-r-0")}
                         style={{ width: `${TOGGLE_COL_WIDTH}px` }}
                       />
                     )}
@@ -477,11 +481,13 @@ export const AccordionTable = forwardRef<
                             id={column.key}
                             disabled={dragDisabled}
                             as="th"
-                            className={`${getTableHeaderCellClasses()} ${getColumnAlignClasses("center")} bg-white ${
-                              column.sticky
-                                ? "sticky left-0 z-20 bg-white dark:bg-neutral-800"
-                                : ""
-                            } ${column.hideOnMobile ? "hidden md:table-cell" : ""} relative`}
+                            className={cn(
+                              getTableHeaderCellClasses(),
+                              getColumnAlignClasses("center"),
+                              "relative",
+                              column.sticky && "sticky left-0 z-20 bg-bg-table-header",
+                              column.hideOnMobile && "hidden md:table-cell",
+                            )}
                             style={{
                               width: getColumnWidth(column.key, column.width),
                               minWidth: column.minWidth || 50,
@@ -493,7 +499,7 @@ export const AccordionTable = forwardRef<
                             {/* 시스템 컬럼은 위치 고정 + 프리셋 셀렉터 비노출 — 리사이즈도 막아 일관성 유지. */}
                             {column.excludeFromPreset !== true && (
                               <div
-                                className="absolute right-0 top-0 h-full w-4 cursor-col-resize hover:bg-primary-500/30 active:bg-primary-500/50 z-50"
+                                className="absolute right-0 top-0 h-full w-4 cursor-col-resize hover:bg-primary/30 active:bg-primary/50 z-50"
                                 onPointerDown={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => {
                                   e.preventDefault();
@@ -519,7 +525,7 @@ export const AccordionTable = forwardRef<
                     </SortableContext>
                     <th
                       aria-hidden="true"
-                      className="bg-white border-b border-l border-[#f2f3f5] dark:border-neutral-700 dark:bg-neutral-800"
+                      className="bg-bg-table-header border-b border-l border-border-table-header"
                     />
                   </tr>
                 </thead>
@@ -567,7 +573,11 @@ export const AccordionTable = forwardRef<
                         >
                           {enableRowSelection && enableSelectAll && (
                             <td
-                              className={`${getTableCellClasses()} ${getColumnAlignClasses("center")} border-r-0 w-12`}
+                              className={cn(
+                                getTableCellClasses(),
+                                getColumnAlignClasses("center"),
+                                "border-r-0 w-12",
+                              )}
                               onClick={(e) => e.stopPropagation()}
                             >
                               <Checkbox.Circle
@@ -581,14 +591,19 @@ export const AccordionTable = forwardRef<
                           )}
                           {expandableEnabled && (
                             <td
-                              className={`${getTableCellClasses()} ${getColumnAlignClasses("center")} border-r-0`}
+                              className={cn(
+                                getTableCellClasses(),
+                                getColumnAlignClasses("center"),
+                                "border-r-0",
+                              )}
                               style={{ width: `${TOGGLE_COL_WIDTH}px` }}
                             >
                               <ChevronRight
                                 aria-hidden="true"
-                                className={`mx-auto h-4 w-4 text-neutral-500 transition-transform duration-200 ${
-                                  isExpanded ? "rotate-90" : ""
-                                }`}
+                                className={cn(
+                                  "mx-auto h-4 w-4 text-icon-secondary transition-transform duration-200",
+                                  isExpanded && "rotate-90",
+                                )}
                               />
                             </td>
                           )}
@@ -603,13 +618,13 @@ export const AccordionTable = forwardRef<
                             return (
                               <td
                                 key={column.key}
-                                className={`${getTableCellClasses()} ${getColumnAlignClasses(column.align)} ${
-                                  isLastColumn ? "border-r-0" : ""
-                                } ${column.sticky ? "sticky left-0 z-10 bg-inherit" : ""} ${
-                                  column.hideOnMobile
-                                    ? "hidden md:table-cell"
-                                    : ""
-                                }`}
+                                className={cn(
+                                  getTableCellClasses(),
+                                  getColumnAlignClasses(column.align),
+                                  isLastColumn && "border-r-0",
+                                  column.sticky && "sticky left-0 z-10 bg-inherit",
+                                  column.hideOnMobile && "hidden md:table-cell",
+                                )}
                                 style={{
                                   width: getColumnWidth(
                                     column.key,
@@ -631,13 +646,13 @@ export const AccordionTable = forwardRef<
                           })}
                           <td
                             aria-hidden="true"
-                            className="border-b border-l border-[#f2f3f5] dark:border-neutral-700 bg-transparent"
+                            className="border-b border-l border-border-table-cell bg-transparent"
                           />
                         </tr>
                         {expandableEnabled && (
                           <tr
                             data-expanded-row
-                            className="bg-[#f9fafb] dark:bg-slate-900/50"
+                            className="bg-bg-table-row-odd"
                           >
                             {/*
                               펼침 패널이 가로스크롤에 따라오려면 sticky가 overflow:hidden 안에
@@ -648,7 +663,7 @@ export const AccordionTable = forwardRef<
                             */}
                             <td
                               colSpan={expandedColSpan}
-                              className="p-0 border-b border-[#f2f3f5] dark:border-neutral-700"
+                              className="p-0 border-b border-border-table-cell text-fg-default"
                             >
                               <div
                                 className={
@@ -698,7 +713,7 @@ export const AccordionTable = forwardRef<
                         >
                           {enableRowSelection && enableSelectAll && (
                             <td
-                              className={`${getTableCellClasses()} border-r-0 w-12`}
+                              className={cn(getTableCellClasses(), "border-r-0 w-12")}
                               style={
                                 fillerHeight
                                   ? { height: `${fillerHeight}px` }
@@ -708,7 +723,7 @@ export const AccordionTable = forwardRef<
                           )}
                           {expandableEnabled && (
                             <td
-                              className={`${getTableCellClasses()} border-r-0`}
+                              className={cn(getTableCellClasses(), "border-r-0")}
                               style={{
                                 width: `${TOGGLE_COL_WIDTH}px`,
                                 ...(fillerHeight
@@ -724,9 +739,11 @@ export const AccordionTable = forwardRef<
                             return (
                               <td
                                 key={column.key}
-                                className={`${getTableCellClasses()} ${
-                                  isLastColumn ? "border-r-0" : ""
-                                } ${column.hideOnMobile ? "hidden md:table-cell" : ""}`}
+                                className={cn(
+                                  getTableCellClasses(),
+                                  isLastColumn && "border-r-0",
+                                  column.hideOnMobile && "hidden md:table-cell",
+                                )}
                                 style={{
                                   width: getColumnWidth(
                                     column.key,
@@ -742,7 +759,7 @@ export const AccordionTable = forwardRef<
                           })}
                           <td
                             aria-hidden="true"
-                            className="border-b border-l border-[#f2f3f5] dark:border-neutral-700 bg-transparent"
+                            className="border-b border-l border-border-table-cell bg-transparent"
                             style={
                               fillerHeight
                                 ? { height: `${fillerHeight}px` }
@@ -761,15 +778,15 @@ export const AccordionTable = forwardRef<
         {showFooter && (
           <nav
             aria-label="페이지 네비게이션"
-            className="@container/pagebar group/footer flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-neutral-200 px-4 py-2 shrink-0 dark:border-neutral-700"
+            className="@container/pagebar group/footer flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-border-subtle px-4 py-2 shrink-0"
           >
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-fg-muted">
               {totalElements !== undefined && (
                 <span>총 {totalElements.toLocaleString()}건</span>
               )}
               {onPageSizeChange && pageSize !== undefined && (
                 <div className="flex items-center gap-1">
-                  <span className="text-neutral-500">페이지당</span>
+                  <span className="text-fg-muted">페이지당</span>
                   <div className="w-20">
                     <Select
                       variant="box"
