@@ -2,16 +2,6 @@
   "note": "check-tokens.mjs 래칫 기준선 — 파일별 카운트. 파일별 증가에는 --force가 필요하다.",
   "counts": {
     "dark": {
-      "src/components/loading-spinner/LoadingSpinner.tsx": 2,
-      "src/components/search-box/SearchBox.tsx": 1,
-      "src/components/search-box/SearchBoxChips.tsx": 5,
-      "src/components/search-box/SearchBoxDateRange.tsx": 1,
-      "src/components/search-box/SearchBoxDateSingle.tsx": 1,
-      "src/components/search-box/SearchBoxFloatingInput.tsx": 1,
-      "src/components/search-box/SearchBoxFloatingSelect.tsx": 4,
-      "src/components/search-box/SearchBoxMonth.tsx": 1,
-      "src/components/search-box/SearchBoxMultiSelect.tsx": 5,
-      "src/components/table-page-layout/TablePageLayout.tsx": 3,
       "src/components/table/accordion-table.tsx": 11,
       "src/components/table/components/ColumnPresetSelector.tsx": 2,
       "src/components/table/components/ColumnSettingsTable.tsx": 29,
@@ -20,18 +10,10 @@
       "src/components/table/components/PaginationFooter.tsx": 1,
       "src/components/table/mini-table.tsx": 2,
       "src/components/table/table.tsx": 4,
-      "src/components/table/utils.ts": 13,
-      "src/components/toolbar/Toolbar.tsx": 11
+      "src/components/table/utils.ts": 13
     },
     "palette": {
-      "src/components/date-picker/date-picker.tsx": 3,
-      "src/components/date-picker/date-range-picker.tsx": 3,
-      "src/components/date-picker/month-picker.tsx": 2,
       "src/components/modal/ModalSubView.tsx": 1,
-      "src/components/search-box/SearchBox.tsx": 1,
-      "src/components/search-box/SearchBoxFloatingSelect.tsx": 1,
-      "src/components/search-box/SearchBoxMultiSelect.tsx": 2,
-      "src/components/table-page-layout/TablePageLayout.tsx": 2,
       "src/components/table/accordion-table.tsx": 11,
       "src/components/table/components/ColumnPresetSelector.tsx": 1,
       "src/components/table/components/ColumnSettingsTable.tsx": 5,
@@ -43,25 +25,14 @@
     },
     "legacy": {
       "src/components/button/utils.ts": 5,
-      "src/components/date-picker/date-picker.tsx": 25,
-      "src/components/date-picker/date-range-picker.tsx": 28,
-      "src/components/date-picker/month-picker.tsx": 13,
       "src/components/input/Input.tsx": 2,
       "src/components/input/utils.ts": 4,
-      "src/components/loading-spinner/LoadingSpinner.tsx": 4,
-      "src/components/page-title/PageTitle.tsx": 2,
-      "src/components/search-box/ExactMatchToggle.tsx": 5,
-      "src/components/search-box/SearchBox.tsx": 7,
-      "src/components/search-box/SearchBoxChips.tsx": 11,
-      "src/components/search-box/SearchBoxDateRange.tsx": 3,
-      "src/components/search-box/SearchBoxDateSingle.tsx": 2,
-      "src/components/search-box/SearchBoxFloatingInput.tsx": 9,
-      "src/components/search-box/SearchBoxFloatingSelect.tsx": 21,
-      "src/components/search-box/SearchBoxMonth.tsx": 7,
-      "src/components/search-box/SearchBoxMultiSelect.tsx": 24,
+      "src/components/search-box/ExactMatchToggle.tsx": 1,
+      "src/components/search-box/SearchBox.tsx": 1,
+      "src/components/search-box/SearchBoxFloatingSelect.tsx": 1,
+      "src/components/search-box/SearchBoxMultiSelect.tsx": 1,
       "src/components/select/utils.ts": 4,
       "src/components/switch/utils.ts": 1,
-      "src/components/table-page-layout/TablePageLayout.tsx": 4,
       "src/components/table/accordion-table.tsx": 16,
       "src/components/table/components/ColumnPresetSelector.tsx": 11,
       "src/components/table/components/ColumnSettingsTable.tsx": 59,
@@ -72,8 +43,7 @@
       "src/components/table/mini-table.tsx": 4,
       "src/components/table/table.tsx": 12,
       "src/components/table/utils.ts": 14,
-      "src/components/textarea/Textarea.tsx": 3,
-      "src/components/toolbar/Toolbar.tsx": 27
+      "src/components/textarea/Textarea.tsx": 3
     }
   }
 }

@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface Props {
   /** 메인 타이틀. 페이지 식별의 1순위 정보. */
   title: string;
@@ -19,13 +21,13 @@ export function PageTitle({ title, subtitle, className = "" }: Props) {
   // 두 항목 모두 `min-w-0`이라야 자식 `truncate`가 동작.
   return (
     <div
-      className={`flex min-w-0 items-baseline gap-x-3 ${className}`}
+      className={cn("flex min-w-0 items-baseline gap-x-3", className)}
     >
-      <h1 className="min-w-0 shrink truncate text-base font-semibold text-text-secondary sm:text-lg">
+      <h1 className="min-w-0 shrink truncate text-base font-semibold text-fg-muted sm:text-lg">
         {title}
       </h1>
       {subtitle && (
-        <p className="min-w-0 shrink-3 truncate text-xs text-text-tertiary sm:text-sm">
+        <p className="min-w-0 shrink-3 truncate text-xs text-fg-subtle sm:text-sm">
           {subtitle}
         </p>
       )}

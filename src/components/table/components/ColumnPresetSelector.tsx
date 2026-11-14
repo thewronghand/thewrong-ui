@@ -228,7 +228,7 @@ export function ColumnPresetSelector<T>({
           {isDirty && (
             <span
               aria-hidden="true"
-              className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-brand-blue-secondary"
+              className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-primary-border"
             />
           )}
         </button>
@@ -282,7 +282,7 @@ export function ColumnPresetSelector<T>({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-50 overflow-hidden rounded-lg border-2 border-neutral-200 shadow-lg dark:border-neutral-700"
+            className="z-floating overflow-hidden rounded-lg border-2 border-neutral-200 shadow-lg dark:border-neutral-700"
           >
             <ColumnSettingsTable
               num={String(activePreset)}

@@ -239,10 +239,7 @@ function isTokenCandidate(cls) {
 
 // 이 값은 실제 클래스가 아닌 문자열이다 (tailwind-merge 그룹 키·모달 표시 방식·CSS 설명).
 const NOT_CLASS = new Set(["border-w", "ring-w", "bottom-sheet", "z-index"]);
-// 원본 프로젝트에만 정의된 유틸은 컴포넌트 치환(3단계)에서 처리한다.
-const KNOWN_UNDEFINED = new Set([
-  "src/components/table/components/ColumnPresetSelector.tsx bg-brand-blue-secondary",
-]);
+const KNOWN_UNDEFINED = new Set();
 
 // Tailwind 파서가 인식하지 못하는 variant도 검사할 수 있도록 바깥쪽 콜론만 나눈다.
 // 소스 코드의 문자열·배열 경계는 스캐너가 이미 처리한다.
