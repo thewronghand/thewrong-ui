@@ -1,5 +1,5 @@
 import { AlertTriangle, CircleX, Info } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   useEffect,
   useRef,
@@ -47,6 +47,8 @@ type ButtonVisualProps = Partial<
 
 export interface ActionToastButton extends ButtonVisualProps {
   label: ReactNode;
+  /** 화면에 보이는 라벨 대신 스크린 리더에 전달할 버튼 이름. */
+  ariaLabel?: string;
   /**
    * 클릭 시 호출. 호출 후 토스트는 자동으로 닫힌다.
    * 닫지 않고 유지하려면 `closeOnClick: false`.
@@ -75,6 +77,8 @@ interface ShowActionToastArgs {
   /** 좌측 아이콘 커스텀. 미지정 시 톤별 기본 아이콘. null이면 아이콘 숨김. */
   icon?: ReactNode | null;
   input?: ActionToastInput;
+  /** 자동으로 닫힐 때까지의 시간(ms). 기본값은 자동으로 닫히지 않는 Infinity. @default Infinity */
+  duration?: number;
   /** 토스트 폭(px) 커스텀. 기본 680(일반 토스트와 동일). 모바일은 viewport-32px로 자동 fit. */
   widthPx?: number;
   /**
@@ -95,9 +99,10 @@ interface ShowActionToastArgs {
  * show/dismiss 시점에 갱신. Modal/Drawer가 ESC/백드롭 우선순위 결정에 사용.
  */
 let isActive = false;
+let activeGeneration = 0;
 
 /**
- * 사용자 결정이 필요한 액션 토스트. 자동 dismiss 없음.
+ * 사용자 결정이 필요한 액션 토스트. 기본적으로 자동 닫힘이 없으며, `duration`을 지정하면 해당 시간이 지난 뒤 닫힌다.
  * 위치는 전역 Toaster를 따름(데스크탑=bottom-center, 모바일=top-center).
  * 한 번에 최대 1개만 노출(같은 id로 덮어쓰기).
  *
@@ -112,15 +117,18 @@ export function showActionToast({
   tone = "warning",
   icon,
   input,
+  duration = Infinity,
   widthPx,
   backdrop = true,
   className,
 }: ShowActionToastArgs): string {
+  const generation = ++activeGeneration;
   setActionToastActive(true);
   return toast.custom(
     (t: Toast) => (
       <ActionToastView
         toastInstance={t}
+        generation={generation}
         message={message}
         actions={actions}
         tone={tone}
@@ -133,7 +141,7 @@ export function showActionToast({
     ),
     {
       id: ACTION_TOAST_ID,
-      duration: Infinity,
+      duration,
     },
   );
 }
@@ -162,6 +170,7 @@ function variantOverrideClass(variant: ButtonVisualProps["variant"]) {
 
 interface ActionToastViewProps {
   toastInstance: Toast;
+  generation: number;
   message: ReactNode;
   actions: ActionToastButton[];
   tone: "warning" | "info" | "danger";
@@ -191,6 +200,7 @@ function defaultIconForTone(
 
 function ActionToastView({
   toastInstance,
+  generation,
   message,
   actions,
   tone,
@@ -201,6 +211,7 @@ function ActionToastView({
   className,
 }: ActionToastViewProps) {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
 
   // 모바일에서 사이즈를 한 단계 다운: 텍스트/아이콘/버튼/패딩.
   const iconSizeClass = isMobile ? "h-4 w-4" : "h-4.5 w-4.5";
@@ -213,6 +224,28 @@ function ActionToastView({
   const resolvedIcon =
     icon === undefined ? defaultIconForTone(tone, iconSizeClass) : icon;
   const [inputValue, setInputValue] = useState(input?.defaultValue ?? "");
+  const textInputRef = useRef<HTMLInputElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (!toastInstance.visible || !input) return;
+    const target =
+      input.type === "text" ? textInputRef.current : textareaRef.current;
+    target?.focus({ preventScroll: true });
+  }, [input, toastInstance.visible]);
+
+  // 직접 dismiss, 자동 닫힘, 직접 remove와 언마운트도 활성 상태를 해제한다.
+  // 같은 ID가 새 토스트로 교체된 뒤 이전 뷰의 cleanup이 새 항목을 해제하지 않게 한다.
+  useEffect(() => {
+    if (generation !== activeGeneration) return;
+    setActionToastActive(toastInstance.visible);
+  }, [generation, toastInstance.visible]);
+
+  useEffect(() => {
+    return () => {
+      if (generation === activeGeneration) setActionToastActive(false);
+    };
+  }, [generation]);
 
   // ESC로 토스트 닫기. action-toast는 overlayStack에서 항상 최상위(priority)이므로
   // Modal/Drawer의 ESC 핸들러는 isTop 가드에 막혀 양보된다 — 여기서 직접 dismiss를 책임진다.
@@ -298,6 +331,7 @@ function ActionToastView({
             size={action.size ?? buttonSize}
             leadingIcon={action.leadingIcon}
             trailingIcon={action.trailingIcon}
+            aria-label={action.ariaLabel}
             disabled={measureOnly ? undefined : action.disabled}
             onClick={measureOnly ? undefined : () => handleActionClick(action)}
             tabIndex={measureOnly ? -1 : undefined}
@@ -330,9 +364,9 @@ function ActionToastView({
       {backdrop &&
         createPortal(
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
             animate={{ opacity: toastInstance.visible ? 1 : 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
             onClick={() => {
               toast.dismiss(toastInstance.id);
               setActionToastActive(false);
@@ -349,13 +383,13 @@ function ActionToastView({
         시트도 visible=false 동안 pointer-events-none.
       */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.98 }}
         animate={
           toastInstance.visible
             ? { opacity: 1, scale: 1 }
             : { opacity: 0, scale: 0.98 }
         }
-        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: [0.16, 1, 0.3, 1] }}
         // `dark` 클래스를 시트 자체에 박아, 내부 Input/Textarea/Button 같은 공용 컴포넌트가
         // 호스트 페이지의 라이트/다크 모드와 무관하게 항상 다크 톤으로 렌더되도록 강제.
         className={cn(
@@ -365,12 +399,15 @@ function ActionToastView({
         )}
         style={{ width: `min(${widthPx}px, calc(100vw - 32px))` }}
         role="alertdialog"
+        data-ui-action-toast=""
         aria-modal={backdrop ? "true" : undefined}
         aria-label="확인이 필요한 알림"
       >
         {input ? (
           // 입력 모드: 메시지(아이콘+텍스트) → 입력 → 입력 우측 하단에 액션 버튼
-          <div className={`flex flex-col gap-2.5 ${containerPaddingStackClass}`}>
+          <div
+            className={`flex flex-col gap-2.5 ${containerPaddingStackClass}`}
+          >
             <div className={`flex items-start ${gapClass}`}>
               {resolvedIcon}
               <div
@@ -382,9 +419,9 @@ function ActionToastView({
             </div>
             {input.type === "text" ? (
               <Input
+                ref={textInputRef}
                 variant="box"
                 inputSize={isMobile ? "mini" : "small"}
-                autoFocus
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleTextInputKeyDown}
@@ -392,9 +429,9 @@ function ActionToastView({
               />
             ) : (
               <Textarea
+                ref={textareaRef}
                 textareaSize={isMobile ? "mini" : "small"}
                 rows={input.rows ?? 3}
-                autoFocus
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={input.placeholder}

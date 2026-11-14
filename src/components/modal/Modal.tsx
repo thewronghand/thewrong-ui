@@ -1,20 +1,34 @@
-import { useEffect, useId } from "react";
+import { useEffect, useId, useLayoutEffect, useState } from "react";
 import {
   motion,
   AnimatePresence,
   useDragControls,
+  useReducedMotion,
   type PanInfo,
 } from "motion/react";
 
 import { overlayStack } from "@/lib/overlay-stack";
 import { Portal } from "@/lib/Portal";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks";
+import { useFocusTrap, useIsMobile, useScrollLock } from "@/hooks";
+import { ModalFocusTrapContext, useModalSubViews } from "./ModalFocusTrapContext";
 
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
+  dismissible?: boolean;
+  /**
+   * false면 Tab 가두기, 배경 포커스 복귀와 레이어·토스트 제거로 body에 유실된 포커스 복구를 끈다.
+   * 초기 포커스와 닫힐 때의 복원 규칙은 유지한다 —
+   * 닫는 시점에 포커스가 시트·부유 레이어 안이거나 body이면 열기 직전 요소로 복원하고,
+   * 소비자가 배경의 다른 요소로 옮겨 둔 포커스는 그대로 둔다.
+   * ModalSubView에도 같은 설정이 적용된다. @default true
+   */
+  trapFocus?: boolean;
+  /** 닫힘 모션이 끝난 뒤 호출한다. isOpen을 false로 바꾸지 않고 컴포넌트를 언마운트하면 호출되지 않는다. */
+  onExitComplete?: () => void;
   /**
    * 데스크탑(sm+) 모달의 고정 폭(px). 지정하지 않으면 콘텐츠 폭에 fit (`sm:w-auto`).
    *
@@ -51,6 +65,7 @@ export interface ModalProps {
 
 /**
  * 데스크탑(`sm`+)에서는 중앙 정렬 모달, 모바일에서는 화면 하단에서 올라오는 bottom-sheet으로 동작.
+ * 열리면 첫 tabbable(제목과 활성 닫기 버튼이 있으면 닫기 버튼)에 포커스하며, 다른 필드는 `autoFocus`를 준다.
  *
  * - 모바일: 시트가 화면 하단에 붙고 상단 모서리만 둥글다. 핸들 바 표시.
  *   진입/퇴장 모션은 화면 밖에서 슬라이드 (`y: "100%" → 0 → "100%"`).
@@ -65,13 +80,29 @@ export interface ModalProps {
  * 등으로 변할 수 있으면 `widthPx`로 고정해 시트가 흔들리지 않게 할 것.
  *
  * **레이어드 오버레이**: ESC/백드롭은 `overlayStack`에서 자신이 top일 때만 반응한다.
- * ActionToast나 ModalSubView가 위에 떠 있으면(더 높은 priority/나중 push) 자동으로 양보된다.
+ * ActionToast나 열린 ModalSubView가 위에 떠 있으면 자동으로 양보된다.
  * 모달 위에 또 모달을 쌓는 대신 ModalSubView(푸시 네비)나 ActionToast(재확인)로 푸는 것을 권장.
+ *
+ * **포커스 트랩**: `aria-controls`로 연결된 Floating UI 포털 또는 `data-focus-trap-layer`가
+ * 붙은 포털만 부유 레이어로 인정한다. 연결을 알 수 없는 포털의 Tab은 모달로 돌아오므로
+ * 해당 포털에 표식을 붙이거나 `trapFocus={false}`를 사용한다. 표식은 문서 전체에서 찾으므로
+ * 현재 트랩에 편입할 포털에만 붙인다. `role="dialog"` + `aria-modal="true"`인 포털(서드파티
+ * 다이얼로그 등)은 표식이 있어도 편입하지 않으므로 `trapFocus={false}`를 사용한다.
+ * 가드 없는 부유 레이어(Popover·DatePicker·표식 포털)는 트리거 바로 뒤가 아니라 모달의
+ * 모든 tabbable 뒤에 붙는다. 포털 DOM 위치와 무관하게 순환을 일정하게 하기 위해 트리거에서
+ * Tab을 누르면 다음 필드로 가고, 패널은 한 바퀴의 마지막에 지난다. 열자마자 패널을 조작하려면
+ * 패널 안으로 바로 포커스를 옮기는 컴포넌트나 Select처럼 floating-ui 포커스 관리가 있는 패널을 쓴다.
+ * 액션 토스트가 top이면 트랩은 양보하며, 그동안에는 Tab이 모달 밖으로 나갈 수 있다
+ * (`backdrop: false` 알림성 토스트 포함). Tab으로 모달 밖에 떨어진 포커스는 고리로 되돌리고,
+ * 마우스로 옮긴 포커스는 건드리지 않는다.
  */
 export function Modal({
   isOpen,
   onClose,
   title,
+  dismissible = true,
+  trapFocus = true,
+  onExitComplete,
   widthPx,
   footer,
   bodyPadded = false,
@@ -82,11 +113,20 @@ export function Modal({
   const isMobile = useIsMobile();
 
   const overlayId = useId();
+  const titleId = useId();
   const dragControls = useDragControls();
+  const prefersReducedMotion = useReducedMotion();
+  const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
+  const { context, isTop } = useModalSubViews(isOpen, trapFocus, overlayId);
+
+  // 퇴장 모션으로 남은 시트가 브라우저의 기본 Tab 순서에 다시 들어가지 않게 한다.
+  useLayoutEffect(() => {
+    if (sheet) sheet.inert = !isOpen;
+  }, [sheet, isOpen]);
 
   // 모바일 바텀시트 스와이프-다운 닫기. 100px 이상 끌거나 빠르게 튕기면 close.
   const handleDragEnd = (_: PointerEvent, info: PanInfo) => {
-    if (info.offset.y > 100 || info.velocity.y > 500) {
+    if (dismissible && (info.offset.y > 100 || info.velocity.y > 500)) {
       onClose();
     }
   };
@@ -94,28 +134,30 @@ export function Modal({
   useEffect(() => {
     if (!isOpen) return;
     overlayStack.push(overlayId);
-    document.body.style.overflow = "hidden";
     return () => {
       overlayStack.pop(overlayId);
-      // 마지막 오버레이가 닫혔을 때만 lock 해제. 레이어드 모달에서 안쪽 닫힐 때 바깥의 lock 유지.
-      if (overlayStack.isEmpty()) {
-        document.body.style.overflow = "";
-      }
     };
   }, [isOpen, overlayId]);
 
+  useScrollLock(isOpen);
+  useFocusTrap(sheet, {
+    enabled: isOpen,
+    trapFocus,
+    canTrap: isTop,
+  });
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || !dismissible) return;
       // 가장 위 오버레이만 처리. ActionToast가 떠 있으면 그게 top(priority)이라 자동으로 양보된다.
-      if (!overlayStack.isTop(overlayId)) return;
+      if (!isTop()) return;
       onClose();
     };
     if (isOpen) window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [isOpen, onClose, overlayId]);
+  }, [isOpen, onClose, dismissible, isTop]);
 
-  return (
+  const content = (
     <Portal>
       {/* 백드롭 */}
       <AnimatePresence>
@@ -125,10 +167,10 @@ export function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
             onClick={() => {
               // 자신이 top일 때만 닫힘. ActionToast/SubView가 위에 있으면 그쪽이 백드롭을 받는다.
-              if (!overlayStack.isTop(overlayId)) return;
+              if (!dismissible || !isTop()) return;
               onClose();
             }}
             className="fixed inset-0 z-50 bg-black/50"
@@ -136,10 +178,15 @@ export function Modal({
         )}
       </AnimatePresence>
       {/* 시트 — AnimatePresence의 직접 자식이 motion.div여야 exit 동작 */}
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={onExitComplete}>
         {isOpen && (
           <motion.div
             key="modal-sheet"
+            ref={setSheet}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={title ? titleId : undefined}
+            tabIndex={-1}
             initial={
               isMobile ? { y: "100%" } : { opacity: 0, y: 24, scale: 0.96 }
             }
@@ -150,20 +197,25 @@ export function Modal({
               isMobile
                 ? {
                     y: "100%",
-                    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+                    transition: {
+                      duration: prefersReducedMotion ? 0 : 0.2,
+                      ease: [0.4, 0, 1, 1],
+                    },
                   }
                 : { opacity: 0, y: 24, scale: 0.96 }
             }
             transition={
-              isMobile
-                ? // damping을 임계감쇠 이상(>= 2*sqrt(stiffness) ≈ 35.8)으로 올려 오버슈트 제거.
-                  // 기존 damping 30은 과소감쇠라 진입 시 시트가 목표(y:0)를 지나쳐 위로 들렸다
-                  // 돌아오며 하단에 백드롭이 비쳤다. 38이면 오버슈트 없이 부드럽게 정착.
-                  { type: "spring", damping: 38, stiffness: 320 }
-                : { duration: 0.25, ease: [0.32, 0.72, 0, 1] }
+              prefersReducedMotion
+                ? { duration: 0 }
+                : isMobile
+                  ? // damping을 임계감쇠 이상(>= 2*sqrt(stiffness) ≈ 35.8)으로 올려 오버슈트 제거.
+                    // 기존 damping 30은 과소감쇠라 진입 시 시트가 목표(y:0)를 지나쳐 위로 들렸다
+                    // 돌아오며 하단에 백드롭이 비쳤다. 38이면 오버슈트 없이 부드럽게 정착.
+                    { type: "spring", damping: 38, stiffness: 320 }
+                  : { duration: 0.25, ease: [0.32, 0.72, 0, 1] }
             }
             // 모바일 한정 스와이프-다운 닫기. 데스크탑에선 translate -50%/-50% 정렬과 충돌하므로 비활성.
-            drag={isMobile ? "y" : false}
+            drag={isMobile && dismissible ? "y" : false}
             dragListener={false}
             dragControls={dragControls}
             // 위로는 못 끌게(top 0), 아래로만 elastic. dragElastic의 top을 0으로 둬도 motion이
@@ -176,7 +228,7 @@ export function Modal({
             // 사이에 백드롭이 비치는 현상을 막기 위해, 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 콘텐츠는 그대로 두면서 바닥 틈을 항상 메운다.
             className={cn(
-              "fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
+              "fixed -bottom-8 left-0 right-0 z-50 mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl outline-none sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
               className,
             )}
             style={
@@ -191,20 +243,33 @@ export function Modal({
           >
             {/* 모바일 핸들 바 — 드래그-다운 닫기 트리거 */}
             <div
-              className="flex justify-center pt-2 pb-1 cursor-grab touch-none active:cursor-grabbing sm:hidden"
-              onPointerDown={(e) => dragControls.start(e)}
+              className={cn(
+                "flex justify-center pt-2 pb-1 cursor-grab touch-none active:cursor-grabbing sm:hidden",
+                !dismissible && "pointer-events-none opacity-0",
+              )}
+              onPointerDown={(e) => {
+                if (dismissible) dragControls.start(e);
+              }}
             >
               <div className="h-1 w-10 rounded-full bg-neutral-300 dark:bg-neutral-600" />
             </div>
 
             {title && (
               <div className="flex items-center justify-between px-4 py-3">
-                <h3 className="text-base font-semibold text-neutral-900 sm:text-lg dark:text-white">
+                <h3
+                  id={titleId}
+                  className="text-base font-semibold text-neutral-900 sm:text-lg dark:text-white"
+                >
                   {title}
                 </h3>
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="rounded p-1 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                  disabled={!dismissible}
+                  className={cn(
+                    "rounded p-1 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300",
+                    !dismissible && "pointer-events-none opacity-0",
+                  )}
                   aria-label="닫기"
                 >
                   <svg
@@ -254,5 +319,11 @@ export function Modal({
         )}
       </AnimatePresence>
     </Portal>
+  );
+
+  return (
+    <ModalFocusTrapContext.Provider value={context}>
+      {content}
+    </ModalFocusTrapContext.Provider>
   );
 }
