@@ -1,8 +1,8 @@
 /*
  * @thewrong/ui 스타일 진입점 (Storybook과 라이브러리 빌드 공용)
  *
- * 층: primitives(--p-*, 원료) → semantic(역할, 유틸 생성) → component-utils(네이티브 클래스).
- * 소비자용 토큰 소스(./tokens.css)는 이 세 파일을 합친 것이다(vite.config.ts).
+ * 층: primitives(--p-*, 원료) → semantic(역할, 유틸 생성) → component-utils → themes.
+ * 소비자용 토큰 소스(./tokens.css)에도 같은 테마 선언이 포함된다(vite.config.ts).
  *
  * 스캔 범위: source("..") = src/ 만. 스토리·mdx 제외는 라이브러리 진입(library.css)이 한다 —
  * Storybook은 이 파일을 직접 import해 스토리 전용 유틸도 생성한다.
@@ -11,6 +11,7 @@
 @import "./primitives.css";
 @import "./semantic.css";
 @import "./component-utils.css";
+@import "./themes/index.css";
 
 /* dark: 유틸도 시맨틱 토큰과 같은 트리거(.dark 클래스, 임의 조상)를 따른다. */
 @custom-variant dark (&:where(.dark, .dark *));

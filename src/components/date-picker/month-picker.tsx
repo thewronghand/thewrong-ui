@@ -1,5 +1,4 @@
 import {
-  FloatingPortal,
   autoUpdate,
   flip,
   offset,
@@ -11,11 +10,10 @@ import {
   useRole,
 } from "@floating-ui/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useState, type ReactNode } from "react";
 
-import { useBottomSheetDrag, useIsMobile, useScrollLock } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { PickerSheet, usePickerMobile } from "./PickerSheet";
 
 export interface MonthValue {
   year: number;
@@ -31,6 +29,7 @@ interface MonthPickerProps {
   /**
    * true면 모바일에서도 바텀시트 대신 popover로 뜬다. 이미 바텀시트(SearchBox 필터 등) 안에
    * 있을 때 시트가 겹치는 걸 막는다.
+   * 생략하면 Modal 안에서는 자동으로 popover를 쓰며, false를 명시하면 바텀시트를 유지한다.
    */
   disableMobileSheet?: boolean;
 }
@@ -46,11 +45,10 @@ export function MonthPicker({
   value,
   onChange,
   disabled,
-  disableMobileSheet = false,
+  disableMobileSheet,
 }: MonthPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  // 바텀시트 안(disableMobileSheet)에서는 모바일이어도 popover로 — 시트 겹침 방지.
-  const isMobile = useIsMobile() && !disableMobileSheet;
+  const { useSheet } = usePickerMobile(disableMobileSheet);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -76,13 +74,6 @@ export function MonthPicker({
     dismiss,
     role,
   ]);
-
-  useScrollLock(isOpen && isMobile);
-
-  // 모바일 바텀시트 드래그-다운 닫기 (공용 훅).
-  const { dragControls, handleDragEnd, startDrag } = useBottomSheetDrag({
-    onDismiss: () => setIsOpen(false),
-  });
 
   const handleSelect = (next: MonthValue) => {
     onChange(next);
@@ -114,65 +105,18 @@ export function MonthPicker({
       >
         {children}
       </span>
-      <FloatingPortal>
-        {isMobile ? (
-          <>
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="month-picker-dimmer"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-overlay bg-bg-overlay"
-                  onClick={() => setIsOpen(false)}
-                />
-              )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="month-picker-sheet"
-                  ref={refs.setFloating}
-                  {...getFloatingProps()}
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{
-                    y: "100%",
-                    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
-                  }}
-                  transition={{ type: "spring", damping: 30, stiffness: 320 }}
-                  drag="y"
-                  dragListener={false}
-                  dragControls={dragControls}
-                  dragConstraints={{ top: 0 }}
-                  dragElastic={{ top: 0, bottom: 0.4 }}
-                  onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface text-fg-default p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
-                >
-                  <div
-                    className="self-center h-1 w-10 rounded-full bg-bg-handle cursor-grab touch-none active:cursor-grabbing"
-                    onPointerDown={startDrag}
-                  />
-                  {grid}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
-        ) : (
-          isOpen && (
-            <div
-              ref={refs.setFloating}
-              style={floatingStyles}
-              {...getFloatingProps()}
-              className="z-floating w-70 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-5 shadow-tooltip"
-            >
-              {grid}
-            </div>
-          )
-        )}
-      </FloatingPortal>
+      <PickerSheet
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        useSheet={useSheet}
+        context={context}
+        setFloating={refs.setFloating}
+        floatingStyles={floatingStyles}
+        getFloatingProps={getFloatingProps}
+        desktopClassName="z-floating w-70 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-5 shadow-tooltip"
+      >
+        {grid}
+      </PickerSheet>
     </>
   );
 }

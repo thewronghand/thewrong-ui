@@ -72,6 +72,7 @@ function getTabbableElements(
 const FLOATING_PORTAL = "[data-floating-ui-portal]";
 const MARKED_LAYER = "[data-focus-trap-layer]";
 const FOCUS_GUARD = "[data-floating-ui-focus-guard]";
+const PICKER_PANEL = "[data-picker-panel]";
 const MODAL_DIALOG = '[role="dialog"][aria-modal="true"]';
 const MODIFIER_KEYS = ["Shift", "Alt", "Control", "Meta"];
 
@@ -197,10 +198,10 @@ function stepFrom(
  * 편입할 포털에만 붙인다. `role="dialog"` + `aria-modal="true"`인 포털(서드파티 다이얼로그 등)은
  * 자기 트랩을 가진 별도 모달로 보고 표식이 있어도 편입하지 않는다 — 그 위에서 조작해야 하면
  * `trapFocus: false`를 사용한다.
- * 가드 없는 부유 레이어(Popover·DatePicker·표식 포털)는 트리거 바로 뒤가 아닌 컨테이너의
+ * 가드 없는 부유 레이어(Popover·표식 포털)는 트리거 바로 뒤가 아닌 컨테이너의
  * 모든 tabbable 뒤에 붙는다. 포털 DOM 위치와 무관하게 순환을 일정하게 하기 위해 트리거에서
  * Tab을 누르면 다음 필드로 가고, 패널은 한 바퀴의 마지막에 지난다. 열자마자 패널을 조작하려면
- * 패널 안으로 바로 포커스를 옮기는 컴포넌트나 Select처럼 floating-ui 포커스 관리가 있는 패널을 쓴다.
+ * 패널 안으로 바로 포커스를 옮기는 컴포넌트나 Select·DatePicker처럼 floating-ui 포커스 관리가 있는 패널을 쓴다.
  * 액션 토스트가 top이면 트랩은 양보한다. 그동안에는 Tab이 컨테이너 밖으로 나갈 수 있다
  * (`backdrop: false` 알림성 토스트 포함).
  * Tab 이동으로 범위·편입 레이어·토스트 밖(배경, 서브뷰에 덮인 본문 등)에 떨어진 포커스는
@@ -511,10 +512,62 @@ export function useFocusTrap(
       const activeLayer = layers.find(
         (layer) => active && layer.contains(active),
       );
-      if (activeLayer?.querySelector(FOCUS_GUARD)) return;
-
       const first = ring[0];
       const last = ring[ring.length - 1];
+
+      if (activeLayer?.querySelector(FOCUS_GUARD)) {
+        const root = scope?.parent ?? container;
+        const layerItems = getTabbableElements(activeLayer, true);
+        const pickerPanel =
+          active instanceof Element
+            ? active.closest(PICKER_PANEL)
+            : null;
+        const afterInsideGuard = pickerPanel?.nextElementSibling;
+        // 마지막 피커 트리거 뒤에 다음 필드가 없으면 포털 가드가 포커스를 옮길 곳이 없다.
+        if (
+          !event.shiftKey &&
+          first &&
+          afterInsideGuard instanceof HTMLElement &&
+          afterInsideGuard.matches(FOCUS_GUARD) &&
+          active === layerItems[layerItems.length - 1] &&
+          getLayerTrigger(root, activeLayer, inScope) === last
+        ) {
+          event.preventDefault();
+          // 가드 체인의 닫기 처리를 마친 뒤 고리 처음으로 옮긴다.
+          afterInsideGuard.focus({ preventScroll: true });
+          first.focus({ preventScroll: true });
+        }
+        return;
+      }
+
+      // 마지막 트리거의 포털 가드는 고리에서 제외되지만, 그 가드로 패널에 드나들어야 한다.
+      // 경계에서 트랩이 곧장 처음/끝으로 감으면 floating-ui가 패널을 순회할 기회를 잃는다.
+      if (
+        first &&
+        last &&
+        ((!event.shiftKey && active === last) ||
+          (event.shiftKey && active === first))
+      ) {
+        const root = scope?.parent ?? container;
+        const layer = layers.find(
+          (item) =>
+            item.querySelector(FOCUS_GUARD) &&
+            getLayerTrigger(root, item, inScope) === last,
+        );
+        const owner = layer?.id
+          ? root.querySelector<HTMLElement>(
+              `[aria-owns="${CSS.escape(layer.id)}"]`,
+            )
+          : null;
+        const guard = event.shiftKey
+          ? owner?.nextElementSibling
+          : owner?.previousElementSibling;
+        if (guard instanceof HTMLElement && guard.matches(FOCUS_GUARD)) {
+          event.preventDefault();
+          guard.focus({ preventScroll: true });
+          return;
+        }
+      }
 
       // 덮인 영역이 고리 중간에 끼면 브라우저 기본 이동이 그리로 가므로 다음 범위 요소로 건너뛴다.
       if (scope && active instanceof HTMLElement) {

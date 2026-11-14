@@ -1,5 +1,4 @@
 import {
-  FloatingPortal,
   autoUpdate,
   flip,
   offset,
@@ -26,11 +25,10 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState, type ReactNode } from "react";
 
-import { useBottomSheetDrag, useIsMobile, useScrollLock } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { PickerSheet, usePickerMobile } from "./PickerSheet";
 import { AnimatedHeight } from "@/components/animated-height";
 
 interface DatePickerProps {
@@ -43,6 +41,7 @@ interface DatePickerProps {
   /**
    * true면 모바일에서도 자체 바텀시트 대신 데스크톱과 동일한 popover로 표시.
    * 호출부가 이미 바텀시트(예: SearchBox 모바일 시트) 안에 있어 시트 두 개가 겹치는 걸 피할 때 사용.
+   * 생략하면 Modal 안에서는 자동으로 popover를 쓰며, false를 명시하면 바텀시트를 유지한다.
    */
   disableMobileSheet?: boolean;
 }
@@ -60,11 +59,10 @@ export function DatePicker({
   value,
   onApply,
   disabled,
-  disableMobileSheet = false,
+  disableMobileSheet,
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const isMobileRaw = useIsMobile();
-  const isMobile = isMobileRaw && !disableMobileSheet;
+  const { useSheet } = usePickerMobile(disableMobileSheet);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -91,18 +89,10 @@ export function DatePicker({
     role,
   ]);
 
-  // 모바일 바텀시트 열렸을 때 body 스크롤 잠금.
-  useScrollLock(isOpen && isMobile);
-
   const handleApply = (date: string) => {
     onApply(date);
     setIsOpen(false);
   };
-
-  // 모바일 바텀시트 드래그-다운 닫기 (공용 훅).
-  const { dragControls, handleDragEnd, startDrag } = useBottomSheetDrag({
-    onDismiss: () => setIsOpen(false),
-  });
 
   return (
     <>
@@ -113,75 +103,22 @@ export function DatePicker({
       >
         {children}
       </span>
-      <FloatingPortal>
-        {isMobile ? (
-          <>
-            {/* dimmer — AnimatePresence로 감싸 fade-out 적용. */}
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="date-picker-dimmer"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-overlay bg-bg-overlay"
-                  onClick={() => setIsOpen(false)}
-                />
-              )}
-            </AnimatePresence>
-            {/* 시트 — exit 모션 실행 위해 AnimatePresence 필수. */}
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="date-picker-sheet"
-                  ref={refs.setFloating}
-                  {...getFloatingProps()}
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{
-                    y: "100%",
-                    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
-                  }}
-                  transition={{ type: "spring", damping: 30, stiffness: 320 }}
-                  drag="y"
-                  dragListener={false}
-                  dragControls={dragControls}
-                  dragConstraints={{ top: 0 }}
-                  dragElastic={{ top: 0, bottom: 0.4 }}
-                  onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface text-fg-default p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
-                >
-                  <div
-                    className="self-center h-1 w-10 rounded-full bg-bg-handle cursor-grab touch-none active:cursor-grabbing"
-                    onPointerDown={startDrag}
-                  />
-                  <DatePickerBody
-                    initialValue={value}
-                    onApply={handleApply}
-                    onClose={() => setIsOpen(false)}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
-        ) : (
-          isOpen && (
-            <div
-              ref={refs.setFloating}
-              style={floatingStyles}
-              {...getFloatingProps()}
-              className="z-floating w-80 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-6 shadow-tooltip"
-            >
-              <DatePickerBody
-                initialValue={value}
-                onApply={handleApply}
-                onClose={() => setIsOpen(false)}
-              />
-            </div>
-          )
-        )}
-      </FloatingPortal>
+      <PickerSheet
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        useSheet={useSheet}
+        context={context}
+        setFloating={refs.setFloating}
+        floatingStyles={floatingStyles}
+        getFloatingProps={getFloatingProps}
+        desktopClassName="z-floating w-80 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-6 shadow-tooltip"
+      >
+        <DatePickerBody
+          initialValue={value}
+          onApply={handleApply}
+          onClose={() => setIsOpen(false)}
+        />
+      </PickerSheet>
     </>
   );
 }

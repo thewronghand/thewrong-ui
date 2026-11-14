@@ -1,6 +1,6 @@
-import { useVirtualizer } from "@tanstack/react-virtual";
 import type { Virtualizer } from "@tanstack/react-virtual";
 import { useMemo, useRef } from "react";
+import { useVirtualRows } from "@/hooks/useVirtualRows";
 
 /**
  * 가상화 테이블 훅 옵션
@@ -59,12 +59,12 @@ export function useVirtualTable({
 }: UseVirtualTableOptions): UseVirtualTableReturn {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const virtualizer = useVirtualizer({
+  const { virtualizer } = useVirtualRows({
     count,
-    getScrollElement: () => scrollElement || parentRef.current,
-    estimateSize: () => estimateSize,
+    scrollElementRef: parentRef,
+    scrollElement,
+    estimateSize,
     overscan,
-    enabled: count > 0, // count가 0보다 클 때만 활성화
   });
 
   return useMemo(

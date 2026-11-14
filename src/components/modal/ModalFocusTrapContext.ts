@@ -9,12 +9,14 @@ interface ModalFocusTrapContextValue {
   isTopSubView: (id: string) => boolean;
 }
 
-export const ModalFocusTrapContext = createContext<ModalFocusTrapContextValue>({
+export const defaultModalFocusTrapContext: ModalFocusTrapContextValue = {
   isOpen: true,
   trapFocus: true,
   registerSubView: () => () => {},
   isTopSubView: (id) => overlayStack.isTop(id),
-});
+};
+
+export const ModalFocusTrapContext = createContext(defaultModalFocusTrapContext);
 
 export function useModalSubViews(
   isOpen: boolean,

@@ -8,14 +8,46 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import { playwright } from '@vitest/browser-playwright';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+const moduleOutput = {
+  preserveModules: true,
+  preserveModulesRoot: "src",
+  globals: { react: "React", "react-dom": "ReactDOM" },
+};
+
+// NodeNext의 ESM 선언 해석에는 상대 모듈의 확장자와 디렉터리 index가 필요하다.
+function declarationExtensions(filePath: string, content: string) {
+  const sourceDir = resolve(
+    __dirname,
+    "src",
+    path.relative(resolve(__dirname, "dist"), path.dirname(filePath)),
+  );
+  const updated = content.replace(
+    /((?:\bfrom\s+|\bimport\s*\(\s*)["'])(\.{1,2}\/[^"']+)(["'])/g,
+    (match, prefix: string, specifier: string, quote: string) => {
+      const source = resolve(sourceDir, specifier);
+      if (["index.ts", "index.tsx"].some((name) => existsSync(resolve(source, name))))
+        return `${prefix}${specifier}/index.js${quote}`;
+      if ([".ts", ".tsx"].some((extension) => existsSync(`${source}${extension}`)))
+        return `${prefix}${specifier}.js${quote}`;
+      return match;
+    },
+  );
+  return { content: updated };
+}
 
 // 소비자용 토큰 소스 — dist/tokens.css.
 // 소비자가 자기 Tailwind 빌드에서 `@import "@thewrong/ui/tokens.css"` 하면 @theme·@utility가 살아 있어
 // bg-bg-surface·rounded-control-medium·z-floating 같은 유틸이 생성된다(컴파일된 styles.css와 별개).
 // 층 순서대로 원본 CSS를 이어 붙이기만 한다.
-const TOKEN_SOURCES = ["primitives.css", "semantic.css", "component-utils.css"];
+const TOKEN_SOURCES = [
+  "primitives.css",
+  "semantic.css",
+  "component-utils.css",
+  "themes/quiet.css",
+  "themes/high-contrast.css",
+];
 function emitTokensCss() {
   return {
     name: "thewrong-ui:emit-tokens-css",
@@ -36,8 +68,10 @@ export default defineConfig({
     // 컨텍스트에 포함해야 import.meta.env / CSS side-effect import 타입이 해석된다.
     // (전체 *.d.ts를 빼면 그 참조가 끊겨 dts 빌드에서 경고가 난다.)
     exclude: ["src/**/*.stories.tsx", "src/**/*.test.ts"],
-    // src/ 접두어를 떼고 dist 루트로 평탄화 → dist/index.d.ts (package.json "types"와 일치)
-    entryRoot: "src"
+    compilerOptions: { rootDir: resolve(__dirname, "src") },
+    // src 기준으로 선언 파일을 배치하고 package.json types 경로와 맞춘다.
+    entryRoot: "src",
+    beforeWriteFile: declarationExtensions
   })],
   resolve: {
     alias: {
@@ -49,8 +83,8 @@ export default defineConfig({
   build: {
     lib: {
       // 다중 진입점 — 루트 배럴(.) + 훅 전용 서브패스(./hooks).
-      // 훅 진입점을 분리해 소비자가 useIsMobile 등만 쓸 때 무거운 UI(motion/floating)가
-      // 끌려오지 않게 한다. preserveModules와 함께 컴포넌트별 개별 트리셰이킹도 가능해진다.
+      // 훅 배럴은 useBottomSheetDrag(motion)와 useVirtualRows(@tanstack/react-virtual)를
+      // 포함하므로 두 optional peer의 설치를 권장한다.
       entry: {
         index: resolve(__dirname, "src/index.ts"),
         hooks: resolve(__dirname, "src/hooks/index.ts")
@@ -73,17 +107,11 @@ export default defineConfig({
         // date-picker/search-box 전용 — 무겁고 로케일 데이터 포함. peer로 분리.
         /^date-fns($|\/)/
       ],
-      output: {
-        // 모듈 구조 보존 — 컴포넌트/훅이 개별 파일로 남아 소비자 번들러가 쓰지 않는 것을
-        // 트리셰이킹할 수 있다. 단일 번들이면 useIsMobile만 import해도 전체가 평가됐다.
-        preserveModules: true,
-        preserveModulesRoot: "src",
-        entryFileNames: "[name].[format].js",
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM"
-        }
-      }
+      // 모듈 구조를 보존하며 CJS 하위 파일도 Node가 인식하는 .cjs 확장자로 만든다.
+      output: [
+        { ...moduleOutput, format: "es", entryFileNames: "[name].esm.js", chunkFileNames: "[name].esm.js" },
+        { ...moduleOutput, format: "cjs", entryFileNames: "[name].cjs", chunkFileNames: "[name].cjs" }
+      ]
     },
     // CSS는 단일 파일 유지(소비자가 styles.css 한 줄만 import). 코드분할은 JS 모듈에만 적용.
     cssCodeSplit: false

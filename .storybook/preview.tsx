@@ -1,6 +1,6 @@
 import type { Decorator, Preview } from "@storybook/react";
-import { ToastProvider } from "../src/components/toast";
-import "../src/styles/index.css";
+import { ToastProvider } from "@/components/toast";
+import "@/styles/index.css";
 import "./preview.css";
 
 /**
@@ -37,11 +37,15 @@ const preview: Preview = {
       },
     },
     theme: {
-      description: "테마 (data-theme 속성) — 테마 CSS는 아직 없다",
+      description: "테마 (data-theme 속성)",
       toolbar: {
         title: "Theme",
         icon: "paintbrush",
-        items: [{ value: "default", title: "Default" }],
+        items: [
+          { value: "default", title: "Default" },
+          { value: "quiet", title: "Quiet" },
+          { value: "high-contrast", title: "High contrast" },
+        ],
         dynamicTitle: true,
       },
     },

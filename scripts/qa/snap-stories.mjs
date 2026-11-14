@@ -82,7 +82,7 @@ const VIEWPORTS = {
 
 // 열린 상태 컷을 추가로 찍을 스토리(title 기준). 클릭해야 내용이 보이는 계열.
 const OVERLAY_TITLE =
-  /modal|drawer|toast|select|popover|tooltip|date-?picker|search-?box|collapsible/i;
+  /modal|drawer|toast|select|popover|tooltip|(?:date|time|month(?:-?range)?)-?picker|search-?box|collapsible/i;
 
 const FREEZE_CSS = `
 *, *::before, *::after {
@@ -165,14 +165,24 @@ async function snapOne(context, base, story, mode, outDir, isOverlay) {
       fullPage: true,
     });
     if (isOverlay) {
-      const trigger = page
+      const defaultTrigger = page
         .locator("#storybook-root")
         .locator(
           'button, [role="combobox"], [aria-haspopup], input[type="text"], input:not([type])',
         )
         .first();
+      const timeTrigger = page
+        .locator("#storybook-root button[aria-label$=' 선택']")
+        .first();
+      const trigger =
+        /time-?picker/i.test(story.title) && (await timeTrigger.count())
+          ? timeTrigger
+          : defaultTrigger;
       if ((await trigger.count()) > 0) {
         await trigger.click({ timeout: 5000 });
+        if (/(?:time|month(?:-?range)?)-?picker/i.test(story.title)) {
+          await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+        }
         await page.waitForTimeout(800);
         await page.evaluate(() => document.fonts.ready);
         await page.screenshot({

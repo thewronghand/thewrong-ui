@@ -13,13 +13,14 @@ import "@thewrong/ui/styles.css";
 // 2. 컴포넌트 import (전부 named export)
 import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 
-// 훅만 필요하면 서브패스로 — 무거운 UI 의존(motion/floating)이 안 끌려온다.
+// 훅만 필요하면 서브패스로 — motion과 @tanstack/react-virtual 설치를 권장한다.
 import { useIsMobile } from "@thewrong/ui/hooks";
 ```
 
 - 패키지명: `@thewrong/ui` · React `>=18` peerDependency.
-- 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅만, motion/floating 의존 0) · `@thewrong/ui/styles.css`(스타일, 한 번만 import) · `@thewrong/ui/tokens.css`(토큰 소스 — 소비자 Tailwind v4에서 `@import`하면 `bg-bg-surface`·`rounded-control-medium`·`z-floating` 등 유틸 생성). 컴파일한 소비자 CSS와 `styles.css`를 함께 사용할 수 있다.
-- 라이브러리는 컴포넌트별 코드분할되어 있어 소비자 번들러가 안 쓰는 컴포넌트를 트리셰이킹한다.
+- TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodenext"`의 ESM에서 사용한다. CJS 런타임의 `require`는 지원하며, 타입 사용에는 `nodenext` ESM을 권장한다 (`node16` CJS에서 일반 `import`는 TS1479, `import x = require()`는 TS1471이 발생한다).
+- 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅 전용, motion·@tanstack/react-virtual 설치 권장) · `@thewrong/ui/styles.css`(스타일, 한 번만 import) · `@thewrong/ui/tokens.css`(토큰 소스 — 소비자 Tailwind v4에서 `@import`하면 `bg-bg-surface`·`rounded-control-medium`·`z-floating` 등 유틸 생성). 컴파일한 소비자 CSS와 `styles.css`를 함께 사용할 수 있다.
+- 라이브러리는 컴포넌트별 모듈 구조를 보존한다. 미사용 모듈 제거 여부는 소비자 번들러에 따라 달라진다.
 
 ## 스타일 커스터마이징 (소비자가 색/스타일 바꾸기)
 
@@ -28,6 +29,9 @@ import { useIsMobile } from "@thewrong/ui/hooks";
   - 시맨틱: `--color-primary*` · `--color-fg-*` · `--color-bg-*` · `--color-border-*` · `--color-icon-*` · `--color-{error,success,warning,info,neutral}-*` · `--radius-*` · `--spacing-control-*` · `--shadow-*-src` · `--z-*`. 그림자 유틸은 `--shadow-*-src`를 참조한다. 덮어쓸 때는 시맨틱만 덮는다.
   - 로드 순서: 별도 사용자 오버라이드 CSS는 `styles.css`와 `tokens.css`를 컴파일한 소비자 CSS 뒤에 둔다. 다크 값은 오버라이드의 `.dark` 블록에 따로 적는다.
   - 시맨틱 토큰은 조상의 `.dark`를 따른다. Modal·Drawer·Tooltip·Popover·Select·DatePicker 등 body로 portal되는 컴포넌트에도 적용하고 `:root` 오버라이드와 함께 쓰려면 `<html>`에 붙인다. `<body>`에 붙여도 포털은 덮지만 `:root` 값이 body의 다크 선언보다 우선하지는 않는다. `styles.css`의 `dark:` 유틸은 `.dark`를 따른다.
+  - `styles.css`와 `tokens.css`에는 `quiet`, `high-contrast` 테마가 포함되어 있다. `data-theme`으로 선택하며 `.dark`와 조합할 수 있다. 한 서브트리에 한 테마만 쓴다 — 서로 다른 테마 중첩이나 `data-theme="default"`로 상위 테마 해제는 소스 순서와 상속이 섞여 지원하지 않는다. `<html>` 또는 겹치지 않는 형제 서브트리에 지정한다. Modal·Toast·Popover 등 body 포털에도 적용하려면 `<html>`에 지정한다.
+  - 테마 활성 시 `.dark[data-theme="quiet"]`의 특이도(0,2,0)가 `.dark`(0,1,0)보다 높다. 테마 위의 다크 값은 오버라이드 CSS에서 배치에 맞는 같은 테마 선택자로 재선언한다.
+  - Chrome 111 미만, Safari 16.2 미만, Firefox 113 미만은 `color-mix`를 지원하지 않아 배포 CSS의 `high-contrast` 보조 버튼 상태·입력 지우기 링에 기본 테마 폴백 색이 적용된다(avocado와 같은 구조). `--color-icon-button-primary-active`에는 정적 폴백이 없으므로 지원 브라우저를 쓰거나 명시적 색을 덮어쓴다.
   - `tokens.css`는 소비자 variant를 강제하지 않으므로 `@custom-variant dark`를 포함하지 않는다. 소비자 Tailwind의 `dark:`는 기본적으로 `prefers-color-scheme`을 따르며, `.dark`로 바꾸려면 자기 CSS에 `@custom-variant dark (&:where(.dark, .dark *));`를 넣는다.
 - **인스턴스별 스타일 = `className` prop** (이 컴포넌트 하나만 폭·여백·배경 다르게). 많은 컴포넌트가 className을 받아 tailwind-merge로 병합. 오버레이(Modal·Drawer·ActionToast·Popover)는 className이 백드롭이 아니라 **시트/카드**에 병합된다.
 - floating·고정좌표 컴포넌트(Tooltip·DatePicker 등)는 className 미개방(위치 깨짐 방지) — 색은 토큰 오버라이드로 바꾼다.
@@ -35,11 +39,12 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ## 규칙 (consumer가 지킬 것)
 
 - **모든 export는 named export.** default export 없음.
-- **무거운 의존은 optional peerDependency** — 해당 컴포넌트를 쓸 때만 그 패키지를 함께 설치한다:
-  - `motion` → Modal, Drawer, ActionToast, Popover, DatePicker류, Table, AnimatedHeight
+- **무거운 의존은 optional peerDependency** — 해당 컴포넌트 또는 훅을 쓸 때 그 패키지를 함께 설치한다:
+  - `motion` → Modal, Drawer, ActionToast, Popover, DatePicker류, Table, AnimatedHeight, FieldMessage(animated 여부와 무관), Stepper, TypingDots, TypewriterText, useBottomSheetDrag
   - `@floating-ui/react` → Select, Popover, Tooltip, DatePicker류, SearchBox, Table
-  - `react-hot-toast` → Toast, ActionToast, SearchBox, Table
-  - `@dnd-kit/*`, `@tanstack/react-virtual` → Table (컬럼 DnD / 가상화)
+  - `react-hot-toast` → Toast, ActionToast, CopyableText, SearchBox, Table
+  - `@dnd-kit/*` → Table 컬럼 DnD
+  - `@tanstack/react-virtual` → Table 가상화, useVirtualRows
   - `date-fns` → DatePicker류, SearchBox
 - 가벼운 필수 의존(`clsx`, `tailwind-merge`, `lucide-react`)은 번들에 포함되어 별도 설치 불필요.
 
@@ -47,11 +52,17 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 
 ### 폼
 - `Button` — variant×appearance×size. `as="a"`+`href`로 링크. `clickThrottleMs`로 더블클릭 방지(비가역 액션). `display="block"`으로 풀폭.
-- `Input`, `PasswordInput` — size 토큰 4단계. `prefix`/`suffix`/`clearable` 지원. `format`은 `InputFormat` 객체를 받으며, `inputFormats.phoneNumber`/`inputFormats.price` 프리셋을 넘긴다(`format={inputFormats.price}`).
+- `Input`, `PasswordInput`, `DecimalInput` — size 토큰 4단계. `prefix`/`suffix`/`clearable` 지원. `format`은 `InputFormat` 객체를 받으며, `inputFormats.phoneNumber`/`inputFormats.businessNumber`/`inputFormats.price` 프리셋을 넘긴다(`format={inputFormats.price}`).
+- `DecimalInput`은 소수 초안과 범위를 관리하며 onChange에 문자열을 전달한다. 범위에 도달 가능한 접두사는 임시로 유지하고 blur 시 마지막 유효 값으로 복원한다. 빈 값 전달은 `emitEmpty`.
+- `SegmentedCodeInput` — 단일 입력으로 OTP·PIN 슬롯을 표시하며 숫자만 허용한다. OTP는 `masked={false}`.
+- `CopyableText` — clipboard 복사 및 토스트. 보안 컨텍스트와 `ToastProvider`가 필요하다.
 - `Textarea` — `showCount`+`maxLength`로 글자 수. resize는 기본 고정.
-- `Select` — 단일 선택. `searchable`로 필터(클라이언트). 서버 검색 시 호출부가 selected snapshot 보존.
+- `Select` — 단일 선택. `searchable`로 필터(클라이언트). 서버 검색 시 호출부가 selected snapshot 보존. `open`과 `onOpenChange`로 패널을 제어할 수 있다. searchable에서 `openOnFocus`는 포커스로 패널을 열고, `validateSearchQuery`가 false를 반환한 입력은 검색어에 반영하지 않는다.
 - `MultiSelect` — 다중 선택. 값은 `string[]`. 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
 - `Switch`, `Checkbox`, `Badge`.
+- `Radio.Group`, `Radio.Item` — 네이티브 라디오 행. 같은 name과 fieldset/legend를 사용한다.
+- `SegmentedControl` — controlled 라디오 선택지. 그룹에 aria-label 또는 aria-labelledby를 전달한다.
+- `Field`, `FieldMessage` — 라벨과 폼 메시지. animated 메시지는 컴포넌트를 유지하고 children을 변경한다.
 
 ### 오버레이
 - `Modal` — 데스크탑 중앙 카드 / 모바일 바텀시트 자동 분기. 너비 고정(`widthPx`). 헤더-바디-푸터 3단(`footer`).
@@ -65,6 +76,9 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 
 ### 날짜
 - `DatePicker`(단일) · `DateRangePicker`(기간) · `MonthPicker`(년월) · `DateInput`(타이핑+캘린더). 모바일 바텀시트 분기.
+- `TimePicker` — 시·분 또는 시·분·초를 선택해 적용한다. `TimeInput`은 직접 입력과 피커 버튼을 함께 제공한다.
+- `MonthRangePicker` — 월 범위를 선택하고 적용한다. 모바일에서는 한 연도, 데스크톱에서는 두 연도를 보여준다.
+- 피커는 모바일 Modal·Drawer 안에서 기본적으로 popover를 사용한다. `disableMobileSheet={false}`를 명시하면 자체 시트를 유지한다.
 
 ### 데이터
 - `PaginatedTable` — 페이지네이션+페이지 사이즈 셀렉터 내장. 대부분의 목록 페이지 기본형.
@@ -75,8 +89,17 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ### 레이아웃 / 유틸
 - `TablePageLayout`, `TableCard`, `Toolbar`, `PageTitle`.
 - `AnimatedHeight`(높이 트랜지션), `Collapsible`, `LoadingSpinner`.
+- `Stepper`, `StepperContent`, `useStepper` — 단계 표시와 상태·콘텐츠 전환. 단계 검증은 호출부에서 처리한다.
+- `Progress` — 0~100 결정형 진행률. `Skeleton` — 크기를 className으로 지정하는 장식용 로딩 블록.
+- `TypingDots` — 상위 글자 크기·색을 따르는 로딩 표시. `TypewriterText` — 글자/단어 단위 텍스트 표시.
+- `ErrorBoundary` — 렌더 오류 폴백과 재시도. 청크 자동 복구에는 영속 저장·보고·reload를 담은 `chunkReloadPort`가 필요하다.
 - `cn`(clsx+tailwind-merge), `Portal`, `overlayStack`, `formatYearMonth`, `ColumnPresetStorage`.
-- hooks: `useClickOutside`, `useMediaQuery`, `useIsMobile`, `useBottomSheetDrag`, `useScrollLock`.
+- hooks: `useClickOutside`, `useMediaQuery`, `useIsMobile`, `useBottomSheetDrag`, `useScrollLock`, `useFocusTrap`, `useInfiniteScroll`, `useFillEmptyRows`, `useTableDragSelection`, `useVirtualRows`, `useAwaitableOverlay`, `useStepper`. 모두 `@thewrong/ui/hooks`에서도 가져올 수 있다.
+  - `@thewrong/ui/hooks` 배럴은 `useBottomSheetDrag`와 `useVirtualRows`를 내보내므로 `motion`과 `@tanstack/react-virtual` 설치를 권장한다. 직접 실행할 때는 두 패키지가 필요하다.
+  - `useInfiniteScroll`은 `onLoadMore`, `hasMore`, `isFetching`, 선택적인 `scrollElementRef`/`rootMarginPx`를 받는다. 기존 `fetchNextPage`/`hasNextPage`/`isFetchingNextPage` 옵션도 지원한다.
+  - `useVirtualRows`는 스크롤 ref와 행 수를 받아 가상 항목·스페이서를 반환한다. 기존 `useVirtualTable`과 구현을 공유하며 기존 테이블 API는 유지한다.
+  - `useAwaitableOverlay`는 open 결과를 confirm 또는 cancel로 resolve한다. 오버레이 닫기 경로마다 cancel settle을 연결한다.
+  - `useFillEmptyRows`는 테이블 컨테이너와 행 높이를 측정한다. `useTableDragSelection`은 행 선택 콜백과 선택적 스크롤 컨테이너를 받는다.
 
 ## 선택 가이드 (언제 무엇을 쓰나)
 
