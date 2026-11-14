@@ -166,7 +166,7 @@ export function MonthPicker({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-floating w-70 rounded-2xl border border-border-subtle bg-bg-surface p-5 shadow-tooltip"
+              className="z-floating w-70 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-5 shadow-tooltip"
             >
               {grid}
             </div>

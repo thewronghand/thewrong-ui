@@ -85,13 +85,26 @@ export interface UseColumnResizeReturn {
 
 export function getResizeStartWidth(
   savedWidth: number | undefined,
-  measuredWidth: number | undefined,
+  colEl: {
+    style: { width: string };
+    getBoundingClientRect: () => { width: number };
+  } | null,
+  headerEl: { getBoundingClientRect: () => { width: number } } | null,
   defaultWidth: number,
 ): number {
-  if (savedWidth !== undefined) return savedWidth;
-  return measuredWidth && Number.isFinite(measuredWidth) && measuredWidth > 0
-    ? measuredWidth
-    : defaultWidth;
+  if (savedWidth) return savedWidth;
+
+  const declaredWidth = colEl?.style.width.trim();
+  if (declaredWidth && /^(?:\d+\.?\d*|\.\d+)px$/i.test(declaredWidth)) {
+    const width = parseFloat(declaredWidth);
+    if (Number.isFinite(width)) return width;
+  }
+
+  const colWidth = colEl?.getBoundingClientRect().width;
+  if (colWidth && Number.isFinite(colWidth) && colWidth > 0) return colWidth;
+  const headerWidth = headerEl?.getBoundingClientRect().width;
+  if (headerWidth && Number.isFinite(headerWidth) && headerWidth > 0) return headerWidth;
+  return defaultWidth;
 }
 
 /**
@@ -252,12 +265,10 @@ export function useColumnResize<T = any>({
         tableRef?.current?.querySelector<HTMLTableColElement>(
           `colgroup col[data-col-key="${CSS.escape(key)}"]`,
         ) ?? null;
-      const measuredWidth =
-        colEl?.getBoundingClientRect().width ||
-        e.currentTarget.closest("th")?.getBoundingClientRect().width;
       const currentWidth = getResizeStartWidth(
         columnWidths[key],
-        measuredWidth,
+        colEl,
+        e.currentTarget.closest("th"),
         defaultWidth,
       );
       resizingRef.current = {

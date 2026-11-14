@@ -384,7 +384,7 @@ export const AccordionTable = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn("relative flex flex-col min-h-0", className)}
+      className={cn("isolate relative flex flex-col min-h-0", className)}
       style={containerStyle}
       data-testid={testId}
       {...restProps}

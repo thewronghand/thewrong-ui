@@ -171,7 +171,7 @@ export function DatePicker({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-floating w-80 rounded-2xl border border-border-subtle bg-bg-surface p-6 shadow-tooltip"
+              className="z-floating w-80 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-6 shadow-tooltip"
             >
               <DatePickerBody
                 initialValue={value}
