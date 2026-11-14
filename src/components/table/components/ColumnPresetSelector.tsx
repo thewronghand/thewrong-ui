@@ -228,7 +228,7 @@ export function ColumnPresetSelector<T>({
           {isDirty && (
             <span
               aria-hidden="true"
-              className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-primary-border"
+              className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-error"
             />
           )}
         </button>

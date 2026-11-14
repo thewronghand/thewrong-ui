@@ -153,6 +153,8 @@ export function SearchBox({
   // 데스크톱 — 투명 배경 + 플로팅 라벨 필드 + 우측 액션.
   return (
     <div className={cn("w-full", className)}>
+      {/* items-start: 날짜범위 필드는 프리셋이 안쪽에서 줄바꿈되면 높이가 86px(40+6+40)가 된다.
+          center면 다른 40px 필드·버튼이 그 가운데로 와 어느 줄과도 맞지 않으므로 첫 줄(입력 줄)에 맞춘다. */}
       <div className="flex w-full flex-wrap items-start gap-x-3 gap-y-2">
         {fields
           .filter((field) => !field.hidden)
@@ -183,7 +185,7 @@ export function SearchBox({
               size={fieldSize}
               onClick={clear}
               leadingIcon={<RotateCcw className="h-3.5 w-3.5" />}
-              className="h-10 border border-border-subtle"
+              className="h-10"
             >
               초기화
             </Button>

@@ -79,7 +79,6 @@ export function SearchBoxDateRange({ value, onChange, presets, size }: Props) {
                 className={cn(
                   "whitespace-nowrap",
                   size === "mini" ? "h-8" : "h-10",
-                  !isActive && "border border-border-subtle",
                 )}
               >
                 {preset.label}
