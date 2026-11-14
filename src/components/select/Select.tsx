@@ -61,6 +61,8 @@ type SelectSearchProps =
       onLoadMore?: never;
       hasMore?: never;
       searchDebounceMs?: never;
+      openOnFocus?: never;
+      validateSearchQuery?: never;
     }
   | {
       searchable: true;
@@ -83,6 +85,10 @@ type SelectSearchProps =
        * @default 300
        */
       searchDebounceMs?: number | false;
+      /** 포커스만으로 검색 패널을 연다. @default false */
+      openOnFocus?: boolean;
+      /** false를 반환한 입력은 검색어에 반영하지 않는다. */
+      validateSearchQuery?: (query: string) => boolean;
     };
 
 /** Select의 search 외 base props (SelectCommonProps에서 search 관련 제외). */
@@ -108,6 +114,9 @@ type SelectBaseProps = Omit<
   id?: string;
   /** name (form 제출용 hidden input). */
   name?: string;
+  /** 지정하면 드롭다운 열림 상태를 제어한다. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 type SelectProps = SelectBaseProps & SelectSearchProps;
@@ -168,11 +177,20 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     onLoadMore,
     hasMore = false,
     searchDebounceMs = 300,
+    openOnFocus = false,
+    validateSearchQuery,
+    open,
+    onOpenChange,
     "data-testid": testId,
   },
   ref,
 ) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = open ?? internalOpen;
+  const setIsOpen = (next: boolean) => {
+    if (open === undefined) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const listRef = useRef<Array<HTMLElement | null>>([]);
@@ -218,6 +236,10 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
   };
 
   const selectedOption = options.find((o) => String(o.value) === value);
+  const selectedLabelRef = useRef(selectedOption?.label ?? "");
+  selectedLabelRef.current = selectedOption?.label ?? "";
+  const emitSearchRef = useRef(emitSearch);
+  emitSearchRef.current = emitSearch;
 
   // 검색어가 selected.label과 정확히 같으면 "사용자가 아직 편집 안 함" 상태 — 전체 옵션 노출.
   // 사용자가 한 글자라도 다르게 입력하면 자유 편집 모드로 전환되어 필터링 시작.
@@ -308,7 +330,7 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     if (isOpen) {
       hasOpenedOnceRef.current = true;
       if (searchable) {
-        const label = selectedOption?.label ?? "";
+        const label = selectedLabelRef.current;
         setSearchQuery(label);
         if (label !== "") {
           requestAnimationFrame(() => {
@@ -320,13 +342,9 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
       setSearchQuery("");
       setActiveIndex(null);
       // 닫힐 때 빈 query 즉시 emit (디바운스 우회) — 부모 옵션 리셋 race 방지.
-      if (hasOpenedOnceRef.current) emitSearch("", true);
+      if (hasOpenedOnceRef.current) emitSearchRef.current("", true);
     }
-    // selectedOption은 value 변화에 따라 매 렌더 새로 계산되지만, 의존성에 넣으면 옵션 클릭으로
-    // value가 바뀐 직후(아직 isOpen=true) effect가 발화해 searchQuery를 새 selected.label로 덮어씀.
-    // 그건 불필요하고 옵션 클릭 → setIsOpen(false) → 같은 effect의 닫힘 분기가 처리하므로
-    // selectedOption은 의존성에서 제외 (eslint exhaustive-deps 경고 감수).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // 값 변경 중에는 검색어를 덮지 않고, 패널이 열릴 때만 현재 라벨을 읽는다.
   }, [isOpen, searchable, isExternalSearch]);
 
   // 무한스크롤: sentinel이 옵션 리스트 스크롤 컨테이너 안에서 가시 진입 시 onLoadMore 호출.
@@ -381,6 +399,7 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const next = e.target.value;
+    if (validateSearchQuery && !validateSearchQuery(next)) return;
     if (next !== searchQuery) {
       if (optionsScrollNode) optionsScrollNode.scrollTop = 0;
       setActiveIndex(null);
@@ -524,6 +543,9 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
             placeholder={selectedOption ? searchPlaceholder : placeholder}
             onChange={handleSearchChange}
             onKeyDown={handleSearchKeyDown}
+            onFocus={() => {
+              if (openOnFocus && !disabled && !isOpen) setIsOpen(true);
+            }}
             className={cn(
               "min-w-0 flex-1 truncate bg-transparent text-left outline-hidden placeholder:text-fg-subtle",
               fontSize,

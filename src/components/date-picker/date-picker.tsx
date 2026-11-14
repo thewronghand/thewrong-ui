@@ -41,6 +41,7 @@ interface DatePickerProps {
   /**
    * true면 모바일에서도 자체 바텀시트 대신 데스크톱과 동일한 popover로 표시.
    * 호출부가 이미 바텀시트(예: SearchBox 모바일 시트) 안에 있어 시트 두 개가 겹치는 걸 피할 때 사용.
+   * 생략하면 Modal 안에서는 자동으로 popover를 쓰며, false를 명시하면 바텀시트를 유지한다.
    */
   disableMobileSheet?: boolean;
 }
@@ -58,7 +59,7 @@ export function DatePicker({
   value,
   onApply,
   disabled,
-  disableMobileSheet = false,
+  disableMobileSheet,
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { useSheet } = usePickerMobile(disableMobileSheet);

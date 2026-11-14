@@ -29,6 +29,7 @@ interface MonthPickerProps {
   /**
    * true면 모바일에서도 바텀시트 대신 popover로 뜬다. 이미 바텀시트(SearchBox 필터 등) 안에
    * 있을 때 시트가 겹치는 걸 막는다.
+   * 생략하면 Modal 안에서는 자동으로 popover를 쓰며, false를 명시하면 바텀시트를 유지한다.
    */
   disableMobileSheet?: boolean;
 }
@@ -44,7 +45,7 @@ export function MonthPicker({
   value,
   onChange,
   disabled,
-  disableMobileSheet = false,
+  disableMobileSheet,
 }: MonthPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { useSheet } = usePickerMobile(disableMobileSheet);

@@ -43,7 +43,7 @@ interface DateRangePickerProps {
   value?: DateRange;
   onApply: (range: DateRange) => void;
   disabled?: boolean;
-  /** 이미 바텀시트 안에 있으면 모바일에서도 popover로 표시한다. */
+  /** 이미 바텀시트 안에 있으면 모바일에서도 popover로 표시한다. Modal에서는 생략 시 자동 적용되며, false를 명시하면 시트를 유지한다. */
   disableMobileSheet?: boolean;
 }
 
@@ -61,7 +61,7 @@ export function DateRangePicker({
   value,
   onApply,
   disabled,
-  disableMobileSheet = false,
+  disableMobileSheet,
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { isMobile, useSheet } = usePickerMobile(disableMobileSheet);

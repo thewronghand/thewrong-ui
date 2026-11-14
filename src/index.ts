@@ -19,6 +19,8 @@ export * from "./components/page-title";
 export * from "./components/toolbar";
 export * from "./components/table-page-layout";
 export * from "./components/date-picker";
+export * from "./components/time-picker";
+export * from "./components/month-range-picker";
 export * from "./components/date-input";
 export * from "./components/search-box";
 

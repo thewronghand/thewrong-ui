@@ -8,16 +8,15 @@ import {
 } from "@/components/modal/ModalFocusTrapContext";
 import { useBottomSheetDrag, useIsMobile, useScrollLock } from "@/hooks";
 
-/** Modal 안과 disableMobileSheet를 지정한 시트 안에서는 popover로 표시한다. */
-export function usePickerMobile(disableMobileSheet = false) {
+/** 명시된 설정이 없으면 Modal 안에서 popover로 표시한다. */
+export function usePickerMobile(disableMobileSheet?: boolean) {
   const isMobile = useIsMobile();
   const modal = useContext(ModalFocusTrapContext);
+  const disableSheet =
+    disableMobileSheet ?? (modal !== defaultModalFocusTrapContext);
   return {
     isMobile,
-    useSheet:
-      isMobile &&
-      !disableMobileSheet &&
-      modal === defaultModalFocusTrapContext,
+    useSheet: isMobile && !disableSheet,
   };
 }
 
