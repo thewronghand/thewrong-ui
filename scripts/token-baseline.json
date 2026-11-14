@@ -3,7 +3,6 @@
   "counts": {
     "dark": {
       "src/components/action-toast/ActionToast.tsx": 6,
-      "src/components/button/utils.ts": 43,
       "src/components/checkbox/Checkbox.tsx": 1,
       "src/components/date-input/DateInput.tsx": 3,
       "src/components/drawer/Drawer.tsx": 5,
@@ -43,8 +42,6 @@
     },
     "palette": {
       "src/components/action-toast/ActionToast.tsx": 11,
-      "src/components/badge/utils.ts": 7,
-      "src/components/button/utils.ts": 7,
       "src/components/checkbox/utils.ts": 6,
       "src/components/date-picker/date-picker.tsx": 3,
       "src/components/date-picker/date-range-picker.tsx": 3,
@@ -76,8 +73,6 @@
     },
     "legacy": {
       "src/components/action-toast/ActionToast.tsx": 4,
-      "src/components/badge/utils.ts": 28,
-      "src/components/button/utils.ts": 104,
       "src/components/checkbox/Checkbox.tsx": 2,
       "src/components/checkbox/utils.ts": 27,
       "src/components/date-input/DateInput.tsx": 14,

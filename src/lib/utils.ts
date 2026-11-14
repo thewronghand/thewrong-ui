@@ -88,6 +88,7 @@ const twMerge = extendTailwindMerge({
       "ring-w": ["ring-control", "ring-button", "ring-input-clear"],
       duration: ["duration-control", "duration-button"],
       ease: ["ease-control", "ease-button"],
+      animate: ["animate-button-spinner"],
       opacity: [
         "opacity-button-spinner-track",
         "opacity-button-spinner-head",
@@ -106,6 +107,8 @@ const twMerge = extendTailwindMerge({
         "text-slot-badge-medium",
         "text-slot-badge-large",
       ],
+      // 폰트 역할은 family와 weight를 함께 지정하므로 family 그룹으로 병합한다.
+      "font-family": ["font-control-action"],
       shadow: [
         "shadow-control",
         "shadow-surface",
