@@ -50,6 +50,7 @@ export function SearchBoxDateRange({ value, onChange, presets, size }: Props) {
           value={from}
           onChange={(next) => onChange(serializeDateRangeValue(next, to))}
           size={size}
+          className={size === "mini" ? "h-8" : "h-10"}
           ariaLabel="시작일"
           disableMobileSheet={inSearchBoxSheet}
         />
@@ -58,6 +59,7 @@ export function SearchBoxDateRange({ value, onChange, presets, size }: Props) {
           value={to}
           onChange={(next) => onChange(serializeDateRangeValue(from, next))}
           size={size}
+          className={size === "mini" ? "h-8" : "h-10"}
           ariaLabel="종료일"
           disableMobileSheet={inSearchBoxSheet}
         />

@@ -26,7 +26,7 @@ export function getCheckboxCircleClasses(
     secondary:
       "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
     neutral:
-      "border-border-default peer-checked:bg-neutral-fg peer-checked:border-neutral-fg text-fg-inverse",
+      "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
   };
 
   return `${getCheckboxInputBaseClasses()} rounded-full border-2 ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;
@@ -44,7 +44,7 @@ export function getCheckboxLineClasses(
     secondary:
       "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
     neutral:
-      "border-border-default peer-checked:bg-neutral-fg peer-checked:border-neutral-fg text-fg-inverse",
+      "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
   };
 
   return `${getCheckboxInputBaseClasses()} rounded-checkbox border-2 ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;

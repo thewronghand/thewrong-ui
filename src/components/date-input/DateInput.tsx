@@ -43,7 +43,6 @@ export function DateInput({
   const inputHeight = isMini ? "h-control-small" : "h-control-medium";
   const wrapperWidth = isMini ? "w-30" : "w-36";
   const wrapperPad = isMini ? "pl-control-pad-mini pr-0.5" : "pl-control-pad-small pr-1";
-  const wrapperRadius = isMini ? "rounded-control-small" : "rounded-control-medium";
   const inputTextSize = isMini ? "text-control-mini" : "text-control-small";
   const calendarBtnSize = isMini ? "h-5 w-5" : "h-6 w-6";
   const calendarIconSize = isMini ? "h-3 w-3" : "h-3.5 w-3.5";
@@ -51,11 +50,10 @@ export function DateInput({
   // focus-within으로 자식(input + 캘린더 트리거 버튼) 어느 쪽이 포커스 받든 보더 강조.
   // 라벨도 같은 group의 focus-within에 반응해 primary로 변색.
   const wrapperClass = cn(
-    "group relative flex items-center gap-1 border border-border-subtle bg-bg-surface transition-colors focus-within:border-primary",
+    "group relative flex items-center gap-1 rounded-lg border border-border-subtle bg-bg-surface transition-colors focus-within:border-primary",
     inputHeight,
     wrapperWidth,
     wrapperPad,
-    wrapperRadius,
     className,
   );
   // value 비어있으면 placeholder만 보이는 상태 — placeholder 색을 fg-subtle로 강제.

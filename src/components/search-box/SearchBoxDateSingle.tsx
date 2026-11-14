@@ -42,6 +42,7 @@ export function SearchBoxDateSingle({
         value={value}
         onChange={onChange}
         size={size}
+        className={size === "mini" ? "h-8" : "h-10"}
         ariaLabel={ariaLabel}
         disableMobileSheet={inSearchBoxSheet}
       />
