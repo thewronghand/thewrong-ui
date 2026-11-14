@@ -1,5 +1,7 @@
 import { useState, useRef, type KeyboardEvent } from "react";
 
+import { cn } from "@/lib/utils";
+
 interface Props {
   /** 라벨 — 비어 있을 땐 placeholder처럼 인풋 안에 위치, 포커스/값 있을 땐 상단 보더로 부유. */
   label: string;
@@ -39,6 +41,7 @@ export function SearchBoxFloatingInput({
   const floated = isFocused || filled;
 
   const heightClass = size === "mini" ? "h-8" : "h-10";
+  const radiusClass = size === "mini" ? "rounded-control-mini" : "rounded-control-small";
   const inputTextClass = size === "mini" ? "text-xs" : "text-sm";
   const paddingX = size === "mini" ? "px-2.5" : "px-3";
 
@@ -51,11 +54,12 @@ export function SearchBoxFloatingInput({
 
   return (
     <div
-      className={`relative ${heightClass} w-full cursor-text rounded-lg border bg-bg-white transition-colors ${
-        isFocused
-          ? "border-primary-500"
-          : "border-border-tertiary dark:border-border-secondary"
-      }`}
+      className={cn(
+        "relative w-full cursor-text border bg-bg-surface transition-colors",
+        heightClass,
+        radiusClass,
+        isFocused ? "border-primary" : "border-border-subtle",
+      )}
       onClick={() => inputRef.current?.focus()}
     >
       <input
@@ -68,7 +72,7 @@ export function SearchBoxFloatingInput({
         onKeyDown={handleKeyDown}
         inputMode={inputMode}
         aria-label={label}
-        className={`peer h-full w-full bg-transparent ${paddingX} ${inputTextClass} text-text-primary placeholder-transparent focus:outline-hidden`}
+        className={cn("peer h-full w-full bg-transparent text-fg-default placeholder-transparent focus:outline-hidden", paddingX, inputTextClass)}
         placeholder={label}
       />
       {/*
@@ -76,13 +80,12 @@ export function SearchBoxFloatingInput({
       */}
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute left-2 px-1 transition-all bg-bg-white ${
+        className={cn(
+          "pointer-events-none absolute left-2 px-1 transition-all bg-bg-surface",
           floated
-            ? `-top-2 ${size === "mini" ? "text-[10px]" : "text-xs"} ${
-                isFocused ? "text-primary-500" : "text-text-secondary"
-              }`
-            : `top-1/2 -translate-y-1/2 ${inputTextClass} text-text-tertiary`
-        }`}
+            ? ["-top-2", size === "mini" ? "text-[10px]" : "text-xs", isFocused ? "text-primary-fg" : "text-fg-muted"]
+            : ["top-1/2 -translate-y-1/2 text-fg-subtle", inputTextClass],
+        )}
       >
         {label}
       </span>

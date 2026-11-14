@@ -29,11 +29,11 @@ export function SearchBoxChips({ chips, onRemove }: Props) {
             onClick={() => onRemove(chip.key)}
             // 길어지면 max-w로 자르고 valueLabel에서 truncate. multi-select가 많이 선택될 때
             // 한 칩이 너비 독점하지 않게. 전체 텍스트는 Tooltip으로 hover 시 노출.
-            className="inline-flex max-w-65 items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2 py-0.5 text-xs text-primary-700 transition-colors hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50"
+            className="inline-flex max-w-65 items-center gap-1.5 rounded-full border border-primary-border bg-primary-subtle px-2 py-0.5 text-xs text-primary-fg transition-colors hover:bg-button-secondary-hover"
             aria-label={`${chip.label} 필터 제거`}
           >
-            <span className="shrink-0 text-text-tertiary">{chip.label}</span>
-            <span className="text-primary-300 dark:text-primary-700">|</span>
+            <span className="shrink-0 text-fg-subtle">{chip.label}</span>
+            <span className="text-primary-border">|</span>
             <span className="truncate font-medium">{chip.valueLabel}</span>
             <X className="h-3 w-3 shrink-0" />
           </button>
