@@ -15,6 +15,10 @@ const themes = {
   quiet: readStyle("themes/quiet.css"),
   "high-contrast": readStyle("themes/high-contrast.css"),
 };
+// 지난 라운드에서 avocado와 Chromium으로 대조한 시맨틱 색의 계산값이다.
+const themeSnapshot = JSON.parse(
+  readFileSync(resolve(process.cwd(), "tests/fixtures/theme-values.json"), "utf8"),
+) as Record<Theme, Record<Mode, Record<string, string>>>;
 
 function parseDeclarations(source: string): Tokens {
   const uncommented = source.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -37,39 +41,57 @@ function merge(...maps: Tokens[]): Tokens {
   return new Map(maps.flatMap((map) => [...map]));
 }
 
+function normalize(value: string): string {
+  return value.trim().replace(/\s+/g, " ").replace(/\s*([(),])\s*/g, "$1");
+}
+
+// 상속한 변수는 조상에서 확정된 값이며, 이 스코프의 선언만 다시 계산한다.
+function resolveScope(inherited: Tokens, declared: Tokens): Tokens {
+  function valueOf(name: string, seen = new Set<string>()): string {
+    if (!declared.has(name)) {
+      const value = inherited.get(name);
+      if (value === undefined) throw new Error(`토큰이 없다: ${name}`);
+      return value;
+    }
+    if (seen.has(name)) throw new Error(`순환하는 토큰: ${name}`);
+    const next = new Set(seen).add(name);
+    return normalize(
+      declared.get(name)!.replace(/var\(\s*(--[\w-]+)\s*\)/g, (_, reference: string) =>
+        valueOf(reference, next),
+      ),
+    );
+  }
+
+  return merge(inherited, new Map([...declared.keys()].map((name) => [name, valueOf(name)])));
+}
+
+function colors(tokens: Tokens): Tokens {
+  return new Map([...tokens].filter(([name]) => name.startsWith("--color-")));
+}
+
 function effectiveTheme(theme: Theme, mode: Mode): Tokens {
-  const base = merge(
-    parseDeclarations(primitives),
-    declarations(semantic, "@theme"),
-    ...(mode === "dark" ? [declarations(semantic, ".dark")] : []),
+  const root = resolveScope(
+    new Map(),
+    merge(parseDeclarations(primitives), colors(declarations(semantic, "@theme"))),
   );
+  const base = mode === "dark" ? resolveScope(root, colors(declarations(semantic, ".dark"))) : root;
   if (theme === "default") return base;
-  return merge(
+  return resolveScope(
     base,
-    declarations(themes[theme], `[data-theme="${theme}"]`),
-    ...(mode === "dark"
-      ? [declarations(themes[theme], `[data-theme="${theme}"] .dark`)]
-      : []),
+    merge(
+      declarations(themes[theme], `[data-theme="${theme}"]`),
+      ...(mode === "dark"
+        ? [declarations(themes[theme], `[data-theme="${theme}"] .dark`)]
+        : []),
+    ),
   );
 }
 
-function color(tokens: Tokens, role: string, seen = new Set<string>()): string {
+function color(tokens: Tokens, role: string): string {
   const key = `--color-${role}`;
-  if (seen.has(key)) throw new Error(`순환하는 색 토큰: ${key}`);
-  seen.add(key);
-  const value = tokens.get(key)?.replace(/\s+/g, "");
-  if (!value) throw new Error(`색 토큰이 없다: ${key}`);
-  if (/^#[\da-f]{6}$/i.test(value)) return value.toLowerCase();
-  const reference = value.match(/^var\((--[\w-]+)\)$/)?.[1];
-  if (!reference) throw new Error(`해석할 수 없는 색 토큰: ${key}=${value}`);
-  if (reference.startsWith("--color-")) {
-    return color(tokens, reference.slice("--color-".length), seen);
-  }
-  const primitive = tokens.get(reference);
-  if (!primitive || !/^#[\da-f]{6}$/i.test(primitive)) {
-    throw new Error(`해석할 수 없는 원료: ${reference}`);
-  }
-  return primitive.toLowerCase();
+  const value = tokens.get(key);
+  if (value && /^#[\da-f]{6}$/i.test(value)) return value.toLowerCase();
+  throw new Error(`해석할 수 없는 색 토큰: ${key}=${value}`);
 }
 
 function luminance(hex: string): number {
@@ -133,14 +155,45 @@ const existingFailures = new Map([
 ]);
 
 describe("테마 색 대비 계약", () => {
+  it("별칭은 선언된 스코프에서 계산된 뒤 상속된다", () => {
+    const root = resolveScope(
+      new Map(),
+      new Map([
+        ["--color-primary", "#aa91f4"],
+        ["--color-alias", "var(--color-primary)"],
+      ]),
+    );
+    const theme = resolveScope(root, new Map([["--color-primary", "#030712"]]));
+    expect(theme.get("--color-alias")).toBe("#aa91f4");
+    const reconnected = resolveScope(
+      root,
+      new Map([
+        ["--color-primary", "#030712"],
+        ["--color-alias", "var(--color-primary)"],
+      ]),
+    );
+    expect(reconnected.get("--color-alias")).toBe("#030712");
+  });
+
   for (const [theme, mode] of themeModes) {
-    const tokens = effectiveTheme(theme, mode);
+    it(`${theme} ${mode} 시맨틱 색은 avocado와 대조한 값과 같다`, () => {
+      const expected = themeSnapshot[theme][mode];
+      expect(Object.keys(expected)).toHaveLength(76);
+      expect(Object.keys(expected)).toEqual(Object.keys(themeSnapshot.default.light));
+      const tokens = effectiveTheme(theme, mode);
+      const actual = Object.fromEntries(
+        Object.keys(expected).map((name) => [name, tokens.get(name)]),
+      );
+      expect(actual).toEqual(expected);
+    });
     for (const [foreground, background, minimum] of pairs) {
       const label = `${theme} ${mode} ${foreground}/${background}`;
-      const check = () =>
+      const check = () => {
+        const tokens = effectiveTheme(theme, mode);
         expect(
           contrast(color(tokens, foreground), color(tokens, background)),
         ).toBeGreaterThanOrEqual(minimum);
+      };
       const reason = existingFailures.get(label);
       if (reason) {
         it.skip(`${label}: ${reason}`, check);
@@ -150,6 +203,7 @@ describe("테마 색 대비 계약", () => {
     }
     for (const role of ["primary", "error"] as const) {
       it(`${theme} ${mode} ${role} 버튼 세 상태는 구별된다`, () => {
+        const tokens = effectiveTheme(theme, mode);
         const states = [role, `${role}-hover`, `${role}-active`].map((name) => color(tokens, name));
         expect(new Set(states).size).toBe(3);
       });
@@ -187,9 +241,11 @@ describe("테마 색 대비 계약", () => {
   });
 
   it("테마 파일은 시맨틱 변수만 선언한다", () => {
+    const snapshotNames = new Set(Object.keys(themeSnapshot.default.light));
     for (const source of Object.values(themes)) {
       for (const name of parseDeclarations(source).keys()) {
         expect(name).toMatch(/^--color-/);
+        expect(snapshotNames.has(name), `스냅샷에 없는 테마 변수: ${name}`).toBe(true);
       }
       expect(source).not.toMatch(/var\(\s*--p-/);
     }
@@ -204,11 +260,36 @@ describe("테마 색 대비 계약", () => {
         `.dark [data-theme="${theme}"]`,
         `[data-theme="${theme}"] .dark`,
       ];
-      for (const selector of selectors) expect(source).toContain(selector);
       const darkBlock = source.slice(source.indexOf(selectors[0]!));
-      expect(darkBlock.indexOf(selectors[2]!)).toBeLessThan(darkBlock.indexOf("{"));
+      const actualSelectors = darkBlock
+        .slice(0, darkBlock.indexOf("{"))
+        .split(",")
+        .map((s) => s.trim());
+      expect(actualSelectors).toHaveLength(selectors.length);
+      expect(actualSelectors).toEqual(expect.arrayContaining(selectors));
     },
   );
+
+  it("테마가 원본을 선언하면 의존하는 시맨틱 별칭도 같은 블록에 선언한다", () => {
+    const dependencies = [declarations(semantic, "@theme"), declarations(semantic, ".dark")]
+      .flatMap((block) => [...colors(block)])
+      .flatMap(([alias, value]) =>
+        [...value.matchAll(/var\(\s*(--color-[\w-]+)\s*\)/g)].map(([, source]) => [
+          alias,
+          source!,
+        ]),
+      );
+    for (const theme of ["quiet", "high-contrast"] as const) {
+      for (const selector of [`[data-theme="${theme}"]`, `[data-theme="${theme}"] .dark`]) {
+        const block = declarations(themes[theme], selector);
+        for (const [alias, source] of dependencies) {
+          if (block.has(source!)) {
+            expect(block.has(alias!), `${selector}: ${source}에 의존하는 ${alias}`).toBe(true);
+          }
+        }
+      }
+    }
+  });
 
   it("포커스 별칭과 다크 배경 별칭은 테마 스코프에서 다시 연결된다", () => {
     for (const [theme, mode] of themeModes) {
