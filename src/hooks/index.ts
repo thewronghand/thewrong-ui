@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-imports -- 이관 지시에 따라 @/ 별칭 대신 상대 경로를 사용한다. */
 export { useClickOutside } from "./useClickOutside";
 export {
   useMediaQuery,
@@ -22,3 +23,15 @@ export type {
 } from "./useFillEmptyRows";
 export { useTableDragSelection } from "./useTableDragSelection";
 export type { UseTableDragSelectionOptions } from "./useTableDragSelection";
+export { useVirtualRows } from "./useVirtualRows";
+export type {
+  UseVirtualRowsOptions,
+  UseVirtualRowsReturn,
+} from "./useVirtualRows";
+export { useAwaitableOverlay } from "./useAwaitableOverlay";
+export type { AwaitableOverlayResult } from "./useAwaitableOverlay";
+export { useStepper } from "../components/stepper/use-stepper";
+export type {
+  UseStepperOptions,
+  StepperState,
+} from "../components/stepper/use-stepper";
