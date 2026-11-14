@@ -1,0 +1,158 @@
+/*
+  avocado 고대비 팔레트가 바꾸는 시맨틱 결과를 직접 선언한다.
+  프리미티브를 교체하지 않아 하위 data-theme 스코프에서도 같은 결과가 난다.
+  라이트와 다크 모두에 역할을 선언해 조상 .dark와 조합해도 유지한다.
+*/
+[data-theme="high-contrast"] {
+  --color-bg-disabled: #e5e7eb;
+  --color-bg-faint: #f9fafb;
+  --color-bg-handle: #d1d5db;
+  --color-bg-muted: #e5e7eb;
+  --color-bg-page: #ffffff;
+  --color-bg-radio-disabled-indicator: #d1d5db;
+  --color-bg-subtle: #f3f4f6;
+  --color-bg-surface: #ffffff;
+  --color-bg-table-header: #f3f4f6;
+  --color-bg-table-row-even: #ffffff;
+  --color-bg-table-row-hover: #f3f4f6;
+  --color-bg-table-row-plain: #ffffff;
+  --color-bg-table-row-selected: #eff6ff;
+  --color-bg-table-row-selected-hover: #dbeafe;
+  --color-bg-toast: #1e293b;
+  --color-bg-tooltip: #0f172a;
+  --color-border-default: #64748b;
+  --color-border-faint: #f3f4f6;
+  --color-border-primary: #93c5fd;
+  --color-border-subtle: #e5e7eb;
+  --color-border-table-cell: #f3f4f6;
+  --color-border-table-header: #e5e7eb;
+  --color-border-table-row-dashed: #e5e7eb;
+  --color-button-secondary-active: color-mix(
+    in srgb,
+    var(--color-primary-border) 30%,
+    transparent
+  );
+  --color-button-secondary-hover: color-mix(
+    in srgb,
+    var(--color-primary-border) 20%,
+    transparent
+  );
+  --color-error-muted: #fde3e3;
+  --color-error-subtle: #fdf3f3;
+  --color-fg-accent: #1e3a8a;
+  --color-fg-default: #0f172a;
+  --color-fg-disabled: #475569;
+  --color-fg-muted: #1e293b;
+  --color-fg-subtle: #334155;
+  --color-focus-primary: #000000;
+  --color-focus-primary-soft: var(--color-focus-primary);
+  --color-icon-button-primary-active: color-mix(
+    in srgb,
+    var(--color-primary-subtle) 70%,
+    transparent
+  );
+  --color-icon-disabled: #d1d5db;
+  --color-icon-primary: #1e293b;
+  --color-icon-secondary: #475569;
+  --color-icon-tertiary: #64748b;
+  --color-info: #1d4ed8;
+  --color-info-border: #93c5fd;
+  --color-info-fg: #1d4ed8;
+  --color-info-subtle: #eff6ff;
+  --color-input-clear-ring: color-mix(
+    in srgb,
+    var(--color-primary-border) 40%,
+    transparent
+  );
+  --color-neutral-border: #d1d5db;
+  --color-neutral-fg: #334155;
+  --color-neutral-fill: #475569;
+  --color-neutral-subtle: #f3f4f6;
+  --color-primary: #1d4ed8;
+  --color-primary-active: #1e3a8a;
+  --color-primary-border: #93c5fd;
+  --color-primary-fg: #1d4ed8;
+  --color-primary-hover: #1e40af;
+  --color-primary-subtle: #eff6ff;
+  --color-success-subtle: #f0fdf4;
+  --color-toast-tone-info: #60a5fa;
+  --color-warning-subtle: #fffbeb;
+}
+
+.dark[data-theme="high-contrast"],
+.dark [data-theme="high-contrast"],
+[data-theme="high-contrast"] .dark {
+  --color-bg-disabled: #1e293b;
+  --color-bg-faint: var(--color-bg-subtle);
+  --color-bg-handle: #334155;
+  --color-bg-muted: #334155;
+  --color-bg-page: #020617;
+  --color-bg-radio-disabled-indicator: #334155;
+  --color-bg-subtle: #1e293b;
+  --color-bg-surface: #0f172a;
+  --color-bg-table-header: #0f172a;
+  --color-bg-table-row-even: #020617;
+  --color-bg-table-row-hover: #1e293b;
+  --color-bg-table-row-plain: #020617;
+  --color-bg-table-row-selected: #0c1b44;
+  --color-bg-table-row-selected-hover: #172554;
+  --color-bg-toast: #1e293b;
+  --color-bg-tooltip: #1e293b;
+  --color-border-default: #334155;
+  --color-border-faint: #0f172a;
+  --color-border-primary: #93c5fd;
+  --color-border-subtle: #1e293b;
+  --color-border-table-cell: #1e293b;
+  --color-border-table-header: #1e293b;
+  --color-border-table-row-dashed: #1e293b;
+  --color-button-secondary-active: color-mix(
+    in srgb,
+    var(--color-primary-border) 30%,
+    transparent
+  );
+  --color-button-secondary-hover: color-mix(
+    in srgb,
+    var(--color-primary-border) 20%,
+    transparent
+  );
+  --color-error-muted: #334155;
+  --color-error-subtle: #1e293b;
+  --color-fg-accent: #93c5fd;
+  --color-fg-default: #f3f4f6;
+  --color-fg-disabled: #64748b;
+  --color-fg-muted: #e5e7eb;
+  --color-fg-subtle: #d1d5db;
+  --color-focus-primary: #ffffff;
+  --color-focus-primary-soft: var(--color-focus-primary);
+  --color-icon-button-primary-active: color-mix(
+    in srgb,
+    var(--color-primary-subtle) 70%,
+    transparent
+  );
+  --color-icon-disabled: #334155;
+  --color-icon-primary: #d1d5db;
+  --color-icon-secondary: #64748b;
+  --color-icon-tertiary: #d1d5db;
+  --color-info: #2563eb;
+  --color-info-border: #1e40af;
+  --color-info-fg: #60a5fa;
+  --color-info-subtle: #0c1b44;
+  --color-input-clear-ring: color-mix(
+    in srgb,
+    var(--color-primary-border) 40%,
+    transparent
+  );
+  --color-neutral-border: #334155;
+  --color-neutral-fg: #d1d5db;
+  --color-neutral-fill: #334155;
+  --color-neutral-subtle: #1e293b;
+  --color-primary: #1d4ed8;
+  --color-primary-active: #1e3a8a;
+  --color-primary-border: #93c5fd;
+  --color-primary-fg: #93c5fd;
+  --color-primary-hover: #1e40af;
+  --color-primary-subtle: #0c1b44;
+  --color-success-subtle: #1e293b;
+  --color-toast-tone-info: #60a5fa;
+  --color-warning-subtle: #1e293b;
+}

@@ -44,6 +44,7 @@ TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodene
 
 - **층**: 프리미티브(`--p-*`, 원료 — 직접 쓰지 않는다) → 시맨틱(`--color-bg-surface`, `--radius-control-medium` 같은 역할). 변수명이 곧 Tailwind 유틸 이름이다(`bg-bg-surface`, `rounded-control-medium`).
 - **다크**: 시맨틱 토큰은 조상 요소의 `.dark`를 따른다. Modal·Drawer·Tooltip·Popover·Select·DatePicker 등 body로 portal되는 컴포넌트에도 적용하고 `:root` 오버라이드와 함께 쓰려면 `<html>`에 붙인다. `<body>`에 붙여도 포털은 덮지만 `:root` 값이 body의 다크 선언보다 우선하지는 않는다. `styles.css`의 `dark:` 유틸도 `.dark`를 따르며 OS 설정은 따르지 않는다.
+- **테마**: `styles.css`와 `tokens.css`에 포함된 `quiet`, `high-contrast`는 `<html data-theme="quiet">` 또는 하위 요소의 `data-theme`으로 선택한다. 포털에도 테마를 적용하려면 `<html>`에 지정한다. `.dark`와 조합할 수 있다.
 - **오버라이드**: 시맨틱 변수를 덮는다. 아래 예시는 별도 오버라이드 CSS에 두고 항상 `styles.css` 뒤에 로드하며, 다크 값은 `.dark` 블록에 따로 적는다.
 - **그림자**: `shadow-control` 등 그림자 유틸의 값은 `--shadow-control-src` 같은 `--shadow-*-src` 변수를 덮어 조절한다.
 
