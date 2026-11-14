@@ -104,7 +104,7 @@ export const 모달_안_피커: Story = {
     docs: {
       description: {
         story:
-          "모바일 Modal 안에서는 시간과 월 범위가 두 번째 시트 대신 popover로 열린다.",
+          "'피커 모달 열기'를 누른 뒤 시계 버튼이나 '월 범위 선택'을 눌러 실제 패널을 연다. 모바일 Modal 안에서는 두 번째 시트 대신 popover로 열린다.",
       },
     },
   },

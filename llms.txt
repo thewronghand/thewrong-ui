@@ -53,7 +53,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - `SegmentedCodeInput` — 단일 입력으로 OTP·PIN 슬롯을 표시하며 숫자만 허용한다. OTP는 `masked={false}`.
 - `CopyableText` — clipboard 복사 및 토스트. 보안 컨텍스트와 `ToastProvider`가 필요하다.
 - `Textarea` — `showCount`+`maxLength`로 글자 수. resize는 기본 고정.
-- `Select` — 단일 선택. `searchable`로 필터(클라이언트). 서버 검색 시 호출부가 selected snapshot 보존.
+- `Select` — 단일 선택. `searchable`로 필터(클라이언트). 서버 검색 시 호출부가 selected snapshot 보존. `open`과 `onOpenChange`로 패널을 제어할 수 있다. searchable에서 `openOnFocus`는 포커스로 패널을 열고, `validateSearchQuery`가 false를 반환한 입력은 검색어에 반영하지 않는다.
 - `MultiSelect` — 다중 선택. 값은 `string[]`. 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
 - `Switch`, `Checkbox`, `Badge`.
 - `Radio.Group`, `Radio.Item` — 네이티브 라디오 행. 같은 name과 fieldset/legend를 사용한다.
@@ -72,6 +72,9 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 
 ### 날짜
 - `DatePicker`(단일) · `DateRangePicker`(기간) · `MonthPicker`(년월) · `DateInput`(타이핑+캘린더). 모바일 바텀시트 분기.
+- `TimePicker` — 시·분 또는 시·분·초를 선택해 적용한다. `TimeInput`은 직접 입력과 피커 버튼을 함께 제공한다.
+- `MonthRangePicker` — 월 범위를 선택하고 적용한다. 모바일에서는 한 연도, 데스크톱에서는 두 연도를 보여준다.
+- 피커는 모바일 Modal·Drawer 안에서 기본적으로 popover를 사용한다. `disableMobileSheet={false}`를 명시하면 자체 시트를 유지한다.
 
 ### 데이터
 - `PaginatedTable` — 페이지네이션+페이지 사이즈 셀렉터 내장. 대부분의 목록 페이지 기본형.

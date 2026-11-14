@@ -85,9 +85,9 @@ type SelectSearchProps =
        * @default 300
        */
       searchDebounceMs?: number | false;
-      /** 포커스만으로 검색 패널을 연다. @default false */
+      /** searchable 입력에 포커스만 해도 패널을 연다. @default false */
       openOnFocus?: boolean;
-      /** false를 반환한 입력은 검색어에 반영하지 않는다. */
+      /** searchable 입력의 다음 검색어를 검사한다. false면 검색어와 검색 콜백에 반영하지 않는다. */
       validateSearchQuery?: (query: string) => boolean;
     };
 
@@ -114,8 +114,9 @@ type SelectBaseProps = Omit<
   id?: string;
   /** name (form 제출용 hidden input). */
   name?: string;
-  /** 지정하면 드롭다운 열림 상태를 제어한다. */
+  /** 지정하면 드롭다운 열림 상태를 제어한다. 생략하면 내부 상태를 사용한다. */
   open?: boolean;
+  /** 드롭다운 열기·닫기 요청을 전달한다. open을 제어할 때는 이 값으로 상태를 갱신한다. */
   onOpenChange?: (open: boolean) => void;
 };
 
