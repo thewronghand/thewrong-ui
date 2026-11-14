@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 import { Button } from "@/components/button";
+import { Modal } from "@/components/modal";
+import { toast } from "@/components/toast";
 import { showActionToast } from "./ActionToast";
 
 /**
@@ -52,6 +55,50 @@ export const 기본_확인취소: Story = {
       기본 토스트
     </Button>
   ),
+};
+
+export const 자동닫기와_직접해제: Story = {
+  parameters: story(
+    "duration으로 자동 닫힘을 지정하고 ariaLabel로 버튼 이름을 제공한다. 직접 dismiss/remove한 뒤 ESC로 모달을 닫을 수 있다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [toastId, setToastId] = useState<string>();
+    const show = (duration?: number) => {
+      setToastId(
+        showActionToast({
+          message: duration ? "2초 후 자동으로 닫혀요." : "직접 닫아 보세요.",
+          duration,
+          backdrop: false,
+          actions: [
+            { label: "확인", ariaLabel: "액션 토스트 확인", onClick: () => {} },
+          ],
+        }),
+      );
+    };
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>모달에서 토스트 확인</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="토스트 닫기 경로"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Button onClick={() => show(2000)}>2초 토스트</Button>
+            <Button onClick={() => show()}>수동 토스트</Button>
+            <Button onClick={() => toast.dismiss(toastId)}>
+              toast.dismiss(id)
+            </Button>
+            <Button onClick={() => toast.dismiss()}>toast.dismiss()</Button>
+            <Button onClick={() => toast.remove(toastId)}>
+              toast.remove(id)
+            </Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
 };
 
 export const 톤_danger: Story = {

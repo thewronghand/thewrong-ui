@@ -6,9 +6,13 @@ import { ModalSubView } from "./ModalSubView";
 import { StandardModal } from "./StandardModal";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
+import { MultiSelect, Select } from "@/components/select";
 import { Switch } from "@/components/switch";
 import { AnimatedHeight } from "@/components/animated-height";
 import { showActionToast } from "@/components/action-toast";
+import { Popover } from "@/components/popover";
+import { DatePicker } from "@/components/date-picker";
+import { Portal } from "@/lib/Portal";
 
 /**
  * 모달 — 데스크탑(sm+)에서는 중앙 카드, 모바일에서는 하단 바텀시트로 자동 분기.
@@ -551,6 +555,290 @@ export const 모바일_바텀시트: Story = {
             placeholder="역할 이름"
           />
         </StandardModal>
+      </>
+    );
+  },
+};
+
+export const 닫기_제한과_포커스: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "dismissible=false에서는 ESC·백드롭·닫기 버튼·드래그로 닫히지 않는다. 내부 버튼으로 닫으면 종료 모션 뒤 횟수가 늘어나고 열기 버튼에 포커스가 돌아간다. 서브뷰가 열린 동안 Tab은 서브뷰와 보이는 헤더·footer를 돌고 덮인 본문은 건너뛴다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    const [exits, setExits] = useState(0);
+    const close = () => {
+      setSubOpen(false);
+      setOpen(false);
+    };
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>닫기 제한 모달 열기</Button>
+        <p>종료 모션 완료: {exits}회</p>
+        <Modal
+          isOpen={open}
+          onClose={close}
+          dismissible={false}
+          onExitComplete={() => setExits((count) => count + 1)}
+          title="직접 닫는 모달"
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="서브뷰"
+            >
+              <label>
+                서브뷰 입력
+                <input className="border p-1" />
+              </label>
+            </ModalSubView>
+          }
+          footer={<Button onClick={close}>직접 닫기</Button>}
+        >
+          <div className="flex min-h-48 flex-col gap-3 p-4">
+            <label>
+              자동 포커스 입력
+              <input autoFocus className="border p-1" />
+            </label>
+            <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 모달_안_Select: Story = {
+  name: "모달 안 Select",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "모달에서 각 Select 패널을 연 뒤 Tab과 Shift+Tab으로 앞뒤 필드로 이동하고 모달 경계에서 순환한다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [country, setCountry] = useState("");
+    const [city, setCity] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
+    const options = [
+      { value: "seoul", label: "서울" },
+      { value: "busan", label: "부산" },
+      { value: "jeju", label: "제주" },
+    ];
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Select 폼 열기</Button>
+        <Modal isOpen={open} onClose={() => setOpen(false)} title="Select 폼" widthPx={420}>
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" label="이름" placeholder="이름 입력" />
+            <Select variant="box" label="지역" options={options} value={country} onChange={setCountry} />
+            <Select variant="box" label="검색 지역" searchable options={options} value={city} onChange={setCity} />
+            <MultiSelect variant="box" label="관심 지역" options={options} value={tags} onChange={setTags} />
+            <Button onClick={() => setOpen(false)}>저장</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 모달_안_Popover_DatePicker: Story = {
+  name: "모달 안 Popover·DatePicker",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "팝오버와 날짜 선택기를 키보드로 열면 Tab과 Shift+Tab 모두 매 바퀴 패널을 지난다. 마지막 필드는 Select다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [date, setDate] = useState("");
+    const [value, setValue] = useState("");
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>부유 레이어 모달 열기</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="부유 레이어"
+          widthPx={420}
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" label="이름" placeholder="부유 레이어 입력" />
+            <Popover
+              trigger="팝오버 열기"
+              content={
+                <div className="flex gap-2">
+                  <Button>팝오버 첫 버튼</Button>
+                  <Button>팝오버 마지막 버튼</Button>
+                </div>
+              }
+            />
+            <DatePicker value={date} onApply={setDate}>
+              <Button variant="secondary">날짜 선택 {date}</Button>
+            </DatePicker>
+            <Select
+              variant="box"
+              label="마지막 선택"
+              options={[
+                { value: "seoul", label: "서울" },
+                { value: "busan", label: "부산" },
+              ]}
+              value={value}
+              onChange={setValue}
+            />
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 모달_위_모달: Story = {
+  name: "모달 위 모달",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "안쪽 모달의 Tab 순환과 각 모달을 닫은 뒤의 포커스 복원을 확인한다. 실제 화면에서는 모달 위 모달 대신 ModalSubView(푸시 네비)나 ActionToast(재확인)를 권장한다.",
+  ),
+  render: () => {
+    const [outerOpen, setOuterOpen] = useState(false);
+    const [innerOpen, setInnerOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOuterOpen(true)}>모달 A 열기</Button>
+        <Modal
+          isOpen={outerOpen}
+          onClose={() => setOuterOpen(false)}
+          title="모달 A"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Button onClick={() => setInnerOpen(true)}>모달 B 열기</Button>
+            <Modal
+              isOpen={innerOpen}
+              onClose={() => setInnerOpen(false)}
+              title="모달 B"
+            >
+              <div className="flex flex-col gap-3 p-4">
+                <Input variant="box" placeholder="모달 B 입력" />
+                <Button onClick={() => setInnerOpen(false)}>모달 B 닫기</Button>
+              </div>
+            </Modal>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 포커스_트랩_끄기: Story = {
+  name: "포커스 트랩 끄기",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "트랩을 꺼도 열릴 때 모달에 포커스하고 닫히면 여는 버튼으로 복원한다. Tab은 모달 밖으로 이동할 수 있다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>트랩 없는 모달 열기</Button>
+        <Button>배경 버튼</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="트랩 없는 모달"
+          trapFocus={false}
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" placeholder="트랩 없는 입력" />
+            <Button onClick={() => setOpen(false)}>모달 닫기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 표식으로_편입한_포털: Story = {
+  name: "표식으로 편입한 포털",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "자체 포털 루트에 data-focus-trap-layer를 붙이면 모달과 팝업이 하나의 Tab 고리로 순환한다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const close = () => {
+      setOpen(false);
+      setPopupOpen(false);
+    };
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>포털 모달 열기</Button>
+        <Modal
+          isOpen={open}
+          onClose={close}
+          title="표식 포털"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Button onClick={() => setPopupOpen((value) => !value)}>
+              자체 포털 열기
+            </Button>
+            <Button onClick={close}>모달 닫기</Button>
+          </div>
+          {popupOpen && (
+            <Portal>
+              <div
+                data-focus-trap-layer
+                className="fixed right-6 top-6 z-9999 flex gap-2 rounded-lg bg-white p-4 shadow-lg"
+              >
+                <Button>포털 첫 버튼</Button>
+                <Button>포털 마지막 버튼</Button>
+              </div>
+            </Portal>
+          )}
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 서브뷰가_열린_채_다시_열기: Story = {
+  name: "서브뷰가 열린 채 다시 열기",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "서브뷰를 열고 모달을 닫았다가 다시 열면 서브뷰가 열린 상태로 뜬다. 포커스는 뒤로 가기에 놓이고, Tab은 서브뷰와 보이는 헤더·footer만 돈다. ESC를 한 번 누르면 서브뷰만 닫힌다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>유지 모달 열기</Button>
+        <Button>배경 버튼</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="서브뷰 유지 모달"
+          widthPx={420}
+          footer={<Button>푸터 버튼</Button>}
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="유지 서브뷰"
+            >
+              <label>
+                서브뷰 입력
+                <input className="border p-1" placeholder="서브뷰 입력" />
+              </label>
+              <Button>서브뷰 버튼</Button>
+            </ModalSubView>
+          }
+        >
+          <div className="flex min-h-48 flex-col gap-3 p-4">
+            <input className="border p-1" placeholder="덮인 본문 입력" />
+            <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+          </div>
+        </Modal>
       </>
     );
   },
