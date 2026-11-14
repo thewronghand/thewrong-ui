@@ -122,7 +122,7 @@ export function StandardModal({
       footer={
         hasFooter ? (
           // 모바일에선 px-4·py-3 + 버튼 좁게 / 데스크탑에선 px-5·py-4 + 버튼 넓게.
-          <div className="flex items-center justify-between gap-2 border-t border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 dark:border-neutral-700">
+          <div className="flex items-center justify-between gap-2 border-t border-border-subtle px-4 py-3 sm:px-5 sm:py-4">
             <div>
               {leftAction && (
                 <div className="w-[88px] sm:w-28">

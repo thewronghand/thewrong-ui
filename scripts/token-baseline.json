@@ -2,14 +2,7 @@
   "note": "check-tokens.mjs 래칫 기준선 — 파일별 카운트. 파일별 증가에는 --force가 필요하다.",
   "counts": {
     "dark": {
-      "src/components/action-toast/ActionToast.tsx": 6,
-      "src/components/drawer/Drawer.tsx": 5,
-      "src/components/info-tooltip/InfoTooltip.tsx": 4,
       "src/components/loading-spinner/LoadingSpinner.tsx": 2,
-      "src/components/modal/Modal.tsx": 4,
-      "src/components/modal/ModalSubView.tsx": 7,
-      "src/components/modal/StandardModal.tsx": 1,
-      "src/components/popover/Popover.tsx": 2,
       "src/components/search-box/SearchBox.tsx": 1,
       "src/components/search-box/SearchBoxChips.tsx": 5,
       "src/components/search-box/SearchBoxDateRange.tsx": 1,
@@ -28,19 +21,12 @@
       "src/components/table/mini-table.tsx": 2,
       "src/components/table/table.tsx": 4,
       "src/components/table/utils.ts": 13,
-      "src/components/toolbar/Toolbar.tsx": 11,
-      "src/components/tooltip/Tooltip.tsx": 1
+      "src/components/toolbar/Toolbar.tsx": 11
     },
     "palette": {
-      "src/components/action-toast/ActionToast.tsx": 11,
       "src/components/date-picker/date-picker.tsx": 3,
       "src/components/date-picker/date-range-picker.tsx": 3,
       "src/components/date-picker/month-picker.tsx": 2,
-      "src/components/drawer/Drawer.tsx": 2,
-      "src/components/info-tooltip/InfoTooltip.tsx": 2,
-      "src/components/modal/Modal.tsx": 3,
-      "src/components/modal/ModalSubView.tsx": 2,
-      "src/components/popover/Popover.tsx": 1,
       "src/components/search-box/SearchBox.tsx": 1,
       "src/components/search-box/SearchBoxFloatingSelect.tsx": 1,
       "src/components/search-box/SearchBoxMultiSelect.tsx": 2,
@@ -52,26 +38,17 @@
       "src/components/table/components/PageJumpInput.tsx": 1,
       "src/components/table/mini-table.tsx": 1,
       "src/components/table/table.tsx": 3,
-      "src/components/table/utils.ts": 17,
-      "src/components/toast/ToastProvider.tsx": 8,
-      "src/components/tooltip/Tooltip.tsx": 1
+      "src/components/table/utils.ts": 17
     },
     "legacy": {
-      "src/components/action-toast/ActionToast.tsx": 4,
       "src/components/button/utils.ts": 5,
       "src/components/date-picker/date-picker.tsx": 25,
       "src/components/date-picker/date-range-picker.tsx": 28,
       "src/components/date-picker/month-picker.tsx": 13,
-      "src/components/drawer/Drawer.tsx": 10,
-      "src/components/info-tooltip/InfoTooltip.tsx": 8,
       "src/components/input/Input.tsx": 2,
       "src/components/input/utils.ts": 4,
       "src/components/loading-spinner/LoadingSpinner.tsx": 4,
-      "src/components/modal/Modal.tsx": 7,
-      "src/components/modal/ModalSubView.tsx": 13,
-      "src/components/modal/StandardModal.tsx": 2,
       "src/components/page-title/PageTitle.tsx": 2,
-      "src/components/popover/Popover.tsx": 3,
       "src/components/search-box/ExactMatchToggle.tsx": 5,
       "src/components/search-box/SearchBox.tsx": 7,
       "src/components/search-box/SearchBoxChips.tsx": 11,
@@ -95,9 +72,7 @@
       "src/components/table/table.tsx": 12,
       "src/components/table/utils.ts": 14,
       "src/components/textarea/Textarea.tsx": 3,
-      "src/components/toast/ToastProvider.tsx": 2,
-      "src/components/toolbar/Toolbar.tsx": 27,
-      "src/components/tooltip/Tooltip.tsx": 2
+      "src/components/toolbar/Toolbar.tsx": 27
     }
   }
 }

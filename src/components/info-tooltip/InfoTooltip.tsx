@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 export interface InfoTooltipProps {
   content: ReactNode;
   position?: "top" | "bottom" | "left" | "right";
@@ -28,26 +30,30 @@ export function InfoTooltip({ content, position = "top" }: InfoTooltipProps) {
   return (
     <div className="relative inline-flex items-center group">
       {/* 아이콘 */}
-      <div className="w-3.5 h-3.5 rounded-full bg-primary-500 dark:bg-primary-600 flex items-center justify-center cursor-help hover:bg-primary-600 dark:hover:bg-primary-500 transition-colors">
-        <span className="text-[9px] font-bold text-white">?</span>
+      <div className="w-3.5 h-3.5 rounded-full bg-primary flex items-center justify-center cursor-help hover:bg-primary-hover transition-colors">
+        <span className="text-[9px] font-bold text-fg-inverse">?</span>
       </div>
 
       {/* 툴팁 */}
       <div
-        className={`absolute ${positionClasses[position]} z-floating px-3 py-2 bg-neutral-900 dark:bg-neutral-700 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none w-64 whitespace-normal`}
+        className={cn(
+          "absolute z-floating px-3 py-2 bg-bg-tooltip text-fg-tooltip text-xs rounded-tooltip shadow-overlay opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none w-64 whitespace-normal",
+          positionClasses[position],
+        )}
       >
         {content}
         {/* 화살표 */}
         <div
-          className={`absolute w-2 h-2 bg-neutral-900 dark:bg-neutral-700 transform rotate-45 ${
+          className={cn(
+            "absolute w-2 h-2 bg-bg-tooltip transform rotate-45",
             position === "top"
               ? "bottom-[-4px] left-1/2 -translate-x-1/2"
               : position === "bottom"
                 ? "top-[-4px] left-1/2 -translate-x-1/2"
                 : position === "left"
                   ? "right-[-4px] top-1/2 -translate-y-1/2"
-                  : "left-[-4px] top-1/2 -translate-y-1/2"
-          }`}
+                  : "left-[-4px] top-1/2 -translate-y-1/2",
+          )}
         />
       </div>
     </div>

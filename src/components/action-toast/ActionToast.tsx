@@ -155,17 +155,10 @@ export function isActionToastActive(): boolean {
   return isActive;
 }
 
-/**
- * 시트(bg-secondary-700) 위에서 tertiary filled의 다크 토큰 `dark:bg-secondary-700`이
- * 시트와 동색이라 묻혀버린다. 시트 위에서만 한 톤 밝은 배경으로 보강.
- *
- * Button color classes의 `dark:bg-secondary-700`이 cascade에서 일반 utility를 이기므로
- * override도 반드시 `dark:` variant로 명시해야 한다. 시트 자체에 `.dark` 클래스가 있어
- * `dark:` variant가 항상 활성.
- */
+/** 토스트 시트 위의 tertiary 버튼은 전용 배경으로 구분한다. */
 function variantOverrideClass(variant: ButtonVisualProps["variant"]) {
   if (variant !== "tertiary") return undefined;
-  return "dark:bg-white/10 dark:hover:bg-white/15 dark:active:bg-white/20 dark:text-white";
+  return "bg-bg-toast-tertiary hover:bg-bg-toast-tertiary-hover active:bg-bg-toast-tertiary-active text-fg-toast";
 }
 
 interface ActionToastViewProps {
@@ -182,16 +175,16 @@ interface ActionToastViewProps {
 }
 
 const TONE_ICON_CLASSES: Record<ActionToastViewProps["tone"], string> = {
-  warning: "text-amber-400",
-  info: "text-blue-400",
-  danger: "text-rose-400",
+  warning: "text-toast-tone-warning",
+  info: "text-toast-tone-info",
+  danger: "text-toast-tone-danger",
 };
 
 function defaultIconForTone(
   tone: ActionToastViewProps["tone"],
   sizeClass: string,
 ): ReactNode {
-  const className = `${sizeClass} shrink-0 ${TONE_ICON_CLASSES[tone]}`;
+  const className = cn(sizeClass, "shrink-0", TONE_ICON_CLASSES[tone]);
   if (tone === "info") {
     return <Info className={className} strokeWidth={2} aria-hidden />;
   }
@@ -307,13 +300,13 @@ function ActionToastView({
     <button
       type="button"
       onClick={handleClose}
-      className="ml-1 shrink-0 text-white/70 hover:text-white transition-colors cursor-pointer"
+      className="ml-1 shrink-0 text-fg-toast-muted hover:text-fg-toast-hover transition-colors cursor-pointer"
       aria-label="닫기"
     >
       <CircleX
         className={iconSizeClass}
         fill="currentColor"
-        stroke="var(--color-secondary-700)"
+        stroke="var(--color-bg-toast)"
         strokeWidth={2}
       />
     </button>
@@ -371,9 +364,10 @@ function ActionToastView({
               toast.dismiss(toastInstance.id);
               setActionToastActive(false);
             }}
-            className={`fixed inset-0 z-toast-backdrop bg-black/15 ${
-              toastInstance.visible ? "" : "pointer-events-none"
-            }`}
+            className={cn(
+              "fixed inset-0 z-toast-backdrop bg-bg-toast-backdrop",
+              !toastInstance.visible && "pointer-events-none",
+            )}
             aria-hidden
           />,
           document.body,
@@ -393,7 +387,7 @@ function ActionToastView({
         // `dark` 클래스를 시트 자체에 박아, 내부 Input/Textarea/Button 같은 공용 컴포넌트가
         // 호스트 페이지의 라이트/다크 모드와 무관하게 항상 다크 톤으로 렌더되도록 강제.
         className={cn(
-          "dark relative rounded-2xl bg-secondary-700 text-white shadow-lg",
+          "dark relative rounded-toast bg-bg-toast text-fg-toast shadow-overlay",
           toastInstance.visible ? "" : "pointer-events-none",
           className,
         )}

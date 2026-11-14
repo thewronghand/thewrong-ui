@@ -173,7 +173,7 @@ export function Modal({
               if (!dismissible || !isTop()) return;
               onClose();
             }}
-            className="fixed inset-0 z-overlay bg-black/50"
+            className="fixed inset-0 z-overlay bg-bg-overlay"
           />
         )}
       </AnimatePresence>
@@ -228,7 +228,7 @@ export function Modal({
             // 사이에 백드롭이 비치는 현상을 막기 위해, 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 콘텐츠는 그대로 두면서 바닥 틈을 항상 메운다.
             className={cn(
-              "fixed -bottom-8 left-0 right-0 z-overlay mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white pb-8 shadow-xl outline-none sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-lg sm:pb-0 dark:bg-neutral-800",
+              "fixed -bottom-8 left-0 right-0 z-overlay mx-auto flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-sheet bg-bg-surface pb-8 shadow-overlay outline-none sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:max-h-[90vh] sm:w-auto sm:min-w-[320px] sm:max-w-[90vw] sm:rounded-surface sm:pb-0",
               className,
             )}
             style={
@@ -251,14 +251,14 @@ export function Modal({
                 if (dismissible) dragControls.start(e);
               }}
             >
-              <div className="h-1 w-10 rounded-full bg-neutral-300 dark:bg-neutral-600" />
+              <div className="h-1 w-10 rounded-full bg-bg-handle" />
             </div>
 
             {title && (
               <div className="flex items-center justify-between px-4 py-3">
                 <h3
                   id={titleId}
-                  className="text-base font-semibold text-neutral-900 sm:text-lg dark:text-white"
+                  className="text-base font-semibold text-fg-default sm:text-lg"
                 >
                   {title}
                 </h3>
@@ -267,7 +267,7 @@ export function Modal({
                   onClick={onClose}
                   disabled={!dismissible}
                   className={cn(
-                    "rounded p-1 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300",
+                    "rounded-control-medium p-1 text-fg-muted hover:text-fg-default",
                     !dismissible && "pointer-events-none opacity-0",
                   )}
                   aria-label="닫기"
@@ -308,7 +308,10 @@ export function Modal({
                 body에 띄울 것(이 라이브러리 기본 패턴).
               */}
               <div
-                className={`transform-[translateZ(0)] flex-1 overflow-y-auto overflow-x-hidden${bodyPadded ? " mx-1 sm:mx-4" : ""}`}
+                className={cn(
+                  "transform-[translateZ(0)] flex-1 overflow-y-auto overflow-x-hidden",
+                  bodyPadded && "mx-1 sm:mx-4",
+                )}
               >
                 {children}
               </div>
