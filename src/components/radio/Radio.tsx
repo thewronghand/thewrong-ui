@@ -110,6 +110,8 @@ export function RadioGroup({
  *
  * 선택 semantics는 `fieldset`/`legend`와 동일한 `name`으로 구성합니다.
  * Radio.Group은 선택 동작을 바꾸지 않고 항목 간 레이아웃만 조율합니다.
+ * 라벨은 자연 너비 측정을 위해 기본적으로 줄바꿈하지 않습니다. 긴 문구는 폭과
+ * `whitespace-normal`을 지정한 자식으로 전달해 줄바꿈할 수 있습니다.
  *
  * @example
  * ```tsx
