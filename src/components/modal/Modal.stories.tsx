@@ -800,3 +800,46 @@ export const 표식으로_편입한_포털: Story = {
     );
   },
 };
+
+export const 서브뷰가_열린_채_다시_열기: Story = {
+  name: "서브뷰가 열린 채 다시 열기",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "서브뷰를 열고 모달을 닫았다가 다시 열면 서브뷰가 열린 상태로 뜬다. 포커스는 뒤로 가기에 놓이고, Tab은 서브뷰와 보이는 헤더·footer만 돈다. ESC를 한 번 누르면 서브뷰만 닫힌다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>유지 모달 열기</Button>
+        <Button>배경 버튼</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="서브뷰 유지 모달"
+          widthPx={420}
+          footer={<Button>푸터 버튼</Button>}
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="유지 서브뷰"
+            >
+              <label>
+                서브뷰 입력
+                <input className="border p-1" placeholder="서브뷰 입력" />
+              </label>
+              <Button>서브뷰 버튼</Button>
+            </ModalSubView>
+          }
+        >
+          <div className="flex min-h-48 flex-col gap-3 p-4">
+            <input className="border p-1" placeholder="덮인 본문 입력" />
+            <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};

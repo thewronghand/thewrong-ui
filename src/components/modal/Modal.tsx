@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useState } from "react";
 import {
   motion,
   AnimatePresence,
@@ -11,7 +11,7 @@ import { overlayStack } from "@/lib/overlay-stack";
 import { Portal } from "@/lib/Portal";
 import { cn } from "@/lib/utils";
 import { useFocusTrap, useIsMobile, useScrollLock } from "@/hooks";
-import { ModalFocusTrapContext } from "./ModalFocusTrapContext";
+import { ModalFocusTrapContext, useModalSubViews } from "./ModalFocusTrapContext";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -20,7 +20,8 @@ export interface ModalProps {
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
   /**
-   * false면 Tab 가두기와 배경 포커스 복귀를 끈다. 초기 포커스와 닫힐 때의 복원 규칙은 유지한다 —
+   * false면 Tab 가두기, 배경 포커스 복귀와 레이어·토스트 제거로 body에 유실된 포커스 복구를 끈다.
+   * 초기 포커스와 닫힐 때의 복원 규칙은 유지한다 —
    * 닫는 시점에 포커스가 시트·부유 레이어 안이거나 body이면 열기 직전 요소로 복원하고,
    * 소비자가 배경의 다른 요소로 옮겨 둔 포커스는 그대로 둔다.
    * ModalSubView에도 같은 설정이 적용된다. @default true
@@ -79,7 +80,7 @@ export interface ModalProps {
  * 등으로 변할 수 있으면 `widthPx`로 고정해 시트가 흔들리지 않게 할 것.
  *
  * **레이어드 오버레이**: ESC/백드롭은 `overlayStack`에서 자신이 top일 때만 반응한다.
- * ActionToast나 ModalSubView가 위에 떠 있으면(더 높은 priority/나중 push) 자동으로 양보된다.
+ * ActionToast나 열린 ModalSubView가 위에 떠 있으면 자동으로 양보된다.
  * 모달 위에 또 모달을 쌓는 대신 ModalSubView(푸시 네비)나 ActionToast(재확인)로 푸는 것을 권장.
  *
  * **포커스 트랩**: `aria-controls`로 연결된 Floating UI 포털 또는 `data-focus-trap-layer`가
@@ -87,6 +88,10 @@ export interface ModalProps {
  * 해당 포털에 표식을 붙이거나 `trapFocus={false}`를 사용한다. 표식은 문서 전체에서 찾으므로
  * 현재 트랩에 편입할 포털에만 붙인다. `role="dialog"` + `aria-modal="true"`인 포털(서드파티
  * 다이얼로그 등)은 표식이 있어도 편입하지 않으므로 `trapFocus={false}`를 사용한다.
+ * 가드 없는 부유 레이어(Popover·DatePicker·표식 포털)는 트리거 바로 뒤가 아니라 모달의
+ * 모든 tabbable 뒤에 붙는다. 포털 DOM 위치와 무관하게 순환을 일정하게 하기 위해 트리거에서
+ * Tab을 누르면 다음 필드로 가고, 패널은 한 바퀴의 마지막에 지난다. 열자마자 패널을 조작하려면
+ * 패널 안으로 바로 포커스를 옮기는 컴포넌트나 Select처럼 floating-ui 포커스 관리가 있는 패널을 쓴다.
  * 액션 토스트가 top이면 트랩은 양보하며, 그동안에는 Tab이 모달 밖으로 나갈 수 있다
  * (`backdrop: false` 알림성 토스트 포함). Tab으로 모달 밖에 떨어진 포커스는 고리로 되돌리고,
  * 마우스로 옮긴 포커스는 건드리지 않는다.
@@ -112,6 +117,12 @@ export function Modal({
   const dragControls = useDragControls();
   const prefersReducedMotion = useReducedMotion();
   const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
+  const { context, isTop } = useModalSubViews(isOpen, trapFocus, overlayId);
+
+  // 퇴장 모션으로 남은 시트가 브라우저의 기본 Tab 순서에 다시 들어가지 않게 한다.
+  useLayoutEffect(() => {
+    if (sheet) sheet.inert = !isOpen;
+  }, [sheet, isOpen]);
 
   // 모바일 바텀시트 스와이프-다운 닫기. 100px 이상 끌거나 빠르게 튕기면 close.
   const handleDragEnd = (_: PointerEvent, info: PanInfo) => {
@@ -132,19 +143,19 @@ export function Modal({
   useFocusTrap(sheet, {
     enabled: isOpen,
     trapFocus,
-    canTrap: () => overlayStack.isTop(overlayId),
+    canTrap: isTop,
   });
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || !dismissible) return;
       // 가장 위 오버레이만 처리. ActionToast가 떠 있으면 그게 top(priority)이라 자동으로 양보된다.
-      if (!overlayStack.isTop(overlayId)) return;
+      if (!isTop()) return;
       onClose();
     };
     if (isOpen) window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [isOpen, onClose, overlayId, dismissible]);
+  }, [isOpen, onClose, dismissible, isTop]);
 
   const content = (
     <Portal>
@@ -159,7 +170,7 @@ export function Modal({
             transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
             onClick={() => {
               // 자신이 top일 때만 닫힘. ActionToast/SubView가 위에 있으면 그쪽이 백드롭을 받는다.
-              if (!dismissible || !overlayStack.isTop(overlayId)) return;
+              if (!dismissible || !isTop()) return;
               onClose();
             }}
             className="fixed inset-0 z-50 bg-black/50"
@@ -311,7 +322,7 @@ export function Modal({
   );
 
   return (
-    <ModalFocusTrapContext.Provider value={trapFocus}>
+    <ModalFocusTrapContext.Provider value={context}>
       {content}
     </ModalFocusTrapContext.Provider>
   );

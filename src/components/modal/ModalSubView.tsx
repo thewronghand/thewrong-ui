@@ -54,9 +54,10 @@ export interface ModalSubViewProps {
  * **포커스**: 열리면 뒤로 가기 버튼에 포커스하고 닫히면 연 요소로 돌아간다. 열린 동안 Tab은
  * 서브뷰와, 서브뷰가 덮지 않은 부모 시트 영역(헤더·footer 등)을 DOM 순서로 돈다. 덮인 본문으로는
  * 가지 않는다 — 화면에 보이고 마우스로 누를 수 있는 요소는 키보드로도 닿아야 하기 때문이다.
+ * 부모와 서브뷰가 같은 커밋에서 함께 열리는 경우도 지원한다.
  *
  * **ESC 동작**: SubView가 열려있는 동안 ESC는 SubView의 `onBack`을 부르고 모달은 유지된다.
- * `overlayStack`을 push해 Modal보다 위 layer로 등록 — Modal의 ESC 핸들러는 자기가 top일 때만 실행.
+ * 부모가 열린 서브뷰에 양보하므로 부모와 동시에 열려도 서브뷰부터 닫힌다.
  *
  * @example
  * ```tsx
@@ -84,20 +85,24 @@ export function ModalSubView({
   const prefersReducedMotion = useReducedMotion();
   const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
   const [drawerRoot, setDrawerRoot] = useState<HTMLDivElement | null>(null);
-  const trapFocus = useContext(ModalFocusTrapContext);
+  const { isOpen: parentOpen, trapFocus, registerSubView, isTopSubView } =
+    useContext(ModalFocusTrapContext);
+  const enabled = open && parentOpen;
 
   useEffect(() => {
-    if (!open) return;
+    if (!enabled) return;
+    const unregister = registerSubView(overlayId);
     overlayStack.push(overlayId);
     return () => {
       overlayStack.pop(overlayId);
+      unregister();
     };
-  }, [open, overlayId]);
+  }, [enabled, overlayId, registerSubView]);
 
   useFocusTrap(sheet, {
-    enabled: open,
+    enabled,
     trapFocus,
-    canTrap: () => overlayStack.isTop(overlayId),
+    canTrap: () => isTopSubView(overlayId),
     // 덮지 않은 부모 시트 영역(헤더·footer)은 Tab 고리에 남긴다.
     cover: variant === "drawer" ? drawerRoot : sheet,
   });
@@ -105,14 +110,13 @@ export function ModalSubView({
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      // 자기가 top일 때만 onBack. 부모 Modal/Drawer도 같은 window listener에 등록돼 있지만
-      // 각자 isTop 가드로 자신이 top이 아니면 무시하기 때문에 별도 stopPropagation 불필요.
-      if (!overlayStack.isTop(overlayId)) return;
+      // 부모와 동시에 열려 부모가 스택 top이 된 경우에도 등록된 서브뷰가 우선한다.
+      if (!isTopSubView(overlayId)) return;
       onBack();
     };
-    if (open) window.addEventListener("keydown", handleEsc);
+    if (enabled) window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [open, onBack, overlayId]);
+  }, [enabled, onBack, overlayId, isTopSubView]);
 
   const header = (
     <div className="flex items-center gap-2 border-b border-border-tertiary px-4 py-3 dark:border-neutral-700">
