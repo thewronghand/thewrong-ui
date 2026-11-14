@@ -83,6 +83,17 @@ export interface UseColumnResizeReturn {
   measureRef: React.RefObject<HTMLDivElement | null>;
 }
 
+export function getResizeStartWidth(
+  savedWidth: number | undefined,
+  measuredWidth: number | undefined,
+  defaultWidth: number,
+): number {
+  if (savedWidth !== undefined) return savedWidth;
+  return measuredWidth && Number.isFinite(measuredWidth) && measuredWidth > 0
+    ? measuredWidth
+    : defaultWidth;
+}
+
 /**
  * 컬럼 리사이즈 훅
  *
@@ -235,19 +246,25 @@ export function useColumnResize<T = any>({
       e.preventDefault();
       e.stopPropagation();
 
-      const currentWidth = columnWidths[key] || defaultWidth;
-      resizingRef.current = {
-        key,
-        startX: e.clientX,
-        startWidth: currentWidth,
-      };
-
       // 드래그 중 직접 조작할 <col> element 찾기. Table 컴포넌트가 각 컬럼 <col>에
       // `data-col-key={column.key}`를 박아두므로 그걸로 직접 매칭한다.
       const colEl =
         tableRef?.current?.querySelector<HTMLTableColElement>(
           `colgroup col[data-col-key="${CSS.escape(key)}"]`,
         ) ?? null;
+      const measuredWidth =
+        colEl?.getBoundingClientRect().width ||
+        e.currentTarget.closest("th")?.getBoundingClientRect().width;
+      const currentWidth = getResizeStartWidth(
+        columnWidths[key],
+        measuredWidth,
+        defaultWidth,
+      );
+      resizingRef.current = {
+        key,
+        startX: e.clientX,
+        startWidth: currentWidth,
+      };
 
       // 테이블은 width를 "모든 컬럼 width 합(px)"으로 잡는다(table.tsx). 드래그 중에는
       // React state를 안 건드리고 colEl만 직접 조작하므로, 테이블 width도 함께 직접

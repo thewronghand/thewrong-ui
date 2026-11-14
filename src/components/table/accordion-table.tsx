@@ -441,7 +441,7 @@ export const AccordionTable = forwardRef<
                   style={{
                     position: stickyHeader ? "sticky" : "relative",
                     top: stickyHeader ? 0 : undefined,
-                    zIndex: stickyHeader ? 10 : undefined,
+                    zIndex: stickyHeader ? 20 : undefined,
                   }}
                 >
                   <tr>
