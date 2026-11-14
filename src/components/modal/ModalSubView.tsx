@@ -171,7 +171,9 @@ export function ModalSubView({
               exit={{ opacity: 0 }}
               transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
               onClick={onBack}
-              className="absolute inset-0 bg-bg-overlay"
+              // 시트 내부 로컬 백드롭 — 전역 bg-overlay(다크 60%)보다 약한 모드 불변 40%.
+              // 이미 스크림 위에 뜬 시트를 한 번 더 덮으므로 독자 축으로 둔다(avocado와 동일).
+              className="absolute inset-0 bg-black/40"
             />
             <motion.div
               key="subview-drawer-sheet"

@@ -70,6 +70,11 @@ export type ActionToastInput =
     };
 
 interface ShowActionToastArgs {
+  /**
+   * 본문. ReactNode를 받지만 Select·MultiSelect·Popover·Tooltip·DatePicker 같은 부유 패널은 넣지 않는다 —
+   * 토스트(z-toast 150)가 부유 패널(z-floating 100)보다 위라, 패널이 열리면 시트 아래로 깔린다.
+   * 선택이 필요하면 토스트 대신 Modal을 쓴다. `icon`·액션 `label`도 같다.
+   */
   message: ReactNode;
   actions: ActionToastButton[];
   /** 톤. 좌측 아이콘 색상에만 반영(배경/텍스트는 일반 토스트와 동일한 다크 그레이). */

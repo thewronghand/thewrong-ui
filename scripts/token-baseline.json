@@ -27,6 +27,7 @@
       "src/components/date-picker/date-picker.tsx": 3,
       "src/components/date-picker/date-range-picker.tsx": 3,
       "src/components/date-picker/month-picker.tsx": 2,
+      "src/components/modal/ModalSubView.tsx": 1,
       "src/components/search-box/SearchBox.tsx": 1,
       "src/components/search-box/SearchBoxFloatingSelect.tsx": 1,
       "src/components/search-box/SearchBoxMultiSelect.tsx": 2,

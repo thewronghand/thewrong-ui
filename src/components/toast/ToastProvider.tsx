@@ -17,6 +17,9 @@ export interface ToastProviderProps {
  *
  * - 데스크탑: bottom-center / 모바일: top-center (safe-area-inset-top 반영)
  * - 다크 그레이 배경 + lucide 아이콘 + 닫기 버튼
+ * - 쌓임: 컨테이너가 `z-toast`(150)라 모달(50)·부유 패널(100) 위에 뜬다. 그래서 토스트 내용에
+ *   Select·Popover·Tooltip 같은 부유 패널을 넣으면 패널이 토스트 아래로 깔린다 — 넣지 않는다.
+ *   react-hot-toast의 `<Toaster />`를 직접 마운트하면 이 계층이 적용되지 않는다(기본 9999).
  *
  * @example
  * ```tsx
