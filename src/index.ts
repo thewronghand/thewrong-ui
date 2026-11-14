@@ -37,3 +37,6 @@ export * from "./components/field";
 export * from "./components/error-boundary";
 export * from "./components/typing-dots";
 export * from "./components/typewriter-text";
+export * from "./components/stepper";
+export * from "./components/segmented-code-input";
+export * from "./components/copyable-text";
