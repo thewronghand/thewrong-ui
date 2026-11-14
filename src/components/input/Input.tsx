@@ -7,6 +7,7 @@ import {
   SLOT_GAP_CLASS,
   SLOT_ICON_SIZE_CLASS,
 } from "@/components/_shared/form-size-tokens";
+import { cn } from "@/lib/utils";
 
 import type { InputProps } from "./types";
 import {
@@ -169,9 +170,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div
         className={
           isBox
-            ? `${variantClasses} flex items-center ${slotGap} ${className}`
-                .trim()
-                .replace(/\s+/g, " ")
+            ? cn(variantClasses, "flex items-center", slotGap, className)
             : "relative flex items-center text-sm"
         }
       >

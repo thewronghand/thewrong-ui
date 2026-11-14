@@ -40,6 +40,7 @@ import {
   getInputTrailingIconColor,
   getInputVariantClasses,
 } from "@/components/input/utils";
+import { cn } from "@/lib/utils";
 
 import { LoadingDots } from "./loading-dots";
 import { computeSelectPanelMaxWidth } from "./panel-width";
@@ -489,11 +490,13 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               if (!isOpen) setIsOpen(true);
             },
           })}
-          className={`${variantClasses} flex w-full min-w-0 items-center ${slotGap} ${
-            disabled ? "cursor-not-allowed" : "cursor-text"
-          } ${className}`
-            .trim()
-            .replace(/\s+/g, " ")}
+          className={cn(
+            variantClasses,
+            "flex w-full min-w-0 items-center",
+            slotGap,
+            disabled ? "cursor-not-allowed" : "cursor-text",
+            className,
+          )}
         >
           <input
             ref={(node) => {
@@ -593,11 +596,13 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
           aria-activedescendant={activeOptionId}
           data-testid={testId}
           {...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
-          className={`${variantClasses} flex w-full min-w-0 items-center ${slotGap} ${
-            disabled ? "cursor-not-allowed" : "cursor-pointer"
-          } ${className}`
-            .trim()
-            .replace(/\s+/g, " ")}
+          className={cn(
+            variantClasses,
+            "flex w-full min-w-0 items-center",
+            slotGap,
+            disabled ? "cursor-not-allowed" : "cursor-pointer",
+            className,
+          )}
         >
           <span
             className={`min-w-0 flex-1 truncate text-left ${fontSize} ${triggerTextColor}`}

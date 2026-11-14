@@ -10,15 +10,22 @@
  *
  * ── 새 시맨틱과 이름이 겹치는 변수 (지금은 아래 옛 값이 이긴다) ──────────────────
  * 같은 변수명 = 같은 유틸리티명이다. 3단계에서 사용처를 새 역할로 옮긴 뒤 이 줄을 지워
- * 새 값을 켠다. 옛 의미와 새 의미가 다른 것은 ≠로 표시했다.
+ * 새 값을 켠다. 옛 의미가 다른 것과 확인된 값 차이는 ≠로 표시했다.
  *   --color-border-primary   옛: 중립 최강 보더(secondary-400)  ≠ 새: 선택·강조 보더(violet-300)
  *   --color-border-disabled  옛: secondary-200                 ≠ 새: black(다크 white)
- *   --color-border-danger    옛: error-600(다크 error-400)       새: rose-danger
+ *   --color-border-danger    옛: error-600(다크 error-400)      ≠ 새: rose-danger
  *   --color-bg-disabled      옛: secondary-200(다크 700)         새: gray-200(다크 gray-700)
  *   --color-icon-primary     옛: secondary-700(다크 200)         새: gray-700(다크 gray-300)
  *   --color-icon-secondary   옛: secondary-500(다크 400)         새: gray-500(다크 gray-400)
  *   --color-icon-tertiary    옛: secondary-400(다크 500)         새: gray-400(다크 gray-300)
  *   --color-icon-disabled    옛: secondary-300(다크 700)         새: gray-300(다크 gray-600)
+ *
+ * 4단계에서 legacy를 지우면 avocado 값으로 바뀌는 사용처(화면 대조):
+ *   bg-bg-disabled: button/utils.ts의 primary·secondary·danger filled disabled와 tertiary filled active,
+ *     input/utils.ts·select/utils.ts·textarea/Textarea.tsx·switch/utils.ts의 disabled 배경.
+ *   border-border-danger: button/utils.ts의 danger outlined, input/utils.ts·select/utils.ts·textarea/Textarea.tsx의 오류 보더.
+ *   border-border-primary: input/utils.ts·select/utils.ts·textarea/Textarea.tsx의 focus-within 보더.
+ *   text-icon-secondary·tertiary·disabled: input/utils.ts·select/utils.ts·select/Select.tsx·select/MultiSelect.tsx와 search-box의 아이콘.
  *
  * ── Tailwind 기본값을 새 시맨틱이 바꾸는 변수 (지금은 Tailwind 기본값으로 되돌린다) ──
  *   --default-transition-duration  Tailwind 150ms ≠ 새 200ms (transition 유틸 전체의 길이)

@@ -30,10 +30,7 @@ export const SLOT_CHILD_ICON_CLASS: Record<FormFieldSize, string> = {
   large: "[&>svg]:h-slot-icon-large [&>svg]:w-slot-icon-large",
 };
 
-/**
- * badge wrapper 텍스트 크기. mini의 text-[10px]은 줄 높이를 상속하므로
- * 14px 줄 높이까지 지정하는 text-slot-badge-mini로 바꾸지 않는다.
- */
+/** badge wrapper의 mini text-[10px]은 줄 높이를 상속하지만 text-slot-badge-mini는 14px로 고정한다. */
 export const SLOT_BADGE_TEXT_CLASS: Record<FormFieldSize, string> = {
   mini: "text-[10px]",
   small: "text-xs",
