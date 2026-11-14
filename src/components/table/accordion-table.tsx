@@ -384,7 +384,7 @@ export const AccordionTable = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn("relative flex flex-col min-h-0", className)}
+      className={cn("isolate relative flex flex-col min-h-0", className)}
       style={containerStyle}
       data-testid={testId}
       {...restProps}
@@ -441,7 +441,7 @@ export const AccordionTable = forwardRef<
                   style={{
                     position: stickyHeader ? "sticky" : "relative",
                     top: stickyHeader ? 0 : undefined,
-                    zIndex: stickyHeader ? 10 : undefined,
+                    zIndex: stickyHeader ? 20 : undefined,
                   }}
                 >
                   <tr>

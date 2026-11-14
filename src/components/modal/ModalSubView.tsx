@@ -193,7 +193,7 @@ export function ModalSubView({
                   ? { duration: 0 }
                   : { type: "spring", damping: 30, stiffness: 320 }
               }
-              className="absolute right-0 top-0 bottom-0 flex w-[85%] max-w-md flex-col bg-bg-surface shadow-overlay outline-none"
+              className="absolute right-0 top-0 bottom-0 flex w-[85%] max-w-md flex-col bg-bg-surface text-fg-default shadow-overlay outline-none"
             >
               {header}
               {body}
@@ -217,7 +217,7 @@ export function ModalSubView({
             duration: prefersReducedMotion ? 0 : 0.25,
             ease: "easeOut",
           }}
-          className="absolute inset-0 z-10 flex flex-col bg-bg-surface outline-none"
+          className="absolute inset-0 z-10 flex flex-col bg-bg-surface text-fg-default outline-none"
         >
           {header}
           {body}

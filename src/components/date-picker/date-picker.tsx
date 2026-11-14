@@ -150,7 +150,7 @@ export function DatePicker({
                   dragConstraints={{ top: 0 }}
                   dragElastic={{ top: 0, bottom: 0.4 }}
                   onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
+                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface text-fg-default p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
                 >
                   <div
                     className="self-center h-1 w-10 rounded-full bg-bg-handle cursor-grab touch-none active:cursor-grabbing"
@@ -171,7 +171,7 @@ export function DatePicker({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-floating w-80 rounded-2xl border border-border-subtle bg-bg-surface p-6 shadow-tooltip"
+              className="z-floating w-80 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-6 shadow-tooltip"
             >
               <DatePickerBody
                 initialValue={value}

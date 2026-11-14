@@ -76,6 +76,7 @@ const restrictHeaderDrag: Modifier = ({
  *
  * 페이지네이션이 없는 조회 API 또는 페이지네이션 영역을 별도로 렌더하는 경우 사용.
  * PaginatedTable은 이 컴포넌트를 wrap해서 footer(Pagination/PageJump/PageSize)를 추가.
+ * 컬럼 너비 합이 컨테이너보다 작아 열이 늘어나면 브라우저가 남는 폭을 재분배하므로 드래그 이동량과 화면 변화량이 비례하지 않는다. 컬럼 합을 컨테이너 이상으로 지정한다(여백 컬럼이 필요하면 AccordionTable을 쓴다 — Table에는 여백 컬럼 옵션이 없다).
  */
 // forwardRef가 제네릭 인자를 그대로 보존하지 못해서 `any`로 우회 후 아래에서 제네릭 시그니처로 cast.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -350,7 +351,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
       <div
         ref={ref}
         className={cn(
-          "relative flex flex-col min-h-0 gap-4 md:gap-5 xl:gap-6",
+          "isolate relative flex flex-col min-h-0 gap-4 md:gap-5 xl:gap-6",
           className,
         )}
         style={containerStyle}
@@ -423,7 +424,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                   style={{
                     position: stickyHeader ? "sticky" : "relative",
                     top: stickyHeader ? 0 : undefined,
-                    zIndex: stickyHeader ? 10 : undefined,
+                    zIndex: stickyHeader ? 20 : undefined,
                     // 배경은 getTableHeaderClasses()의 bg-bg-table-header 토큰을 그대로 쓴다.
                     // 과거 여기에 "white"를 하드코딩해, 다크모드에서 헤더 드래그로 셀이 자리를
                     // 비우면 흰 배경이 드러나는 버그가 있었다.
