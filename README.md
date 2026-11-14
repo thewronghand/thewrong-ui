@@ -44,8 +44,9 @@ TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodene
 
 - **층**: 프리미티브(`--p-*`, 원료 — 직접 쓰지 않는다) → 시맨틱(`--color-bg-surface`, `--radius-control-medium` 같은 역할). 변수명이 곧 Tailwind 유틸 이름이다(`bg-bg-surface`, `rounded-control-medium`).
 - **다크**: 시맨틱 토큰은 조상 요소의 `.dark`를 따른다. Modal·Drawer·Tooltip·Popover·Select·DatePicker 등 body로 portal되는 컴포넌트에도 적용하고 `:root` 오버라이드와 함께 쓰려면 `<html>`에 붙인다. `<body>`에 붙여도 포털은 덮지만 `:root` 값이 body의 다크 선언보다 우선하지는 않는다. `styles.css`의 `dark:` 유틸도 `.dark`를 따르며 OS 설정은 따르지 않는다.
-- **테마**: `styles.css`와 `tokens.css`에 포함된 `quiet`, `high-contrast`는 `<html data-theme="quiet">` 또는 하위 요소의 `data-theme`으로 선택한다. 포털에도 테마를 적용하려면 `<html>`에 지정한다. `.dark`와 조합할 수 있다.
-- **오버라이드**: 시맨틱 변수를 덮는다. 아래 예시는 별도 오버라이드 CSS에 두고 항상 `styles.css` 뒤에 로드하며, 다크 값은 `.dark` 블록에 따로 적는다.
+- **테마**: `styles.css`와 `tokens.css`에 포함된 `quiet`, `high-contrast`는 `data-theme`으로 선택하며 `.dark`와 조합할 수 있다. 한 서브트리에는 한 테마만 쓴다 — 서로 다른 테마 중첩이나 `data-theme="default"`로 상위 테마 해제는 소스 순서와 상속이 섞여 지원하지 않는다. `<html>` 또는 겹치지 않는 형제 서브트리에 지정한다. Modal·Toast·Popover 등 body 포털에도 적용하려면 `<html>`에 지정한다.
+- **오버라이드**: 시맨틱 변수를 덮는다. 아래 예시는 별도 오버라이드 CSS에 두고 항상 `styles.css` 뒤에 로드하며, 다크 값은 `.dark` 블록에 따로 적는다. 테마 활성 시 `.dark[data-theme="quiet"]`의 특이도(0,2,0)가 `.dark`(0,1,0)보다 높으므로, 테마 위에서 다크 값을 바꾸려면 배치에 맞는 같은 테마 선택자로 재선언한다.
+- **구형 브라우저**: Chrome 111 미만, Safari 16.2 미만, Firefox 113 미만은 `color-mix`를 지원하지 않아 배포 CSS의 `high-contrast` 보조 버튼 상태·입력 지우기 링에 기본 테마 폴백 색이 적용된다(avocado와 같은 구조). `--color-icon-button-primary-active`에는 정적 폴백이 없으므로 지원 브라우저를 쓰거나 명시적 색을 덮어쓴다.
 - **그림자**: `shadow-control` 등 그림자 유틸의 값은 `--shadow-control-src` 같은 `--shadow-*-src` 변수를 덮어 조절한다.
 
 ```css

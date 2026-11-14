@@ -29,7 +29,9 @@ import { useIsMobile } from "@thewrong/ui/hooks";
   - 시맨틱: `--color-primary*` · `--color-fg-*` · `--color-bg-*` · `--color-border-*` · `--color-icon-*` · `--color-{error,success,warning,info,neutral}-*` · `--radius-*` · `--spacing-control-*` · `--shadow-*-src` · `--z-*`. 그림자 유틸은 `--shadow-*-src`를 참조한다. 덮어쓸 때는 시맨틱만 덮는다.
   - 로드 순서: 별도 사용자 오버라이드 CSS는 `styles.css`와 `tokens.css`를 컴파일한 소비자 CSS 뒤에 둔다. 다크 값은 오버라이드의 `.dark` 블록에 따로 적는다.
   - 시맨틱 토큰은 조상의 `.dark`를 따른다. Modal·Drawer·Tooltip·Popover·Select·DatePicker 등 body로 portal되는 컴포넌트에도 적용하고 `:root` 오버라이드와 함께 쓰려면 `<html>`에 붙인다. `<body>`에 붙여도 포털은 덮지만 `:root` 값이 body의 다크 선언보다 우선하지는 않는다. `styles.css`의 `dark:` 유틸은 `.dark`를 따른다.
-  - `styles.css`와 `tokens.css`에는 `quiet`, `high-contrast` 테마가 포함되어 있다. `<html data-theme="quiet">` 또는 하위 요소의 `data-theme`으로 선택하며 `.dark`와 조합할 수 있다. body 포털에도 적용하려면 `<html>`에 지정한다.
+  - `styles.css`와 `tokens.css`에는 `quiet`, `high-contrast` 테마가 포함되어 있다. `data-theme`으로 선택하며 `.dark`와 조합할 수 있다. 한 서브트리에 한 테마만 쓴다 — 서로 다른 테마 중첩이나 `data-theme="default"`로 상위 테마 해제는 소스 순서와 상속이 섞여 지원하지 않는다. `<html>` 또는 겹치지 않는 형제 서브트리에 지정한다. Modal·Toast·Popover 등 body 포털에도 적용하려면 `<html>`에 지정한다.
+  - 테마 활성 시 `.dark[data-theme="quiet"]`의 특이도(0,2,0)가 `.dark`(0,1,0)보다 높다. 테마 위의 다크 값은 오버라이드 CSS에서 배치에 맞는 같은 테마 선택자로 재선언한다.
+  - Chrome 111 미만, Safari 16.2 미만, Firefox 113 미만은 `color-mix`를 지원하지 않아 배포 CSS의 `high-contrast` 보조 버튼 상태·입력 지우기 링에 기본 테마 폴백 색이 적용된다(avocado와 같은 구조). `--color-icon-button-primary-active`에는 정적 폴백이 없으므로 지원 브라우저를 쓰거나 명시적 색을 덮어쓴다.
   - `tokens.css`는 소비자 variant를 강제하지 않으므로 `@custom-variant dark`를 포함하지 않는다. 소비자 Tailwind의 `dark:`는 기본적으로 `prefers-color-scheme`을 따르며, `.dark`로 바꾸려면 자기 CSS에 `@custom-variant dark (&:where(.dark, .dark *));`를 넣는다.
 - **인스턴스별 스타일 = `className` prop** (이 컴포넌트 하나만 폭·여백·배경 다르게). 많은 컴포넌트가 className을 받아 tailwind-merge로 병합. 오버레이(Modal·Drawer·ActionToast·Popover)는 className이 백드롭이 아니라 **시트/카드**에 병합된다.
 - floating·고정좌표 컴포넌트(Tooltip·DatePicker 등)는 className 미개방(위치 깨짐 방지) — 색은 토큰 오버라이드로 바꾼다.
