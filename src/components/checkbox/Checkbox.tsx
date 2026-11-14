@@ -1,5 +1,7 @@
 import { forwardRef } from "react";
 
+import { cn } from "@/lib/utils";
+
 import type { CheckboxProps, CheckboxVariant } from "./types";
 import {
   getCheckboxVariantClasses,
@@ -46,7 +48,7 @@ const CheckboxInternal = forwardRef<
           {...restProps}
         />
         <div
-          className={`${variantClasses} ${className} peer-checked:[&_path]:scale-100`}
+          className={cn(variantClasses, "peer-checked:[&_path]:scale-100", className)}
           style={sizeStyle}
         >
           <svg
@@ -72,7 +74,7 @@ const CheckboxInternal = forwardRef<
       return (
         <label className={getLabelClasses()}>
           {checkboxElement}
-          <span className="text-base text-neutral-900 dark:text-neutral-100">
+          <span className="text-base text-fg-default">
             {label}
           </span>
         </label>

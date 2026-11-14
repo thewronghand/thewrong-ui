@@ -22,7 +22,7 @@ export const getTableVariantClasses = (
 ): string => {
   const variantMap: Record<TableVariant, string> = {
     default: "",
-    bordered: "border border-neutral-200 dark:border-neutral-700",
+    bordered: "border border-border-default",
     striped: "",
   };
 
@@ -63,11 +63,11 @@ export const getColumnAlignClasses = (
 export const getTableHeaderClasses = (): string => {
   return `
     font-medium
-    text-text-secondary
+    text-fg-muted
     text-sm
     uppercase
     tracking-wider
-    bg-bg-base-secondary
+    bg-bg-table-header
     leading-tight
   `
     .trim()
@@ -81,13 +81,13 @@ export const getTableHeaderCellClasses = (): string => {
   return `
     px-6
     py-1.5
-    text-text-secondary
+    text-fg-muted
     text-sm
     font-medium
     leading-tight
-    border-b border-r border-border-secondary dark:border-border-tertiary
+    border-b border-r border-border-table-header
     whitespace-nowrap
-    bg-bg-base-secondary
+    bg-bg-table-header
   `
     .trim()
     .replace(/\s+/g, " ");
@@ -100,10 +100,10 @@ export const getTableCellClasses = (): string => {
   return `
     px-3
     py-0.5
-    text-neutral-900 dark:text-white
+    text-fg-default
     text-xs
     leading-tight
-    border-b border-r border-[#f2f3f5] dark:border-neutral-700
+    border-b border-r border-border-table-cell
     whitespace-nowrap
     overflow-hidden
     text-ellipsis
@@ -120,10 +120,10 @@ export const getTableCellClassesNoTruncate = (): string => {
   return `
     px-3
     py-0.5
-    text-neutral-900 dark:text-white
+    text-fg-default
     text-xs
     leading-tight
-    border-b border-r border-[#f2f3f5] dark:border-neutral-700
+    border-b border-r border-border-table-cell
     whitespace-nowrap
   `
     .trim()
@@ -132,12 +132,12 @@ export const getTableCellClassesNoTruncate = (): string => {
 
 /**
  * 스트라이프 행 스타일
- * 첫 번째(index 0): 회색, 두 번째(index 1): 흰색
+ * 첫 번째(index 0): row-even(라이트 흰색), 두 번째(index 1): row-odd — avocado와 같은 위상
  */
 export const getStripedRowClasses = (index: number): string => {
   return index % 2 === 0
-    ? "bg-[#f9fafb] dark:bg-slate-900/50 hover:bg-[#f3f4f6] dark:hover:bg-slate-800"
-    : "bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900";
+    ? "bg-bg-table-row-even hover:bg-bg-table-row-hover"
+    : "bg-bg-table-row-odd hover:bg-bg-table-row-hover";
 };
 
 /**
@@ -145,12 +145,11 @@ export const getStripedRowClasses = (index: number): string => {
  */
 export const getSelectedRowClasses = (): string => {
   // 좌측 인디케이터는 box-shadow inset로 그려서 셀 너비를 밀지 않게 한다.
-  // primary 토큰을 직접 var로 참조해 토큰 변경에 따라간다.
+  // 시맨틱 primary를 참조해 테마 변경에 따라간다.
   return `
-    bg-blue-50 dark:bg-blue-950/50
-    hover:bg-blue-100 dark:hover:bg-blue-950/70
-    shadow-[inset_4px_0_0_0_var(--color-primary-500)]
-    dark:shadow-[inset_4px_0_0_0_var(--color-primary-400)]
+    bg-bg-table-row-selected
+    hover:bg-bg-table-row-selected-hover
+    shadow-[inset_4px_0_0_0_var(--color-primary)]
   `
     .trim()
     .replace(/\s+/g, " ");
@@ -161,7 +160,6 @@ export const getSelectedRowClasses = (): string => {
  */
 export const getHoverableRowClasses = (): string => {
   return `
-    hover:bg-[#f9fafb]
     transition-colors duration-200
     cursor-pointer
   `

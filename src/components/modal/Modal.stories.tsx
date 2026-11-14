@@ -128,7 +128,7 @@ export const Standard_단일액션: Story = {
           title="안내"
           primaryAction={{ label: "확인", onClick: () => setOpen(false) }}
         >
-          <span className="text-sm text-text-primary">
+          <span className="text-sm text-fg-default">
             처리가 완료되었습니다.
           </span>
         </StandardModal>
@@ -161,7 +161,7 @@ export const Standard_삭제_danger: Story = {
           }}
           secondaryAction={{ label: "취소", onClick: () => setOpen(false) }}
         >
-          <span className="text-sm text-text-primary">
+          <span className="text-sm text-fg-default">
             이 역할을 삭제하면 되돌릴 수 없어요.
           </span>
         </StandardModal>
@@ -189,7 +189,7 @@ export const Standard_긴본문_스크롤: Story = {
         >
           <div className="flex flex-col gap-3">
             {Array.from({ length: 20 }, (_, i) => (
-              <p key={i} className="text-sm text-text-secondary">
+              <p key={i} className="text-sm text-fg-muted">
                 {i + 1}. 약관 조항 텍스트가 길게 이어집니다. 바디만 스크롤되고
                 footer는 하단에 고정됩니다.
               </p>
@@ -231,7 +231,7 @@ export const 정책_AnimatedHeight_적용: Story = {
                 onCheckedChange={setExpanded}
               />
               {expanded && (
-                <div className="rounded-lg bg-bg-base-secondary p-3 text-sm text-text-secondary">
+                <div className="rounded-lg bg-bg-subtle p-3 text-sm text-fg-muted">
                   고급 옵션 영역. 너비는 widthPx로 고정돼 있어 토글 시 높이만
                   부드럽게 늘고 줄어요(가로 흔들림 없음).
                 </div>
@@ -271,7 +271,7 @@ export const 정책_AnimatedHeight_미적용: Story = {
               onCheckedChange={setExpanded}
             />
             {expanded && (
-              <div className="rounded-lg bg-bg-base-secondary p-3 text-sm text-text-secondary">
+              <div className="rounded-lg bg-bg-subtle p-3 text-sm text-fg-muted">
                 고급 옵션 영역. AnimatedHeight로 감싸지 않아 토글 시 높이가 툭
                 바뀝니다(너비는 widthPx로 고정).
               </div>
@@ -309,7 +309,7 @@ export const 레이어드_SubView: Story = {
               onBack={() => setSubOpen(false)}
               title="변경 이력"
             >
-              <div className="text-sm text-text-primary">
+              <div className="text-sm text-fg-default">
                 우측에서 슬라이드 인 한 서브뷰. 부모 모달의 높이를 그대로 채운다.
                 ESC/뒤로가기로 닫으면 모달은 유지됩니다.
               </div>
@@ -318,7 +318,7 @@ export const 레이어드_SubView: Story = {
         >
           {/* 서브뷰가 부모 높이를 채우는 걸 보여주려고 본문에 충분한 높이를 둠 */}
           <div className="flex min-h-72 flex-col gap-3 p-4">
-            <span className="text-sm text-text-primary">본문 영역입니다.</span>
+            <span className="text-sm text-fg-default">본문 영역입니다.</span>
             <Button
               variant="secondary"
               size="small"
@@ -372,7 +372,7 @@ export const 레이어드_ActionToast_재확인: Story = {
           }}
           secondaryAction={{ label: "닫기", onClick: () => setOpen(false) }}
         >
-          <span className="text-sm text-text-primary">
+          <span className="text-sm text-fg-default">
             삭제를 누르면 액션토스트로 한 번 더 확인해요. ESC로 토스트를 닫아도
             모달은 그대로입니다.
           </span>
@@ -403,7 +403,7 @@ export const 정책_너비고정: Story = {
           title="너비는 고정"
           widthPx={420}
           footer={
-            <div className="flex justify-end border-t border-neutral-200 px-5 py-4 dark:border-neutral-700">
+            <div className="flex justify-end border-t border-border-subtle px-5 py-4">
               <Button size="small" onClick={() => setOpen(false)}>
                 닫기
               </Button>
@@ -416,11 +416,11 @@ export const 정책_너비고정: Story = {
               checked={wide}
               onCheckedChange={setWide}
             />
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-fg-muted">
               widthPx=420 고정. 내용을 늘려도 시트 너비는 그대로 — 높이만 변한다.
             </p>
             {wide && (
-              <p className="text-sm text-text-secondary">
+              <p className="text-sm text-fg-muted">
                 추가된 내용. 너비가 흔들리지 않으니 시각적으로 안정적이다.
               </p>
             )}
@@ -457,7 +457,7 @@ export const 정책_서브뷰높이: Story = {
                 {["권한 A 부여", "권한 B 회수", "역할 변경"].map((t) => (
                   <div
                     key={t}
-                    className="rounded-lg bg-bg-base-secondary px-3 py-2 text-sm text-text-primary"
+                    className="rounded-lg bg-bg-subtle px-3 py-2 text-sm text-fg-default"
                   >
                     {t}
                   </div>
@@ -468,7 +468,7 @@ export const 정책_서브뷰높이: Story = {
         >
           {/* 본문에 충분한 높이를 둬, 서브뷰(변경 3건)가 부모 높이에 자연스럽게 들어맞는 걸 보여줌 */}
           <div className="flex min-h-72 flex-col gap-3 p-4">
-            <span className="text-sm text-text-primary">
+            <span className="text-sm text-fg-default">
               본문과 서브뷰의 내용 양이 비슷해 높이가 어긋나지 않는다.
             </span>
             <Button
@@ -503,14 +503,14 @@ export const Base_고정폭: Story = {
           title="자유 레이아웃"
           widthPx={480}
           footer={
-            <div className="flex justify-end gap-2 border-t border-neutral-200 px-5 py-4 dark:border-neutral-700">
+            <div className="flex justify-end gap-2 border-t border-border-subtle px-5 py-4">
               <Button variant="secondary" appearance="outlined" size="small" onClick={() => setOpen(false)}>
                 닫기
               </Button>
             </div>
           }
         >
-          <div className="p-4 text-sm text-text-primary">
+          <div className="p-4 text-sm text-fg-default">
             StandardModal의 액션 패턴이 안 맞을 때 footer를 직접 구성합니다.
           </div>
         </Modal>

@@ -14,7 +14,7 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 // 소비자용 토큰 소스 — dist/tokens.css.
 // 소비자가 자기 Tailwind 빌드에서 `@import "@thewrong/ui/tokens.css"` 하면 @theme·@utility가 살아 있어
 // bg-bg-surface·rounded-control-medium·z-floating 같은 유틸이 생성된다(컴파일된 styles.css와 별개).
-// 층 순서대로 원본 CSS를 이어 붙이기만 한다. legacy.css(옛 이름 임시 별칭)는 넣지 않는다.
+// 층 순서대로 원본 CSS를 이어 붙이기만 한다.
 const TOKEN_SOURCES = ["primitives.css", "semantic.css", "component-utils.css"];
 function emitTokensCss() {
   return {

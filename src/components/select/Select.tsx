@@ -28,6 +28,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 import {
   CHEVRON_SIZE_CLASS,
+  CONTROL_TEXT_CLASS,
   SLOT_BADGE_TEXT_CLASS,
   SLOT_CHILD_ICON_CLASS,
   SLOT_GAP_CLASS,
@@ -40,6 +41,7 @@ import {
   getInputTrailingIconColor,
   getInputVariantClasses,
 } from "@/components/input/utils";
+import { cn } from "@/lib/utils";
 
 import { LoadingDots } from "./loading-dots";
 import { computeSelectPanelMaxWidth } from "./panel-width";
@@ -446,24 +448,19 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     filled || isOpen,
   );
 
-  const fontSize =
-    selectSize === "mini"
-      ? "text-xs"
-      : selectSize === "large"
-        ? "text-base"
-        : "text-sm";
+  const fontSize = CONTROL_TEXT_CLASS[selectSize];
   const triggerTextColor = disabled
-    ? "text-text-disabled"
+    ? "text-fg-disabled"
     : hasError
-      ? "text-text-danger"
+      ? "text-fg-danger"
       : filled
-        ? "text-text-primary"
-        : "text-text-tertiary";
+        ? "text-fg-default"
+        : "text-fg-subtle";
 
   return (
     <div
       ref={containerRef}
-      className={`${getInputContainerClasses()} min-w-0`}
+      className={cn(getInputContainerClasses(), "min-w-0")}
       {...containerProps}
     >
       {showLabel && label && (
@@ -489,11 +486,15 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               if (!isOpen) setIsOpen(true);
             },
           })}
-          className={`${variantClasses} flex w-full min-w-0 items-center ${slotGap} ${
-            disabled ? "cursor-not-allowed" : "cursor-text"
-          } ${className}`
-            .trim()
-            .replace(/\s+/g, " ")}
+          className={cn(
+            variantClasses,
+            "flex w-full min-w-0 items-center",
+            slotGap,
+            variant !== "box" && "focus-within:border-primary",
+            variant !== "box" && variant !== "line" && "focus-within:ring-control focus-within:ring-primary",
+            disabled ? "cursor-not-allowed" : "cursor-text",
+            className,
+          )}
         >
           <input
             ref={(node) => {
@@ -523,27 +524,30 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
             placeholder={selectedOption ? searchPlaceholder : placeholder}
             onChange={handleSearchChange}
             onKeyDown={handleSearchKeyDown}
-            className={`min-w-0 flex-1 truncate bg-transparent text-left outline-hidden ${fontSize} ${triggerTextColor} ${
-              disabled ? "cursor-not-allowed" : ""
-            } placeholder:text-text-tertiary`}
+            className={cn(
+              "min-w-0 flex-1 truncate bg-transparent text-left outline-hidden placeholder:text-fg-subtle",
+              fontSize,
+              triggerTextColor,
+              disabled && "cursor-not-allowed",
+            )}
           />
           {suffix && (
             <span
-              className={`shrink-0 whitespace-nowrap ${fontSize} ${trailingIconColor}`}
+              className={cn("shrink-0 whitespace-nowrap", fontSize, trailingIconColor)}
             >
               {suffix}
             </span>
           )}
           {trailingIcon && (
             <span
-              className={`flex shrink-0 items-center ${trailingIconColor} ${slotIconSize}`}
+              className={cn("flex shrink-0 items-center", trailingIconColor, slotIconSize)}
             >
               {trailingIcon}
             </span>
           )}
           {isSearchLoading && (
             <LoadingDots
-              className={`shrink-0 text-icon-tertiary ${builtinIconSize}`}
+              className={cn("shrink-0 text-fg-subtle", builtinIconSize)}
             />
           )}
           {clearable && !disabled && filled && (
@@ -552,7 +556,11 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               tabIndex={-1}
               onClick={handleClear}
               aria-label="선택 지우기"
-              className={`flex shrink-0 cursor-pointer items-center rounded ${trailingIconColor} hover:text-text-primary focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500/40`}
+              className={cn(
+                "flex shrink-0 cursor-pointer items-center rounded",
+                trailingIconColor,
+                "hover:text-fg-default focus:outline-hidden focus-visible:ring-input-clear focus-visible:ring-input-clear-ring",
+              )}
             >
               <CircleX
                 className={builtinIconSize}
@@ -563,15 +571,18 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
           )}
           {badge && (
             <span
-              className={`flex shrink-0 items-center ${slotIconSize} ${slotBadgeText}`}
+              className={cn("flex shrink-0 items-center", slotIconSize, slotBadgeText)}
             >
               {badge}
             </span>
           )}
           <ChevronDown
-            className={`shrink-0 transition-transform ${chevronSize} ${trailingIconColor} ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "shrink-0 transition-transform",
+              chevronSize,
+              trailingIconColor,
+              isOpen && "rotate-180",
+            )}
             strokeWidth={1.5}
             aria-hidden
           />
@@ -593,27 +604,29 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
           aria-activedescendant={activeOptionId}
           data-testid={testId}
           {...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
-          className={`${variantClasses} flex w-full min-w-0 items-center ${slotGap} ${
-            disabled ? "cursor-not-allowed" : "cursor-pointer"
-          } ${className}`
-            .trim()
-            .replace(/\s+/g, " ")}
+          className={cn(
+            variantClasses,
+            "flex w-full min-w-0 items-center",
+            slotGap,
+            disabled ? "cursor-not-allowed" : "cursor-pointer",
+            className,
+          )}
         >
           <span
-            className={`min-w-0 flex-1 truncate text-left ${fontSize} ${triggerTextColor}`}
+            className={cn("min-w-0 flex-1 truncate text-left", fontSize, triggerTextColor)}
           >
             {triggerText}
           </span>
           {suffix && (
             <span
-              className={`shrink-0 whitespace-nowrap ${fontSize} ${trailingIconColor}`}
+              className={cn("shrink-0 whitespace-nowrap", fontSize, trailingIconColor)}
             >
               {suffix}
             </span>
           )}
           {trailingIcon && (
             <span
-              className={`flex shrink-0 items-center ${trailingIconColor} ${slotIconSize}`}
+              className={cn("flex shrink-0 items-center", trailingIconColor, slotIconSize)}
             >
               {trailingIcon}
             </span>
@@ -624,7 +637,11 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               tabIndex={-1}
               onClick={handleClear}
               aria-label="선택 지우기"
-              className={`flex shrink-0 cursor-pointer items-center ${trailingIconColor} hover:text-text-primary`}
+              className={cn(
+                "flex shrink-0 cursor-pointer items-center",
+                trailingIconColor,
+                "hover:text-fg-default",
+              )}
             >
               <CircleX
                 className={builtinIconSize}
@@ -635,15 +652,18 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
           )}
           {badge && (
             <span
-              className={`flex shrink-0 items-center ${slotIconSize} ${slotBadgeText}`}
+              className={cn("flex shrink-0 items-center", slotIconSize, slotBadgeText)}
             >
               {badge}
             </span>
           )}
           <ChevronDown
-            className={`shrink-0 transition-transform ${chevronSize} ${trailingIconColor} ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "shrink-0 transition-transform",
+              chevronSize,
+              trailingIconColor,
+              isOpen && "rotate-180",
+            )}
             strokeWidth={1.5}
             aria-hidden
           />
@@ -665,7 +685,10 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               id={listboxId}
               style={floatingStyles}
               {...getFloatingProps()}
-              className={`z-9999 overflow-hidden rounded-lg border border-border-tertiary bg-bg-white shadow-lg dark:border-border-secondary dark:bg-neutral-800 ${panelClassName}`}
+              className={cn(
+                "z-floating overflow-hidden rounded-surface border border-border-subtle bg-bg-surface shadow-overlay",
+                panelClassName,
+              )}
             >
               {/* searchable 모드는 트리거 input이 검색 역할을 하므로 패널 안 별도 검색창 없음. */}
               <div
@@ -673,7 +696,7 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
                 className="max-h-72 overflow-y-auto py-1"
               >
                 {filteredOptions.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-sm text-text-tertiary">
+                  <div className="px-3 py-4 text-center text-sm text-fg-subtle">
                     {isSearchLoading ? "검색 중..." : "옵션이 없어요"}
                   </div>
                 ) : (
@@ -704,30 +727,32 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
                             }
                           },
                         })}
-                        className={`flex cursor-pointer items-start gap-3 px-3 py-2 text-sm transition-colors ${
+                        className={cn(
+                          "flex cursor-pointer items-start gap-3 px-3 py-2 text-sm transition-colors",
                           option.disabled
-                            ? "cursor-not-allowed text-text-disabled"
+                            ? "cursor-not-allowed text-fg-disabled"
                             : isSelected
-                              ? `font-medium text-primary-600 dark:text-primary-400 ${
+                              ? cn(
+                                  "font-medium text-primary-fg",
                                   isActive
-                                    ? "bg-primary-50 dark:bg-primary-900/30"
-                                    : "hover:bg-primary-50/60 dark:hover:bg-primary-900/20"
-                                }`
+                                    ? "bg-primary-subtle"
+                                    : "bg-primary-subtle/60 hover:bg-primary-subtle/80",
+                                )
                               : isActive
-                                ? "bg-neutral-100 text-text-primary dark:bg-neutral-700"
-                                : "text-text-primary hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                        }`}
+                                ? "bg-bg-subtle text-fg-default"
+                                : "text-fg-default hover:bg-bg-subtle",
+                        )}
                       >
                         <div className="min-w-0 flex-1">
                           <div className="truncate">{option.label}</div>
                           {option.description && (
-                            <div className="mt-0.5 truncate text-xs text-text-tertiary">
+                            <div className="mt-0.5 truncate text-xs text-fg-subtle">
                               {option.description}
                             </div>
                           )}
                         </div>
                         {option.trailing && (
-                          <span className="shrink-0 text-xs text-text-tertiary">
+                          <span className="shrink-0 text-xs text-fg-subtle">
                             {option.trailing}
                           </span>
                         )}
@@ -741,7 +766,7 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
                   <div
                     ref={setLoadMoreNode}
                     aria-hidden
-                    className="flex items-center justify-center px-3 py-3 text-text-tertiary"
+                    className="flex items-center justify-center px-3 py-3 text-fg-subtle"
                   >
                     {isSearchLoading && <LoadingDots />}
                   </div>

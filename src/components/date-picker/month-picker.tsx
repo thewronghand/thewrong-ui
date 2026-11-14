@@ -125,7 +125,7 @@ export function MonthPicker({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-50 bg-black/40"
+                  className="fixed inset-0 z-overlay bg-bg-overlay"
                   onClick={() => setIsOpen(false)}
                 />
               )}
@@ -149,10 +149,10 @@ export function MonthPicker({
                   dragConstraints={{ top: 0 }}
                   dragElastic={{ top: 0, bottom: 0.4 }}
                   onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-5 rounded-t-2xl bg-bg-card p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-2xl"
+                  className="fixed inset-x-0 bottom-0 z-overlay flex flex-col gap-5 rounded-t-2xl bg-bg-surface p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-overlay"
                 >
                   <div
-                    className="self-center h-1 w-10 rounded-full bg-bg-base-tertiary cursor-grab touch-none active:cursor-grabbing"
+                    className="self-center h-1 w-10 rounded-full bg-bg-handle cursor-grab touch-none active:cursor-grabbing"
                     onPointerDown={startDrag}
                   />
                   {grid}
@@ -166,7 +166,7 @@ export function MonthPicker({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-9999 w-70 rounded-2xl border border-border-tertiary bg-bg-card p-5 shadow-md"
+              className="z-floating w-70 rounded-2xl border border-border-subtle bg-bg-surface p-5 shadow-tooltip"
             >
               {grid}
             </div>
@@ -202,7 +202,7 @@ function MonthGrid({
     <div className="flex flex-col">
       <div className="mb-4 flex items-center justify-between">
         <NavButton direction="left" onClick={() => onYearChange(year - 1)} />
-        <div className="flex-1 text-center text-sm font-semibold text-text-primary">
+        <div className="flex-1 text-center text-sm font-semibold text-fg-default">
           {year}년
         </div>
         <NavButton direction="right" onClick={() => onYearChange(year + 1)} />
@@ -220,10 +220,10 @@ function MonthGrid({
               className={cn(
                 "h-10 cursor-pointer rounded-lg text-sm transition-colors",
                 isSelected
-                  ? "bg-primary-500 font-bold text-white"
+                  ? "bg-primary font-bold text-fg-inverse"
                   : isCurrent
-                    ? "bg-bg-base-secondary font-semibold text-text-primary"
-                    : "text-text-primary hover:bg-bg-base-primary",
+                    ? "bg-bg-muted font-semibold text-fg-default"
+                    : "text-fg-default hover:bg-bg-subtle",
               )}
               aria-label={`${year}년 ${m}월`}
               aria-pressed={isSelected}
@@ -249,7 +249,7 @@ function NavButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-tertiary text-text-secondary transition-colors hover:bg-bg-base-primary"
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-subtle text-fg-muted transition-colors hover:bg-bg-subtle"
       aria-label={direction === "left" ? "이전 해" : "다음 해"}
     >
       <Icon className="h-4 w-4" />

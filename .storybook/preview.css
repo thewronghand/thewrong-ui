@@ -3,9 +3,8 @@
  *
  * 다크 토글(preview.tsx의 colorMode)이 켜지면 iframe 캔버스와 docs 페이지의 스토리 블록
  * 배경이 시맨틱 배경 토큰을 따른다. 라이트는 Storybook 기본(흰색) 그대로 둔다.
- * 지금은 기존 이름(--color-bg-white)을 쓴다 — 3단계 컴포넌트 치환 때 새 이름으로 옮긴다.
  */
 html.dark body,
 html.dark .docs-story {
-  background-color: var(--color-bg-white);
+  background-color: var(--color-bg-page);
 }

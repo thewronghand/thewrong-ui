@@ -122,7 +122,7 @@ export function Popover({
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-9999"
+              className="z-floating"
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -130,7 +130,7 @@ export function Popover({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
                 className={cn(
-                  "bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-border-tertiary dark:border-border-secondary p-4 min-w-60 max-w-[320px]",
+                  "bg-bg-surface rounded-surface shadow-tooltip border border-border-subtle p-4 min-w-60 max-w-[320px]",
                   className,
                 )}
               >

@@ -9,32 +9,32 @@ export const getBadgeColorClasses = (
 ): string => {
   const colorMap: Record<BadgeColor, Record<BadgeVariant, string>> = {
     primary: {
-      fill: "bg-primary-500 text-white",
-      weak: "bg-primary-50 text-primary-600 border border-primary-300",
+      fill: "bg-primary text-fg-inverse",
+      weak: "bg-primary-subtle text-primary-fg border border-primary-border",
     },
     secondary: {
-      fill: "bg-secondary-500 text-white",
-      weak: "bg-secondary-50 text-secondary-600 border border-secondary-300",
+      fill: "bg-neutral-fill text-fg-inverse",
+      weak: "bg-neutral-subtle text-neutral-fg border border-neutral-border",
     },
     success: {
-      fill: "bg-success-500 text-white",
-      weak: "bg-success-50 text-success-600 border border-success-300",
+      fill: "bg-success text-fg-inverse",
+      weak: "bg-success-subtle text-success-fg border border-success-border",
     },
     error: {
-      fill: "bg-error-500 text-white",
-      weak: "bg-error-50 text-error-600 border border-error-300",
+      fill: "bg-error text-fg-inverse",
+      weak: "bg-error-subtle text-error-fg border border-error-border",
     },
     warning: {
-      fill: "bg-warning-500 text-white",
-      weak: "bg-warning-50 text-warning-600 border border-warning-300",
+      fill: "bg-warning text-fg-inverse",
+      weak: "bg-warning-subtle text-warning-fg border border-warning-border",
     },
     info: {
-      fill: "bg-info-500 text-white",
-      weak: "bg-info-50 text-info-600 border border-info-300",
+      fill: "bg-info text-fg-inverse",
+      weak: "bg-info-subtle text-info-fg border border-info-border",
     },
     neutral: {
-      fill: "bg-neutral-500 text-white",
-      weak: "bg-neutral-50 text-neutral-600 border border-neutral-300",
+      fill: "bg-neutral-fill text-fg-inverse",
+      weak: "bg-neutral-subtle text-neutral-fg border border-neutral-border",
     },
   };
 
@@ -59,4 +59,4 @@ export const getBadgeSizeClasses = (size: BadgeSize = "medium"): string => {
  * Badge의 기본 클래스 (공통 스타일)
  */
 export const getBadgeBaseClasses = (): string =>
-  "inline-flex items-center justify-center font-medium rounded-md whitespace-nowrap";
+  "inline-flex items-center justify-center font-medium rounded-badge whitespace-nowrap";

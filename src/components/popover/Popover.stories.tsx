@@ -18,9 +18,9 @@ export const Default: Story = {
   args: {
     trigger: <Button>메뉴 열기</Button>,
     content: (
-      <div className="flex flex-col gap-1 text-sm text-text-primary">
+      <div className="flex flex-col gap-1 text-sm text-fg-default">
         <span className="font-medium">팝오버 콘텐츠</span>
-        <span className="text-text-secondary">
+        <span className="text-fg-muted">
           외부 클릭/ESC로 닫혀요. trigger 기준으로 배치되며 공간이 부족하면 자동 flip돼요.
         </span>
       </div>
@@ -39,7 +39,7 @@ export const WithCloseCallback: Story = {
             <button
               key={label}
               onClick={close}
-              className="rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-bg-base-secondary"
+              className="rounded-md px-3 py-2 text-left text-sm text-fg-default hover:bg-bg-subtle"
             >
               {label}
             </button>

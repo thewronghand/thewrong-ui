@@ -2,6 +2,7 @@ import { Calendar } from "lucide-react";
 import { useContext } from "react";
 
 import { MonthPicker, type MonthValue } from "@/components/date-picker";
+import { cn } from "@/lib/utils";
 
 import { SearchBoxSheetContext } from "./SearchBoxSheetContext";
 
@@ -47,12 +48,13 @@ export function SearchBoxMonth({ value, onChange, ariaLabel, size }: Props) {
       <button
         type="button"
         aria-label={ariaLabel}
-        className={`inline-flex w-full items-center gap-2 rounded-lg border border-border-tertiary bg-bg-card px-3 text-sm text-text-primary transition-colors hover:bg-bg-base-primary dark:border-border-secondary ${
-          size === "small" ? "h-10 py-2" : "h-9 py-1.5"
-        }`}
+        className={cn(
+          "inline-flex w-full items-center gap-2 border border-border-subtle bg-bg-surface px-3 text-sm text-fg-default transition-colors hover:bg-bg-subtle",
+          size === "mini" ? "h-8 rounded-control-mini py-1.5" : "h-10 rounded-control-small py-2",
+        )}
       >
-        <Calendar className="h-4 w-4 shrink-0 text-text-secondary" />
-        <span className={monthValue ? "" : "text-text-tertiary"}>{label}</span>
+        <Calendar className="h-4 w-4 shrink-0 text-fg-muted" />
+        <span className={monthValue ? "" : "text-fg-subtle"}>{label}</span>
       </button>
     </MonthPicker>
   );

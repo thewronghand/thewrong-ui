@@ -1,5 +1,7 @@
 import { forwardRef } from "react";
 
+import { cn } from "@/lib/utils";
+
 import type { SwitchProps } from "./types";
 import { getSwitchThumbClasses, getSwitchTrackClasses } from "./utils";
 
@@ -38,9 +40,11 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 
     return (
       <label
-        className={`inline-flex items-center gap-2 ${
-          disabled ? "cursor-not-allowed" : "cursor-pointer"
-        } ${className}`}
+        className={cn(
+          "inline-flex items-center gap-2",
+          disabled ? "cursor-not-allowed" : "cursor-pointer",
+          className,
+        )}
       >
         <span className="relative inline-flex items-center">
           <input
@@ -55,14 +59,14 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
               thumb은 트랙 안에 있지만 형제가 아니므로 별도의 형제 span으로 분리해
               translate를 그쪽에 건다. 트랙은 색만 담당. */}
           <span aria-hidden className={getSwitchTrackClasses(size, disabled)} />
-          <span aria-hidden className={getSwitchThumbClasses(size)} />
+          <span aria-hidden className={getSwitchThumbClasses(size, disabled)} />
         </span>
         {label && (
           <span
             className={
               disabled
-                ? "text-sm text-text-disabled"
-                : "text-sm text-text-primary"
+                ? "text-sm text-fg-disabled"
+                : "text-sm text-fg-default"
             }
           >
             {label}

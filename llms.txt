@@ -18,7 +18,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ```
 
 - 패키지명: `@thewrong/ui` · React `>=18` peerDependency.
-- 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅만, motion/floating 의존 0) · `@thewrong/ui/styles.css`(스타일, 한 번만 import) · `@thewrong/ui/tokens.css`(토큰 소스 — 소비자 Tailwind v4에서 `@import`하면 `bg-bg-surface`·`rounded-control-medium`·`z-floating` 등 유틸 생성). 컴포넌트 치환 3단계 전에는 `tokens.css`를 컴파일한 소비자 CSS를 `styles.css`보다 나중에 로드하지 않는다. 겹치는 변수와 `color-scheme`이 현재 컴포넌트 색과 네이티브 컨트롤을 바꾼다. 지금은 `styles.css`만 쓰거나 소비자 CSS를 `styles.css`보다 먼저 로드한다.
+- 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅만, motion/floating 의존 0) · `@thewrong/ui/styles.css`(스타일, 한 번만 import) · `@thewrong/ui/tokens.css`(토큰 소스 — 소비자 Tailwind v4에서 `@import`하면 `bg-bg-surface`·`rounded-control-medium`·`z-floating` 등 유틸 생성). 컴파일한 소비자 CSS와 `styles.css`를 함께 사용할 수 있다.
 - 라이브러리는 컴포넌트별 코드분할되어 있어 소비자 번들러가 안 쓰는 컴포넌트를 트리셰이킹한다.
 
 ## 스타일 커스터마이징 (소비자가 색/스타일 바꾸기)
@@ -26,10 +26,9 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - **전역 색 교체 = CSS Variable 토큰 오버라이드** (대부분 이걸로 충분, 코드 변경 0).
   - 층: 프리미티브 `--p-*`(원료, 직접 참조 금지) → 시맨틱(역할). 시맨틱 변수명 = 유틸 이름(`--color-bg-surface` → `bg-bg-surface`).
   - 시맨틱: `--color-primary*` · `--color-fg-*` · `--color-bg-*` · `--color-border-*` · `--color-icon-*` · `--color-{error,success,warning,info,neutral}-*` · `--radius-*` · `--spacing-control-*` · `--shadow-*-src` · `--z-*`. 그림자 유틸은 `--shadow-*-src`를 참조한다. 덮어쓸 때는 시맨틱만 덮는다.
-  - 로드 순서: `tokens.css`를 컴파일한 소비자 CSS → `styles.css` → 별도 사용자 오버라이드 CSS. 다크 값은 오버라이드의 `.dark` 블록에 따로 적는다.
+  - 로드 순서: 별도 사용자 오버라이드 CSS는 `styles.css`와 `tokens.css`를 컴파일한 소비자 CSS 뒤에 둔다. 다크 값은 오버라이드의 `.dark` 블록에 따로 적는다.
   - 시맨틱 토큰은 조상의 `.dark`를 따른다. Modal·Drawer·Tooltip·Popover·Select·DatePicker 등 body로 portal되는 컴포넌트에도 적용하고 `:root` 오버라이드와 함께 쓰려면 `<html>`에 붙인다. `<body>`에 붙여도 포털은 덮지만 `:root` 값이 body의 다크 선언보다 우선하지는 않는다. `styles.css`의 `dark:` 유틸은 `.dark`를 따른다.
   - `tokens.css`는 소비자 variant를 강제하지 않으므로 `@custom-variant dark`를 포함하지 않는다. 소비자 Tailwind의 `dark:`는 기본적으로 `prefers-color-scheme`을 따르며, `.dark`로 바꾸려면 자기 CSS에 `@custom-variant dark (&:where(.dark, .dark *));`를 넣는다.
-  - 주의: 지금 컴포넌트는 아직 옛 이름(`--color-primary-500`, `--color-text-primary`, `--color-bg-card` 등)을 쓴다. 현재 컴포넌트 색을 바꾸려면 그 이름을 덮는다. 옛 이름은 컴포넌트를 새 토큰으로 옮긴 뒤 제거되는 임시 별칭이다.
 - **인스턴스별 스타일 = `className` prop** (이 컴포넌트 하나만 폭·여백·배경 다르게). 많은 컴포넌트가 className을 받아 tailwind-merge로 병합. 오버레이(Modal·Drawer·ActionToast·Popover)는 className이 백드롭이 아니라 **시트/카드**에 병합된다.
 - floating·고정좌표 컴포넌트(Tooltip·DatePicker 등)는 className 미개방(위치 깨짐 방지) — 색은 토큰 오버라이드로 바꾼다.
 

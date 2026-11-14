@@ -76,13 +76,13 @@ export function PaginationFooter({
         좁은 footer(< 640px/pagebar)에선 키보드 가이드와 점프 입력이 좌측 줄(상단)에 함께 표시되고,
         넓을 땐 페이지네이션 좌측(우측 그룹 안)에 표시된다. 두 곳에 동시 렌더하고 CSS variant로 한쪽만 노출.
       */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-fg-muted">
         {showTotalCount && totalElements !== undefined && (
           <span>총 {totalElements.toLocaleString()}건</span>
         )}
         {onPageSizeChange && pageSize !== undefined && (
           <div className="flex items-center gap-1">
-            <span className="text-neutral-500">페이지당</span>
+            <span className="text-fg-muted">페이지당</span>
             <div className="w-20">
               <Select
                 variant="box"

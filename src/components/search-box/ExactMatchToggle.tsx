@@ -1,5 +1,7 @@
 import { Check } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface Props {
   value: boolean;
   onChange: (next: boolean) => void;
@@ -27,15 +29,15 @@ export function ExactMatchToggle({ value, onChange, size }: Props) {
         className="peer sr-only"
       />
       <Check
-        className={`${iconSize} stroke-3 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-primary-500 peer-focus-visible:outline-offset-1 ${
-          value ? "text-primary-500" : "text-icon-tertiary"
-        }`}
+        className={cn(
+          iconSize,
+          "stroke-3 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-focus-primary peer-focus-visible:outline-offset-1",
+          value ? "text-primary-fg" : "text-icon-tertiary",
+        )}
         aria-hidden="true"
       />
       <span
-        className={`${labelText} font-medium transition-colors ${
-          value ? "text-primary-500" : "text-text-tertiary"
-        }`}
+        className={cn(labelText, "font-medium transition-colors", value ? "text-primary-fg" : "text-fg-subtle")}
       >
         완전일치
       </span>

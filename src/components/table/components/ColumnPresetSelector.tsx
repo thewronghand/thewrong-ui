@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 
 import { useIsMobile } from "@/hooks";
 import type { PresetNumber } from "@/lib/column-preset-storage";
+import { cn } from "@/lib/utils";
 import { Modal } from "@/components/modal";
 
 import type { TableColumn, TableColumnGroupMeta } from "../types";
@@ -194,9 +195,9 @@ export function ColumnPresetSelector<T>({
   );
 
   return (
-    <div className={`inline-flex ${className}`}>
+    <div className={cn("inline-flex", className)}>
       <div
-        className="inline-flex h-7.5 items-center gap-0 rounded-full bg-bg-base-secondary p-0.75 sm:h-8.5"
+        className="inline-flex h-7.5 items-center gap-0 rounded-full bg-bg-subtle p-0.75 sm:h-8.5"
         role="group"
         aria-label="컬럼 프리셋 선택"
       >
@@ -212,7 +213,7 @@ export function ColumnPresetSelector<T>({
                   ? "저장하지 않은 변경이 있어요"
                   : "테이블 프리셋 설정",
                 className:
-                  "relative ml-1 flex h-6 w-6 items-center justify-center rounded-full text-text-secondary transition-colors hover:text-text-primary sm:h-7 sm:w-7",
+                  "relative ml-1 flex h-6 w-6 items-center justify-center rounded-full text-icon-secondary transition-colors hover:text-icon-primary sm:h-7 sm:w-7",
               }
             : getReferenceProps({
                 type: "button",
@@ -221,14 +222,14 @@ export function ColumnPresetSelector<T>({
                   ? "저장하지 않은 변경이 있어요"
                   : "테이블 프리셋 설정",
                 className:
-                  "relative ml-1 flex h-6 w-6 items-center justify-center rounded-full text-text-secondary transition-colors hover:text-text-primary sm:h-7 sm:w-7",
+                  "relative ml-1 flex h-6 w-6 items-center justify-center rounded-full text-icon-secondary transition-colors hover:text-icon-primary sm:h-7 sm:w-7",
               }))}
         >
           <Settings className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           {isDirty && (
             <span
               aria-hidden="true"
-              className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-brand-blue-secondary"
+              className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-error"
             />
           )}
         </button>
@@ -236,7 +237,7 @@ export function ColumnPresetSelector<T>({
         {/* 디바이더 */}
         <span
           aria-hidden="true"
-          className="ml-0.5 mr-1.5 h-4 w-px bg-bg-base-tertiary sm:h-4.5"
+          className="ml-0.5 mr-1.5 h-4 w-px bg-border-subtle sm:h-4.5"
         />
 
         {/* 프리셋 1·2·3 */}
@@ -255,14 +256,15 @@ export function ColumnPresetSelector<T>({
                     ? `프리셋 ${num} 적용`
                     : `프리셋 ${num} 기본값으로 초기화`
               }
-              className={`relative inline-flex h-6 w-8 items-center justify-center rounded-full px-2.5 py-1 text-sm font-medium transition-colors sm:h-7 sm:w-20 ${
-                isActive ? "text-text-primary" : "text-text-secondary"
-              }`}
+              className={cn(
+                "relative inline-flex h-6 w-8 items-center justify-center rounded-full px-2.5 py-1 text-sm font-medium transition-colors sm:h-7 sm:w-20",
+                isActive ? "text-fg-default" : "text-fg-muted",
+              )}
             >
               {isActive && (
                 <motion.span
                   layoutId={`preset-active-${indicatorId}`}
-                  className="absolute inset-0 rounded-full bg-white shadow-sm dark:bg-bg-base-tertiary"
+                  className="absolute inset-0 rounded-full bg-bg-surface shadow-control"
                   transition={{ type: "spring", stiffness: 500, damping: 38 }}
                 />
               )}
@@ -282,7 +284,7 @@ export function ColumnPresetSelector<T>({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-50 overflow-hidden rounded-lg border-2 border-neutral-200 shadow-lg dark:border-neutral-700"
+            className="z-floating overflow-hidden rounded-surface border-2 border-border-subtle shadow-overlay"
           >
             <ColumnSettingsTable
               num={String(activePreset)}

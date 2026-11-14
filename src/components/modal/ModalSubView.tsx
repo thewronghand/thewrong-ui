@@ -4,6 +4,7 @@ import { useContext, useEffect, useId, useState, type ReactNode } from "react";
 
 import { useFocusTrap } from "@/hooks";
 import { overlayStack } from "@/lib/overlay-stack";
+import { cn } from "@/lib/utils";
 import { ModalFocusTrapContext } from "./ModalFocusTrapContext";
 
 export interface ModalSubViewProps {
@@ -119,17 +120,17 @@ export function ModalSubView({
   }, [enabled, onBack, overlayId, isTopSubView]);
 
   const header = (
-    <div className="flex items-center gap-2 border-b border-border-tertiary px-4 py-3 dark:border-neutral-700">
+    <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
       <button
         type="button"
         onClick={onBack}
-        className="rounded p-1 text-text-tertiary transition-colors hover:bg-bg-base-secondary hover:text-text-secondary dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-200"
+        className="rounded-control-medium p-1 text-fg-muted transition-colors hover:bg-bg-subtle hover:text-fg-default"
         aria-label="뒤로 가기"
       >
         <ArrowLeft className="h-4 w-4" />
       </button>
       {title && (
-        <div className="flex-1 text-sm font-semibold text-text-primary dark:text-white">
+        <div className="flex-1 text-sm font-semibold text-fg-default">
           {title}
         </div>
       )}
@@ -144,9 +145,10 @@ export function ModalSubView({
       // transform-[translateZ(0)] — 부모 Modal의 중앙정렬 translate transform 레이어 안에서
       // 그려지므로 본 Modal 바디와 같은 Chrome 합성 페인트 버그(긴 스크롤 콘텐츠 리렌더 시 백지)에
       // 노출된다. transform-gpu 유틸 대신 임의값을 쓰는 이유는 Modal.tsx 바디 주석 참고(v4 폴백 회피).
-      className={`transform-[translateZ(0)] flex-1 overflow-y-auto overflow-x-hidden${
-        bodyPadded ? " mx-1 sm:mx-4" : ""
-      }`}
+      className={cn(
+        "transform-[translateZ(0)] flex-1 overflow-y-auto overflow-x-hidden",
+        bodyPadded && "mx-1 sm:mx-4",
+      )}
     >
       {contentPadded ? (
         <div className="px-2 py-3 sm:px-4 sm:py-5">{children}</div>
@@ -169,6 +171,8 @@ export function ModalSubView({
               exit={{ opacity: 0 }}
               transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
               onClick={onBack}
+              // 시트 내부 로컬 백드롭 — 전역 bg-overlay(다크 60%)보다 약한 모드 불변 40%.
+              // 이미 스크림 위에 뜬 시트를 한 번 더 덮으므로 독자 축으로 둔다(avocado와 동일).
               className="absolute inset-0 bg-black/40"
             />
             <motion.div
@@ -189,7 +193,7 @@ export function ModalSubView({
                   ? { duration: 0 }
                   : { type: "spring", damping: 30, stiffness: 320 }
               }
-              className="absolute right-0 top-0 bottom-0 flex w-[85%] max-w-md flex-col bg-bg-white shadow-xl outline-none dark:bg-neutral-800"
+              className="absolute right-0 top-0 bottom-0 flex w-[85%] max-w-md flex-col bg-bg-surface shadow-overlay outline-none"
             >
               {header}
               {body}
@@ -213,7 +217,7 @@ export function ModalSubView({
             duration: prefersReducedMotion ? 0 : 0.25,
             ease: "easeOut",
           }}
-          className="absolute inset-0 z-10 flex flex-col bg-bg-white outline-none dark:bg-neutral-800"
+          className="absolute inset-0 z-10 flex flex-col bg-bg-surface outline-none"
         >
           {header}
           {body}

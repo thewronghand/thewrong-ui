@@ -22,11 +22,11 @@ export function getCheckboxCircleClasses(
 ): string {
   const colorClasses = {
     primary:
-      "border-neutral-300 peer-checked:bg-primary-500 peer-checked:border-primary-500 text-white",
+      "border-border-default peer-checked:bg-primary peer-checked:border-primary text-fg-inverse",
     secondary:
-      "border-neutral-300 peer-checked:bg-secondary-500 peer-checked:border-secondary-500 text-white",
+      "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
     neutral:
-      "border-neutral-300 peer-checked:bg-neutral-600 peer-checked:border-neutral-600 text-white",
+      "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
   };
 
   return `${getCheckboxInputBaseClasses()} rounded-full border-2 ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;
@@ -40,14 +40,14 @@ export function getCheckboxLineClasses(
 ): string {
   const colorClasses = {
     primary:
-      "border-neutral-300 peer-checked:bg-primary-500 peer-checked:border-primary-500 text-white",
+      "border-border-default peer-checked:bg-primary peer-checked:border-primary text-fg-inverse",
     secondary:
-      "border-neutral-300 peer-checked:bg-secondary-500 peer-checked:border-secondary-500 text-white",
+      "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
     neutral:
-      "border-neutral-300 peer-checked:bg-neutral-600 peer-checked:border-neutral-600 text-white",
+      "border-border-default peer-checked:bg-neutral-fill peer-checked:border-neutral-fill text-fg-inverse",
   };
 
-  return `${getCheckboxInputBaseClasses()} rounded-sm border-2 ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;
+  return `${getCheckboxInputBaseClasses()} rounded-checkbox border-2 ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;
 }
 
 /**
@@ -58,14 +58,14 @@ export function getCheckboxLineTransparentClasses(
 ): string {
   const colorClasses = {
     primary:
-      "border-neutral-200 peer-checked:border-primary-500 text-primary-500",
+      "border-border-subtle peer-checked:border-primary text-primary-fg",
     secondary:
-      "border-neutral-200 peer-checked:border-secondary-500 text-secondary-500",
+      "border-border-subtle peer-checked:border-neutral-fill text-neutral-fg",
     neutral:
-      "border-neutral-200 peer-checked:border-neutral-600 text-neutral-600",
+      "border-border-subtle peer-checked:border-neutral-fill text-neutral-fg",
   };
 
-  return `${getCheckboxInputBaseClasses()} rounded-sm border-2 bg-transparent ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;
+  return `${getCheckboxInputBaseClasses()} rounded-checkbox border-2 bg-transparent ${colorClasses[baseColor]} relative flex items-center justify-center transition-all duration-200`;
 }
 
 /**

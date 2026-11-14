@@ -41,7 +41,7 @@ export const Default: Story = {
           {open ? "접기" : "펼치기"}
         </Button>
         <Collapsible open={open} className="mt-3">
-          <div className="rounded-xl border border-border-tertiary bg-bg-card p-4 text-sm text-text-primary">
+          <div className="rounded-xl border border-border-faint bg-bg-surface p-4 text-sm text-fg-default">
             grid-template-rows 0fr ↔ 1fr 트릭으로 JS 측정 없이 height auto를
             부드럽게 펼치고 접습니다. 여러 줄의 콘텐츠도 문제없이 동작해요.
           </div>
@@ -67,17 +67,17 @@ export const FAQ: Story = {
         {items.map((item, i) => {
           const open = openId === i;
           return (
-            <div key={i} className="overflow-hidden rounded-xl border border-border-tertiary">
+            <div key={i} className="overflow-hidden rounded-xl border border-border-faint">
               <button
                 type="button"
                 onClick={() => setOpenId(open ? null : i)}
-                className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-text-primary"
+                className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-fg-default"
               >
                 {item.q}
-                <span className={`text-text-tertiary transition-transform ${open ? "rotate-180" : ""}`}>⌄</span>
+                <span className={`text-fg-subtle transition-transform ${open ? "rotate-180" : ""}`}>⌄</span>
               </button>
               <Collapsible open={open}>
-                <div className="px-4 pb-3 text-sm text-text-secondary">{item.a}</div>
+                <div className="px-4 pb-3 text-sm text-fg-muted">{item.a}</div>
               </Collapsible>
             </div>
           );
@@ -98,12 +98,12 @@ export const 고급옵션: Story = {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-sm text-primary-600"
+          className="text-sm text-primary"
         >
           {open ? "− 고급 옵션 숨기기" : "+ 고급 옵션"}
         </button>
         <Collapsible open={open} className="mt-2">
-          <div className="flex flex-col gap-2 rounded-xl border border-border-tertiary bg-bg-card p-4 text-sm text-text-secondary">
+          <div className="flex flex-col gap-2 rounded-xl border border-border-faint bg-bg-surface p-4 text-sm text-fg-muted">
             <label className="flex items-center gap-2">
               <input type="checkbox" /> 영업일만 정산
             </label>

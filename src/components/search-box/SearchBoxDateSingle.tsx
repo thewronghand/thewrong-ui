@@ -2,6 +2,7 @@ import { useContext, useMemo } from "react";
 
 import { Button } from "@/components/button";
 import { DateInput } from "@/components/date-input";
+import { cn } from "@/lib/utils";
 
 import { SearchBoxSheetContext } from "./SearchBoxSheetContext";
 import type { DateSinglePreset } from "./types";
@@ -42,6 +43,7 @@ export function SearchBoxDateSingle({
         value={value}
         onChange={onChange}
         size={size}
+        className={size === "mini" ? "h-8 rounded-control-mini" : "h-10 rounded-control-small"}
         ariaLabel={ariaLabel}
         disableMobileSheet={inSearchBoxSheet}
       />
@@ -56,13 +58,10 @@ export function SearchBoxDateSingle({
                 appearance={isActive ? "filled" : "outlined"}
                 size={size}
                 onClick={() => onChange(date)}
-                className={`whitespace-nowrap ${
-                  size === "small" ? "h-10" : ""
-                } ${
-                  isActive
-                    ? ""
-                    : "border-border-tertiary! dark:border-border-secondary!"
-                }`}
+                className={cn(
+                  "whitespace-nowrap",
+                  size === "mini" ? "h-8" : "h-10",
+                )}
               >
                 {preset.label}
               </Button>

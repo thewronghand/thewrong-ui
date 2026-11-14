@@ -42,6 +42,7 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 (`--color-bg-surface` → `bg-bg-surface`, `--radius-control-medium` → `rounded-control-medium`).
 주요 토큰 이름과 스와치는 **시작하기/토큰** 페이지에서 볼 수 있습니다.
 아래 예시는 별도 오버라이드 CSS에 두고 항상 `styles.css` 뒤에 로드하며, 다크 값은 `.dark` 블록에 따로 적습니다.
+그림자 유틸은 `--shadow-control-src` 같은 `--shadow-*-src` 변수를 덮어 조절합니다.
 
 ```css
 :root {
@@ -58,9 +59,8 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 `styles.css`의 `dark:` 유틸도 `.dark`를 따르며 OS 설정(`prefers-color-scheme`)은 따르지 않습니다.
 
 자기 앱의 Tailwind(v4)에서도 같은 토큰 유틸을 쓰려면 토큰 소스를 import합니다.
-컴포넌트 토큰 치환(3단계) 전에는 `tokens.css`를 컴파일한 소비자 CSS → `styles.css` → 별도 사용자
-오버라이드 CSS 순으로 로드합니다. 소비자 CSS가 뒤에 오면 겹치는 변수와 `color-scheme`이 현재 컴포넌트 색과
-네이티브 컨트롤을 바꾸기 때문입니다. 토큰 유틸을 사용하지 않는다면 `styles.css`와 별도 오버라이드 CSS만 이 순서로 로드해도 됩니다.
+`tokens.css`를 컴파일한 소비자 CSS와 `styles.css`를 함께 쓸 수 있습니다. 별도 사용자 오버라이드 CSS는
+두 CSS를 모두 로드한 뒤에 둡니다.
 
 ```css
 @import "tailwindcss";
@@ -70,9 +70,6 @@ import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 
 `tokens.css`는 소비자의 variant를 강제하지 않으므로 `@custom-variant dark`를 포함하지 않습니다.
 위 선언이 없으면 소비자 Tailwind의 기본 `dark:`는 `prefers-color-scheme`을 따릅니다.
-
-> 지금 컴포넌트는 아직 옛 토큰 이름(`--color-primary-500`, `--color-text-primary`, `--color-bg-card` …)을 씁니다.
-> 현재 컴포넌트 색을 바꾸려면 그 이름을 덮어야 합니다. 옛 이름은 컴포넌트를 새 토큰으로 옮긴 뒤 제거되는 임시 별칭입니다.
 
 ### 인스턴스별 스타일 — `className` prop
 

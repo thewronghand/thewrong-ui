@@ -138,7 +138,7 @@ export function Drawer({
               if (!dismissible || !isTop()) return;
               onClose();
             }}
-            className="fixed inset-0 z-50 bg-black/50"
+            className="fixed inset-0 z-overlay bg-bg-overlay"
           />
         )}
       </AnimatePresence>
@@ -183,7 +183,7 @@ export function Drawer({
             // 모바일 바텀시트 하단 틈 방지: 시트를 화면 바닥보다 32px 아래에서 시작(-bottom-8)하고
             // 같은 양만큼 하단 패딩(pb-8)을 줘 오버슈트/드래그 시에도 바닥 틈을 메운다. (Modal과 동일)
             className={cn(
-              "fixed z-50 flex flex-col overflow-x-hidden bg-bg-white outline-none dark:bg-neutral-800 -bottom-8 left-0 right-0 max-h-[88vh] w-full rounded-t-2xl pb-8 sm:bottom-0 sm:left-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-auto sm:rounded-none sm:pb-0",
+              "fixed z-overlay flex flex-col overflow-x-hidden bg-bg-surface outline-none -bottom-8 left-0 right-0 max-h-[88vh] w-full rounded-t-sheet pb-8 sm:bottom-0 sm:left-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-auto sm:rounded-none sm:pb-0",
               className,
             )}
             style={!isMobile ? desktopStyle : undefined}
@@ -197,14 +197,14 @@ export function Drawer({
                 if (dismissible) dragControls.start(e);
               }}
             >
-              <div className="h-1 w-10 rounded-full bg-neutral-300 dark:bg-neutral-600" />
+              <div className="h-1 w-10 rounded-full bg-bg-handle" />
             </div>
 
             {title && (
-              <div className="flex items-center justify-between border-b border-border-tertiary px-4 py-3 dark:border-neutral-700">
+              <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
                 <h3
                   id={titleId}
-                  className="text-base font-semibold text-text-primary sm:text-lg dark:text-white"
+                  className="text-base font-semibold text-fg-default sm:text-lg"
                 >
                   {title}
                 </h3>
@@ -213,7 +213,7 @@ export function Drawer({
                   onClick={onClose}
                   disabled={!dismissible}
                   className={cn(
-                    "rounded p-1 text-text-tertiary hover:text-text-secondary dark:hover:text-neutral-300",
+                    "rounded-control-medium p-1 text-fg-muted hover:text-fg-default",
                     !dismissible && "pointer-events-none opacity-0",
                   )}
                   aria-label="닫기"

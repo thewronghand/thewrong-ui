@@ -1,5 +1,7 @@
 import { useState, type KeyboardEvent } from "react";
 
+import { cn } from "@/lib/utils";
+
 interface PageJumpInputProps {
   currentPage: number;
   totalPages: number;
@@ -64,8 +66,10 @@ export function PageJumpInput({
   const widthClass = maxDigits <= 2 ? "w-12" : maxDigits === 3 ? "w-14" : "w-16";
 
   return (
-    <label className={`flex items-center gap-1 text-sm text-neutral-600 dark:text-neutral-300 ${className}`}>
-      <span className="text-neutral-500">이동</span>
+    <label
+      className={cn("flex items-center gap-1 text-sm text-fg-muted", className)}
+    >
+      <span className="text-fg-muted">이동</span>
       <input
         type="text"
         inputMode="numeric"
@@ -78,9 +82,12 @@ export function PageJumpInput({
         onBlur={commit}
         aria-label={`페이지 번호 입력 (1-${totalPages})`}
         data-testid={testId}
-        className={`${widthClass} rounded border border-neutral-300 bg-white px-2 py-0.5 text-center tabular-nums text-neutral-700 transition-colors hover:border-primary-300 focus:border-primary-500 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-200 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:border-primary-400`}
+        className={cn(
+          widthClass,
+          "rounded-control-mini border border-border-subtle bg-bg-surface px-2 py-0.5 text-center tabular-nums text-fg-default transition-colors hover:border-primary-border focus:border-primary focus:outline-hidden focus-visible:ring-control focus-visible:ring-focus-primary",
+        )}
       />
-      <span className="text-neutral-500 tabular-nums">/ {totalPages.toLocaleString()}</span>
+      <span className="text-fg-muted tabular-nums">/ {totalPages.toLocaleString()}</span>
     </label>
   );
 }

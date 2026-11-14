@@ -25,7 +25,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             onClick={() => setVisible((v) => !v)}
             disabled={disabled}
             aria-label={visible ? "비밀번호 숨기기" : "비밀번호 표시"}
-            className="flex items-center justify-center text-text-tertiary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center justify-center text-fg-subtle transition-colors hover:text-fg-default disabled:cursor-not-allowed disabled:opacity-50"
           >
             {visible ? (
               <EyeOff className="h-4 w-4" strokeWidth={1.5} />

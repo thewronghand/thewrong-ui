@@ -92,6 +92,13 @@ describe("h · w · px · gap · size", () => {
     expect(cn("px-4", "px-control-pad-medium")).toBe("px-control-pad-medium");
   });
 
+  it("왼쪽 control 패딩도 표준 패딩과 충돌한다", () => {
+    expect(cn("pl-control-pad-mini", "pl-4")).toBe("pl-4");
+    expect(cn("pl-4", "pl-control-pad-small")).toBe("pl-control-pad-small");
+    expect(cn("pl-control-pad-small", "px-4")).toBe("px-4");
+    expect(cn("px-4", "pl-control-pad-small")).toBe("px-4 pl-control-pad-small");
+  });
+
   it("gap 커스텀 ↔ 표준 양방향", () => {
     expect(cn("gap-slot-medium", "gap-2")).toBe("gap-2");
     expect(cn("gap-2", "gap-slot-medium")).toBe("gap-slot-medium");
@@ -102,6 +109,15 @@ describe("h · w · px · gap · size", () => {
     expect(cn("size-button-spinner-medium", "size-5")).toBe("size-5");
     expect(cn("size-5", "size-button-icon-small")).toBe(
       "size-button-icon-small",
+    );
+  });
+
+  it("슬롯 자식 아이콘의 같은 변형에서도 나중 크기가 이긴다", () => {
+    expect(cn("[&>svg]:h-slot-icon-mini", "[&>svg]:h-5")).toBe(
+      "[&>svg]:h-5",
+    );
+    expect(cn("[&>svg]:w-5", "[&>svg]:w-slot-icon-mini")).toBe(
+      "[&>svg]:w-slot-icon-mini",
     );
   });
 });
@@ -133,6 +149,19 @@ describe("border · ring 폭 역할 — 색 역할과 함께 남는다", () => {
       "ring-control ring-focus-primary",
     );
     expect(cn("ring-control", "ring-2")).toBe("ring-2");
+    expect(
+      cn("focus-visible:ring-button", "focus-visible:ring-focus-primary"),
+    ).toBe("focus-visible:ring-button focus-visible:ring-focus-primary");
+    expect(cn("focus-visible:ring-button", "focus-visible:ring-4")).toBe(
+      "focus-visible:ring-4",
+    );
+    expect(cn("border-button", "border-error")).toBe(
+      "border-button border-error",
+    );
+    expect(cn("border-error", "border-button")).toBe(
+      "border-error border-button",
+    );
+    expect(cn("border-button", "border-2")).toBe("border-2");
   });
 });
 
@@ -143,6 +172,15 @@ describe("모션 · opacity · font-size · shadow · z", () => {
     expect(cn("opacity-button-loading-label", "opacity-100")).toBe(
       "opacity-100",
     );
+    expect(cn("animate-button-spinner", "animate-pulse")).toBe("animate-pulse");
+    expect(cn("animate-pulse", "animate-button-spinner")).toBe(
+      "animate-button-spinner",
+    );
+  });
+
+  it("버튼 폰트 역할은 다른 폰트 계열과 충돌한다", () => {
+    expect(cn("font-control-action", "font-sans")).toBe("font-sans");
+    expect(cn("font-sans", "font-control-action")).toBe("font-control-action");
   });
 
   it("font-size 커스텀 ↔ 표준 양방향", () => {

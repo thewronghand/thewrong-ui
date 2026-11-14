@@ -53,8 +53,8 @@ export function TablePageLayout({ children }: TablePageLayoutProps) {
 // 모바일(sm 미만): 폰트/패딩 축소, 제목 길면 truncate로 우측 액션 자리 보존.
 export function PageHeader({ title, children }: PageHeaderProps) {
   return (
-    <div className="flex items-center justify-between gap-2 border-b border-neutral-200 px-4 py-2 dark:border-neutral-700 sm:px-6 sm:py-3">
-      <h1 className="min-w-0 truncate text-base font-semibold text-neutral-900 dark:text-white sm:text-lg">
+    <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-2 sm:px-6 sm:py-3">
+      <h1 className="min-w-0 truncate text-base font-semibold text-fg-default sm:text-lg">
         {title}
       </h1>
       {children ? <div className="flex shrink-0 items-center gap-2">{children}</div> : null}
@@ -67,7 +67,7 @@ export function PageHeader({ title, children }: PageHeaderProps) {
 // 모든 자식이 동일 여백을 공유하도록.
 export function TableCard({ children }: TableCardProps) {
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg bg-white p-4 gap-2 md:p-5 md:gap-4 xl:p-6 xl:gap-4 dark:bg-neutral-800 [&>*:last-child]:min-h-0 [&>*:last-child]:flex-1">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg bg-bg-surface p-4 gap-2 md:p-5 md:gap-4 xl:p-6 xl:gap-4 [&>*:last-child]:min-h-0 [&>*:last-child]:flex-1">
       {children}
     </div>
   );

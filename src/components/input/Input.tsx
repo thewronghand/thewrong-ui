@@ -7,6 +7,7 @@ import {
   SLOT_GAP_CLASS,
   SLOT_ICON_SIZE_CLASS,
 } from "@/components/_shared/form-size-tokens";
+import { cn } from "@/lib/utils";
 
 import type { InputProps } from "./types";
 import {
@@ -169,14 +170,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div
         className={
           isBox
-            ? `${variantClasses} flex items-center ${slotGap} ${className}`
-                .trim()
-                .replace(/\s+/g, " ")
+            ? cn(variantClasses, "flex items-center", slotGap, className)
             : "relative flex items-center text-sm"
         }
       >
         {prefix && (
-          <span className={`whitespace-nowrap text-sm ${trailingIconColor}`}>
+          <span className={cn("whitespace-nowrap text-sm", trailingIconColor)}>
             {prefix}
           </span>
         )}
@@ -186,13 +185,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           className={
             isBox
               ? inputClasses
-              : `${inputClasses} ${variantClasses} ${
-                  hasError
-                    ? "border-error-500 focus:border-error-500 focus:ring-error-500"
-                    : ""
-                } ${disabled ? "opacity-50" : ""} ${className}`
-                  .trim()
-                  .replace(/\s+/g, " ")
+              : cn(
+                  inputClasses,
+                  variantClasses,
+                  hasError && "border-border-danger focus:border-border-danger focus:ring-focus-danger",
+                  disabled && "opacity-50",
+                  className,
+                )
           }
           value={displayValue}
           onChange={handleChange}
@@ -202,13 +201,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           placeholder={placeholder}
         />
         {suffix && (
-          <span className={`whitespace-nowrap text-sm ${trailingIconColor}`}>
+          <span className={cn("whitespace-nowrap text-sm", trailingIconColor)}>
             {suffix}
           </span>
         )}
         {trailingIcon && (
           <span
-            className={`flex shrink-0 items-center ${trailingIconColor} ${slotIconSize}`}
+            className={cn("flex shrink-0 items-center", trailingIconColor, slotIconSize)}
           >
             {trailingIcon}
           </span>
@@ -219,7 +218,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             onClick={handleClear}
             aria-label="입력 지우기"
             // focus-visible로 키보드 사용자에게만 ring을 보여 마우스 클릭 후 잔상 ring을 피한다.
-            className={`flex shrink-0 cursor-pointer items-center rounded ${trailingIconColor} hover:text-text-primary focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500/40`}
+            className={cn(
+              "flex shrink-0 cursor-pointer items-center rounded",
+              trailingIconColor,
+              "hover:text-fg-default focus:outline-hidden focus-visible:ring-input-clear focus-visible:ring-input-clear-ring",
+            )}
           >
             <CircleX
               className={builtinIconSize}
@@ -230,7 +233,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         {badge && (
           <span
-            className={`flex shrink-0 items-center ${slotIconSize} ${slotBadgeText}`}
+            className={cn("flex shrink-0 items-center", slotIconSize, slotBadgeText)}
           >
             {badge}
           </span>

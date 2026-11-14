@@ -43,18 +43,18 @@ export const AllVariants: Story = {
       <div className="flex items-center gap-8">
         <div className="flex flex-col items-center gap-2">
           <CheckboxCircle checked={checked} onCheckedChange={setChecked} />
-          <span className="text-xs text-text-secondary">Circle</span>
+          <span className="text-xs text-fg-muted">Circle</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <CheckboxLine checked={checked} onCheckedChange={setChecked} />
-          <span className="text-xs text-text-secondary">Line</span>
+          <span className="text-xs text-fg-muted">Line</span>
         </div>
         <div className="flex flex-col items-center gap-2">
           <CheckboxLineTransparent
             checked={checked}
             onCheckedChange={setChecked}
           />
-          <span className="text-xs text-text-secondary">LineTransparent</span>
+          <span className="text-xs text-fg-muted">LineTransparent</span>
         </div>
       </div>
     );
