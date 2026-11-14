@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { inputFormats } from "./format";
-import { applyInputFormat } from "./use-input-format";
+import { applyInputFormat, getFormattedCursorPosition } from "./use-input-format";
 
 describe("입력 포맷", () => {
   it("전화번호와 금액의 표시 및 원본 값을 계산한다", () => {
@@ -31,5 +31,27 @@ describe("입력 포맷", () => {
       display: "insertText:abc",
       raw: "insertText:abc",
     });
+  });
+});
+
+describe("포맷 입력의 커서 위치", () => {
+  it("1,000의 첫 숫자 뒤에 2를 입력하면 12,000의 2 뒤에 남는다", () => {
+    expect(getFormattedCursorPosition("12,000", "12,000", 2)).toBe(2);
+  });
+  it("끝에 입력하면 포맷이 바뀌어도 끝에 남는다", () => {
+    expect(getFormattedCursorPosition("1,0002", "10,002", 6)).toBe(6);
+  });
+  it("쉼표 바로 뒤에서 지우면 다시 삽입된 쉼표 앞에 남는다", () => {
+    expect(getFormattedCursorPosition("1000", "1,000", 1)).toBe(1);
+  });
+  it("전체 선택 후 입력하면 새 값의 끝에 남는다", () => {
+    expect(getFormattedCursorPosition("2", "2", 1)).toBe(1);
+  });
+  it("커서 앞에 쉼표가 삽입되면 숫자 개수를 보존한다", () => {
+    expect(getFormattedCursorPosition("1234", "1,234", 2)).toBe(3);
+    expect(getFormattedCursorPosition("1234", "1,234", 3)).toBe(4);
+  });
+  it("숫자가 없는 사용자 정의 포맷은 가능한 한 기존 위치를 유지한다", () => {
+    expect(getFormattedCursorPosition("abcd", "ABC", 2)).toBe(2);
   });
 });

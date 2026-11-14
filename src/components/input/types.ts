@@ -98,7 +98,7 @@ export interface InputCommonProps {
   trailingIcon?: ReactNode;
   /**
    * 값이 있을 때 우측에 X 버튼(CircleX)을 노출. 클릭 시 onChange로 빈 값을 emit.
-   * disabled에서는 노출하지 않는다. trailingIcon 다음, badge 앞에 위치.
+   * disabled 또는 readOnly에서는 노출하지 않는다. trailingIcon 다음, badge 앞에 위치.
    * @default false
    */
   clearable?: boolean;

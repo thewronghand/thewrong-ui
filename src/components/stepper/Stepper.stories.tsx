@@ -1,6 +1,5 @@
-/* eslint-disable no-restricted-imports -- 이관 지시에 따라 @/ 별칭 대신 상대 경로를 사용한다. */
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "../button";
+import { Button } from "@/components/button";
 import { Stepper, StepperContent } from "./Stepper";
 import { useStepper } from "./use-stepper";
 

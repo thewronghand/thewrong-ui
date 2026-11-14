@@ -1,10 +1,9 @@
-/* eslint-disable no-restricted-imports -- 이관 지시에 따라 @/ 별칭 대신 상대 경로를 사용한다. */
 import { Check, Copy } from "lucide-react";
-import { toast } from "../toast";
+import { toast } from "@/components/toast";
 import { useEffect, useRef, useState } from "react";
 
-import { cn } from "../../lib/utils";
-import { Button } from "../button";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/button";
 
 export interface CopyableTextProps {
   /** 클립보드에 복사할 실제 값. */

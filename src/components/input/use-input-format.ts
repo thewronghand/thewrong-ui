@@ -13,6 +13,32 @@ export function applyInputFormat(
   return { display, raw };
 }
 
+/** 포맷 변경 전 커서 앞의 숫자 개수를 포맷된 값에서도 유지한다. */
+export function getFormattedCursorPosition(
+  typedValue: string,
+  formattedValue: string,
+  position: number,
+): number {
+  if (typedValue === formattedValue) {
+    return Math.min(position, formattedValue.length);
+  }
+  if (position >= typedValue.length) return formattedValue.length;
+
+  if (!/\d/.test(typedValue) && !/\d/.test(formattedValue)) {
+    return Math.min(position, formattedValue.length);
+  }
+  const digitsBefore = (typedValue.slice(0, position).match(/\d/g) ?? []).length;
+  if (digitsBefore === 0) return 0;
+
+  let digitsSeen = 0;
+  for (let index = 0; index < formattedValue.length; index++) {
+    if (/\d/.test(formattedValue[index]) && ++digitsSeen === digitsBefore) {
+      return index + 1;
+    }
+  }
+  return formattedValue.length;
+}
+
 /** 이벤트의 실제 input 속성을 보존하면서 네이티브 값을 바꾼다. */
 function setNativeValue(node: HTMLInputElement, value: string): void {
   const desc = Object.getOwnPropertyDescriptor(
@@ -33,7 +59,7 @@ function setNativeValue(node: HTMLInputElement, value: string): void {
  * format 적용 시 `e.target.value`를 네이티브 setter로 변경한 뒤 원본 이벤트를 전달.
  * 이렇게 하면 `e.target`이 실제 DOM 엘리먼트라 `name`·`type` 등 모든 속성이 보존된다.
  * `{ ...e.target, value }` 스프레드는 prototype 속성을 복사하지 않으므로 사용하지 않는다.
- * 원본 값은 onChange 호출 중 읽어야 하며, React가 렌더한 뒤에는 표시 값으로 돌아간다.
+ * 원본 값은 onChange 호출 중 읽어야 하며, 호출 직후에는 표시 값으로 돌아간다.
  *
  * @returns displayValue — 화면에 표시할 포맷팅된 값
  * @returns handleChange — onChange 핸들러 (format 적용 후 부모 onChange 호출)
@@ -57,8 +83,11 @@ export function useInputFormat({
     const initial = value ?? defaultValue ?? "";
     return format ? format.transform(initial).toString() : initial.toString();
   });
+  const [compositionValue, setCompositionValue] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const isComposing = useRef(false);
+  const compositionChanged = useRef(false);
 
   const isControlled = value !== undefined;
   const rawValue = isControlled ? value.toString() : uncontrolledValue;
@@ -67,13 +96,23 @@ export function useInputFormat({
    * controlled 모드에서는 매 렌더마다 derive — 부모가 거부한 입력은 다시 표시되지 않는다.
    */
   const displayValue = format
-    ? format.transform(rawValue).toString()
+    ? compositionValue ?? format.transform(rawValue).toString()
     : rawValue;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) return;
     const typedValue = e.target.value;
     if (format) {
+      const nativeEvent = e.nativeEvent as Event & { isComposing?: boolean };
+      if (isComposing.current || nativeEvent.isComposing) {
+        compositionChanged.current = true;
+        setCompositionValue(typedValue);
+        if (!isControlled) setUncontrolledValue(typedValue);
+        onChange?.(e);
+        return;
+      }
+      const node = e.target;
+      const { selectionStart, selectionEnd, selectionDirection } = node;
       const nativeInputType = (e.nativeEvent as Event & { inputType?: unknown })
         .inputType;
       const inputType =
@@ -87,12 +126,72 @@ export function useInputFormat({
       // 네이티브 setter로 실제 DOM value를 rawForParent로 설정한 뒤
       // 원본 이벤트를 그대로 전달 — e.target이 실제 DOM 엘리먼트이므로
       // name, type 등 모든 프로퍼티가 보존된다 (RHF register 호환).
-      setNativeValue(e.target, rawForParent);
-      onChange?.(e);
+      setNativeValue(node, rawForParent);
+      try {
+        onChange?.(e);
+      } finally {
+        // 호출이 끝나면 입력 직후의 DOM 값과 선택 영역을 먼저 복원한다.
+        // 일반 setter를 써 React의 값 추적도 실제 표시 값과 동기화한다.
+        node.value = typedValue;
+        if (selectionStart !== null && selectionEnd !== null) {
+          node.setSelectionRange(
+            selectionStart,
+            selectionEnd,
+            selectionDirection ?? undefined,
+          );
+        }
+        if (sanitized !== typedValue) {
+          node.value = sanitized;
+          if (selectionStart !== null && selectionEnd !== null) {
+            node.setSelectionRange(
+              getFormattedCursorPosition(typedValue, sanitized, selectionStart),
+              getFormattedCursorPosition(typedValue, sanitized, selectionEnd),
+              selectionDirection ?? undefined,
+            );
+          }
+        }
+      }
     } else {
       if (!isControlled) setUncontrolledValue(typedValue);
       onChange?.(e);
     }
+  };
+
+  const handleCompositionStart = (
+    e: React.CompositionEvent<HTMLInputElement>,
+  ) => {
+    if (!format) return;
+    isComposing.current = true;
+    compositionChanged.current = false;
+    setCompositionValue(e.currentTarget.value);
+  };
+
+  const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
+    isComposing.current = false;
+    setCompositionValue(null);
+    if (!format || !compositionChanged.current) {
+      compositionChanged.current = false;
+      return;
+    }
+    compositionChanged.current = false;
+
+    // 조합 중에는 원본 입력을 그대로 전달하고, 확정 후 포맷된 원본 값을 한 번 더 알린다.
+    // React의 값 추적이 조합 중 마지막 값과 같을 수 있어 input 이벤트를 다시 감지하게 한다.
+    const node = e.currentTarget;
+    const typedValue = node.value;
+    const { selectionStart, selectionEnd, selectionDirection } = node;
+    node.value = typedValue === "" ? "0" : "";
+    setNativeValue(node, typedValue);
+    if (selectionStart !== null && selectionEnd !== null) {
+      node.setSelectionRange(
+        selectionStart,
+        selectionEnd,
+        selectionDirection ?? undefined,
+      );
+    }
+    node.dispatchEvent(
+      new InputEvent("input", { bubbles: true, inputType: "insertCompositionText" }),
+    );
   };
 
   // react-hook-form `register` 사용 시 register가 반환하는 ref가 restProps에 섞여 들어옴.
@@ -130,5 +229,12 @@ export function useInputFormat({
     node.focus();
   };
 
-  return { displayValue, handleChange, setMergedInputRef, handleClear };
+  return {
+    displayValue,
+    handleChange,
+    handleCompositionStart,
+    handleCompositionEnd,
+    setMergedInputRef,
+    handleClear,
+  };
 }

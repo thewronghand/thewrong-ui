@@ -1,9 +1,8 @@
-/* eslint-disable no-restricted-imports -- 이관 지시에 따라 @/ 별칭 대신 상대 경로를 사용한다. */
 import { Eye, EyeOff } from "lucide-react";
 import { type KeyboardEvent, useRef, useState } from "react";
 
-import { Button } from "../button";
-import { cn } from "../../lib/utils";
+import { Button } from "@/components/button";
+import { cn } from "@/lib/utils";
 import { normalizeCode, pasteCode } from "./code-utils";
 
 export interface SegmentedCodeInputProps {

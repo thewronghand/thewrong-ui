@@ -1,9 +1,8 @@
-/* eslint-disable no-restricted-imports -- 이관 지시에 따라 @/ 별칭 대신 상대 경로를 사용한다. */
 import { AnimatePresence, useReducedMotion, motion } from "motion/react";
 import type { ReactNode } from "react";
 
-import { AnimatedHeight } from "../animated-height";
-import { cn } from "../../lib/utils";
+import { AnimatedHeight } from "@/components/animated-height";
+import { cn } from "@/lib/utils";
 
 export interface StepperStep {
   id: string;

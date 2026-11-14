@@ -1,6 +1,6 @@
 import type { Virtualizer } from "@tanstack/react-virtual";
 import { useMemo, useRef } from "react";
-import { useVirtualRows } from "../../../hooks/useVirtualRows";
+import { useVirtualRows } from "@/hooks/useVirtualRows";
 
 /**
  * 가상화 테이블 훅 옵션

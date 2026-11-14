@@ -49,8 +49,8 @@ export default defineConfig({
   build: {
     lib: {
       // 다중 진입점 — 루트 배럴(.) + 훅 전용 서브패스(./hooks).
-      // 훅 진입점을 분리해 소비자가 useIsMobile 등만 쓸 때 무거운 UI(motion/floating)가
-      // 끌려오지 않게 한다. preserveModules와 함께 컴포넌트별 개별 트리셰이킹도 가능해진다.
+      // 훅 배럴은 useBottomSheetDrag(motion)와 useVirtualRows(@tanstack/react-virtual)를
+      // 포함하므로 두 optional peer의 설치를 권장한다.
       entry: {
         index: resolve(__dirname, "src/index.ts"),
         hooks: resolve(__dirname, "src/hooks/index.ts")
@@ -74,8 +74,8 @@ export default defineConfig({
         /^date-fns($|\/)/
       ],
       output: {
-        // 모듈 구조 보존 — 컴포넌트/훅이 개별 파일로 남아 소비자 번들러가 쓰지 않는 것을
-        // 트리셰이킹할 수 있다. 단일 번들이면 useIsMobile만 import해도 전체가 평가됐다.
+        // 모듈 구조 보존 — 컴포넌트/훅이 개별 파일로 남는다.
+        // 사용하지 않는 모듈의 제거 여부는 소비자 번들러에 따라 달라진다.
         preserveModules: true,
         preserveModulesRoot: "src",
         entryFileNames: "[name].[format].js",

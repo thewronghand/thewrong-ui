@@ -1,9 +1,8 @@
-/* eslint-disable no-restricted-imports -- 이관 지시에 따라 @/ 별칭 대신 상대 경로를 사용한다. */
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Button } from "../components/button";
-import { Modal } from "../components/modal";
-import { Drawer } from "../components/drawer";
+import { Button } from "@/components/button";
+import { Modal } from "@/components/modal";
+import { Drawer } from "@/components/drawer";
 import { useAwaitableOverlay } from "./useAwaitableOverlay";
 
 const meta = {

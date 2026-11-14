@@ -98,6 +98,16 @@ export function useFillEmptyRows({
   const [measuredRowHeight, setMeasuredRowHeight] = useState<number | null>(
     null,
   );
+  // 호출자가 배열을 새로 만들어도 각 항목이 같으면 재측정하지 않는다.
+  const [stableDeps, setStableDeps] = useState(() => [...deps]);
+  if (
+    stableDeps.length !== deps.length ||
+    deps.some(
+      (dependency, index) => !Object.is(dependency, stableDeps[index]),
+    )
+  ) {
+    setStableDeps([...deps]);
+  }
 
   useLayoutEffect(() => {
     if (!enabled) {
@@ -157,8 +167,16 @@ export function useFillEmptyRows({
       ro.disconnect();
       if (frameId !== null) cancelAnimationFrame(frameId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, excludeRowsSelector, remainingMode, observeTbody, ...deps]);
+  }, [
+    enabled,
+    containerRef,
+    theadRef,
+    tbodyRef,
+    excludeRowsSelector,
+    remainingMode,
+    observeTbody,
+    stableDeps,
+  ]);
 
   return { emptyRowCount, measuredRowHeight };
 }

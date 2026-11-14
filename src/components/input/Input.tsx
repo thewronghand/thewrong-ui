@@ -58,7 +58,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
-    const { displayValue, handleChange, setMergedInputRef, handleClear } = useInputFormat({
+    const {
+      displayValue,
+      handleChange,
+      handleCompositionStart,
+      handleCompositionEnd,
+      setMergedInputRef,
+      handleClear,
+    } = useInputFormat({
       value, defaultValue, format, onChange, readOnly: restProps.readOnly,
     });
 
@@ -137,6 +144,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           }
           value={displayValue}
           onChange={handleChange}
+          onCompositionStart={(e) => {
+            handleCompositionStart(e);
+            restProps.onCompositionStart?.(e);
+          }}
+          onCompositionEnd={(e) => {
+            handleCompositionEnd(e);
+            restProps.onCompositionEnd?.(e);
+          }}
           onFocus={handleFocus}
           onBlur={handleBlur}
           disabled={disabled}
