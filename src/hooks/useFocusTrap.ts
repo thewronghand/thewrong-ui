@@ -517,14 +517,23 @@ export function useFocusTrap(
       if (activeLayer?.querySelector(FOCUS_GUARD)) {
         const root = scope?.parent ?? container;
         const layerItems = getTabbableElements(activeLayer, true);
-        // 마지막 트리거 뒤에 다음 필드가 없으면 포털 가드가 포커스를 옮길 곳이 없다.
+        const pickerPanel =
+          active instanceof Element
+            ? active.closest("[data-picker-sheet]")
+            : null;
+        const afterInsideGuard = pickerPanel?.nextElementSibling;
+        // 마지막 피커 트리거 뒤에 다음 필드가 없으면 포털 가드가 포커스를 옮길 곳이 없다.
         if (
           !event.shiftKey &&
           first &&
+          afterInsideGuard instanceof HTMLElement &&
+          afterInsideGuard.matches(FOCUS_GUARD) &&
           active === layerItems[layerItems.length - 1] &&
           getLayerTrigger(root, activeLayer, inScope) === last
         ) {
           event.preventDefault();
+          // 가드 체인의 닫기 처리를 마친 뒤 고리 처음으로 옮긴다.
+          afterInsideGuard.focus({ preventScroll: true });
           first.focus({ preventScroll: true });
         }
         return;

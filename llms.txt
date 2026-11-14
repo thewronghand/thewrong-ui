@@ -18,6 +18,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ```
 
 - 패키지명: `@thewrong/ui` · React `>=18` peerDependency.
+- TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodenext"`의 ESM에서 사용한다. CJS 런타임의 `require`는 지원하며, 타입 사용에는 `nodenext` ESM을 권장한다 (`node16` CJS에서는 TS1471이 발생한다).
 - 진입점: `@thewrong/ui`(컴포넌트 전체) · `@thewrong/ui/hooks`(훅 전용, motion·@tanstack/react-virtual 설치 권장) · `@thewrong/ui/styles.css`(스타일, 한 번만 import) · `@thewrong/ui/tokens.css`(토큰 소스 — 소비자 Tailwind v4에서 `@import`하면 `bg-bg-surface`·`rounded-control-medium`·`z-floating` 등 유틸 생성). 컴파일한 소비자 CSS와 `styles.css`를 함께 사용할 수 있다.
 - 라이브러리는 컴포넌트별 모듈 구조를 보존한다. 미사용 모듈 제거 여부는 소비자 번들러에 따라 달라진다.
 

@@ -16,6 +16,7 @@ import {
   useRef,
   useState,
   type ReactElement,
+  type RefObject,
 } from "react";
 
 import { Button } from "@/components/button";
@@ -54,6 +55,7 @@ function MonthPanel({
   focusedMonth,
   onFocusMonth,
   focusOnMount,
+  initialFocusRef,
   showPrev = true,
   showNext = true,
 }: {
@@ -66,6 +68,7 @@ function MonthPanel({
   focusedMonth: MonthValue;
   onFocusMonth: (value: MonthValue) => void;
   focusOnMount: boolean;
+  initialFocusRef?: RefObject<HTMLButtonElement | null>;
   showPrev?: boolean;
   showNext?: boolean;
 }) {
@@ -73,7 +76,7 @@ function MonthPanel({
   const initialFocus = useRef({ focusedMonth, year });
   const hasMoved = useRef(false);
   useEffect(() => {
-    // 플로팅 패널은 처음에 트리거에 포커스를 남기고, 시트는 기존 초기 포커스를 유지한다.
+    // 플로팅 패널의 초기 포커스는 FocusManager가, 시트는 여기서 처리한다.
     if (!focusOnMount && !hasMoved.current) {
       if (
         initialFocus.current.focusedMonth === focusedMonth &&
@@ -141,6 +144,13 @@ function MonthPanel({
               key={month}
               ref={(node) => {
                 refs.current[month - 1] = node;
+                if (
+                  initialFocusRef &&
+                  focusedMonth.year === year &&
+                  month === focusedMonth.month
+                ) {
+                  initialFocusRef.current = node;
+                }
               }}
               type="button"
               tabIndex={
@@ -205,6 +215,7 @@ export function MonthRangePicker({
   disableMobileSheet,
 }: MonthRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const initialFocusRef = useRef<HTMLButtonElement | null>(null);
   const triggerDisabled =
     disabled || Boolean((children.props as { disabled?: boolean }).disabled);
   const { isMobile, useSheet } = usePickerMobile(disableMobileSheet);
@@ -272,11 +283,13 @@ export function MonthRangePicker({
           getFloatingProps({ ...props, "aria-label": "월 범위 선택" })
         }
         desktopClassName="z-floating max-w-[calc(100vw-16px)] rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-5 shadow-tooltip"
+        initialFocus={initialFocusRef}
       >
         <MonthRangeBody
           value={value}
           isMobile={isMobile}
           focusOnMount={useSheet}
+          initialFocusRef={initialFocusRef}
           onClose={() => setIsOpen(false)}
           onApply={(next) => {
             onApply(next);
@@ -292,12 +305,14 @@ function MonthRangeBody({
   value,
   isMobile,
   focusOnMount,
+  initialFocusRef,
   onApply,
   onClose,
 }: {
   value?: MonthRange;
   isMobile: boolean;
   focusOnMount: boolean;
+  initialFocusRef: RefObject<HTMLButtonElement | null>;
   onApply: (value: MonthRange) => void;
   onClose: () => void;
 }) {
@@ -344,6 +359,7 @@ function MonthRangeBody({
           focusedMonth={focusedMonth}
           onFocusMonth={setFocusedMonth}
           focusOnMount={focusOnMount}
+          initialFocusRef={initialFocusRef}
           showPrev
           showNext={isMobile}
         />

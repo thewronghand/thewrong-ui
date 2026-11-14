@@ -5,7 +5,12 @@ import {
   type useInteractions,
 } from "@floating-ui/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useContext, type CSSProperties, type ReactNode } from "react";
+import {
+  useContext,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from "react";
 
 import {
   ModalFocusTrapContext,
@@ -34,6 +39,7 @@ interface PickerSheetProps {
   floatingStyles: CSSProperties;
   getFloatingProps: ReturnType<typeof useInteractions>["getFloatingProps"];
   desktopClassName: string;
+  initialFocus?: number | RefObject<HTMLElement | null>;
   children: ReactNode;
 }
 
@@ -47,6 +53,7 @@ export function PickerSheet({
   floatingStyles,
   getFloatingProps,
   desktopClassName,
+  initialFocus = -1,
   children,
 }: PickerSheetProps) {
   const reducedMotion = useReducedMotion();
@@ -114,14 +121,13 @@ export function PickerSheet({
           <FloatingFocusManager
             context={context}
             modal={false}
-            initialFocus={-1}
-            // Tab으로 패널을 벗어나도 닫지 않아 Modal의 다음 순환에서 다시 진입한다.
-            closeOnFocusOut={false}
+            initialFocus={initialFocus}
           >
             <div
               ref={setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
+              data-picker-sheet=""
               className={desktopClassName}
             >
               {children}

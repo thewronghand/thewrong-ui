@@ -20,6 +20,8 @@ import "@thewrong/ui/styles.css";
 import { Button, Modal, PaginatedTable, SearchBox } from "@thewrong/ui";
 ```
 
+TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodenext"`의 ESM에서 사용한다. CJS 런타임의 `require`는 지원하며, 타입 사용에는 `nodenext` ESM을 권장한다 (`node16` CJS에서는 TS1471이 발생한다).
+
 ## 특징
 
 - **CSS 자체포함** — `styles.css` 한 줄이면 끝. Tailwind 설정 불필요.
