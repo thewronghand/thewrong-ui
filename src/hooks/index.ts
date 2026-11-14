@@ -7,3 +7,18 @@ export {
 export { useBottomSheetDrag } from "./useBottomSheetDrag";
 export { useScrollLock } from "./useScrollLock";
 export { useFocusTrap, type UseFocusTrapOptions } from "./useFocusTrap";
+export { useInfiniteScroll } from "./useInfiniteScroll";
+export type {
+  UseInfiniteScrollOptions,
+  UseInfiniteScrollReturn,
+  InfiniteScrollOptions,
+  LegacyInfiniteScrollOptions,
+} from "./useInfiniteScroll";
+export { useFillEmptyRows } from "./useFillEmptyRows";
+export type {
+  FillEmptyRowsRemainingMode,
+  UseFillEmptyRowsOptions,
+  UseFillEmptyRowsReturn,
+} from "./useFillEmptyRows";
+export { useTableDragSelection } from "./useTableDragSelection";
+export type { UseTableDragSelectionOptions } from "./useTableDragSelection";
