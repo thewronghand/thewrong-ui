@@ -11,6 +11,7 @@ export const getButtonColorClasses = (
 ): string => {
   const map: Record<ButtonVariant, Record<ButtonAppearance, string>> = {
     primary: {
+      link: "border-transparent bg-transparent text-primary-fg hover:text-primary-hover active:text-primary-active disabled:text-fg-disabled aria-disabled:text-fg-disabled",
       filled:
         "border-transparent bg-primary text-fg-inverse hover:bg-primary-hover active:bg-primary-active disabled:bg-bg-disabled disabled:text-fg-disabled",
       outlined:
@@ -19,6 +20,7 @@ export const getButtonColorClasses = (
         "border-transparent bg-transparent text-fg-default hover:bg-bg-subtle active:bg-bg-muted disabled:text-fg-disabled",
     },
     secondary: {
+      link: "border-transparent bg-transparent text-fg-muted hover:text-fg-default active:text-fg-default disabled:text-fg-disabled aria-disabled:text-fg-disabled",
       filled:
         "border-transparent bg-primary-subtle text-primary-fg hover:bg-button-secondary-hover active:bg-button-secondary-active disabled:bg-bg-disabled disabled:text-fg-disabled",
       outlined:
@@ -27,6 +29,7 @@ export const getButtonColorClasses = (
         "border-transparent bg-transparent text-fg-muted hover:bg-bg-subtle active:bg-bg-muted disabled:text-fg-disabled",
     },
     tertiary: {
+      link: "border-transparent bg-transparent text-fg-subtle hover:text-fg-default active:text-fg-default disabled:text-fg-disabled aria-disabled:text-fg-disabled",
       filled:
         "border-transparent bg-bg-subtle text-fg-muted hover:bg-bg-muted active:bg-bg-disabled disabled:bg-bg-page disabled:text-fg-disabled",
       outlined:
@@ -35,6 +38,7 @@ export const getButtonColorClasses = (
         "border-transparent bg-transparent text-fg-subtle hover:bg-bg-page active:bg-bg-subtle disabled:text-fg-disabled",
     },
     danger: {
+      link: "border-transparent bg-transparent text-error-fg hover:text-error-hover active:text-error-active disabled:text-fg-disabled aria-disabled:text-fg-disabled",
       filled:
         "border-transparent bg-error text-fg-inverse hover:bg-error-hover active:bg-error-active disabled:bg-bg-disabled disabled:text-fg-disabled",
       outlined:

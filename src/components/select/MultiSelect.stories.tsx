@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, within } from "storybook/test";
 import { useState } from "react";
 import { MultiSelect } from "./MultiSelect";
 import type { SelectOption } from "./types";
@@ -182,5 +183,16 @@ export const 전체선택: Story = {
         label="과일"
       />
     );
+  },
+};
+
+export const AccessibilityName: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("combobox", { name: "좋아하는 과일" })).toBeTruthy();
+  },
+  render: () => {
+    const [value, setValue] = useState<string[]>([]);
+    return <MultiSelect variant="box" options={FRUITS} value={value} onChange={setValue} label="시각 라벨" labelOption="sustain" aria-label="좋아하는 과일" />;
   },
 };

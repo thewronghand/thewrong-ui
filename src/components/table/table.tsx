@@ -28,6 +28,8 @@ import {
   hasGroupSlot,
 } from "./column-group-utils";
 import { SortableHeaderCell } from "./components/SortableHeaderCell";
+import { SortHeader } from "./components/SortHeader";
+import { ariaSort, nextSort, sortDirectionFor } from "./hooks/sort-state";
 import { useColumnResize } from "./hooks/useColumnResize";
 import { useFillEmptyRows } from "./hooks/useFillEmptyRows";
 import { useTableDragSelection } from "./hooks/useTableDragSelection";
@@ -78,11 +80,9 @@ const restrictHeaderDrag: Modifier = ({
  * PaginatedTable은 이 컴포넌트를 wrap해서 footer(Pagination/PageJump/PageSize)를 추가.
  * 컬럼 너비 합이 컨테이너보다 작아 열이 늘어나면 브라우저가 남는 폭을 재분배하므로 드래그 이동량과 화면 변화량이 비례하지 않는다. 컬럼 합을 컨테이너 이상으로 지정한다(여백 컬럼이 필요하면 AccordionTable을 쓴다 — Table에는 여백 컬럼 옵션이 없다).
  */
-// forwardRef가 제네릭 인자를 그대로 보존하지 못해서 `any`로 우회 후 아래에서 제네릭 시그니처로 cast.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (props: TableProps<any>, ref: React.ForwardedRef<HTMLDivElement>) => {
+// forwardRef 내부는 unknown으로 받고 외부에는 제네릭 시그니처를 노출한다.
+export const Table = forwardRef<HTMLDivElement, TableProps<unknown>>(
+  (props: TableProps<unknown>, ref: React.ForwardedRef<HTMLDivElement>) => {
     const {
       data,
       columns,
@@ -99,6 +99,8 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
       rowCompare,
       getRowId,
       enableSorting = false,
+      sortCycle = "tri",
+      formatSortLabel,
       serverSideSorting = false,
       onSortChange,
       initialSort,
@@ -117,11 +119,32 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
       ...restProps
     } = props;
 
-    const { sort, sortedData } = useTableSort({
+    const { sort, sortedData, handleSort } = useTableSort({
       initialSort,
+      cycle: sortCycle,
       serverSide: serverSideSorting,
       onSort: onSortChange || undefined,
     });
+
+    const canSort = (column: TableColumn<unknown>) =>
+      Boolean(column.sortable && (enableSorting || serverSideSorting));
+    const sortState = (column: TableColumn<unknown>) =>
+      canSort(column) ? ariaSort(sortDirectionFor(sort, column.key)) : undefined;
+    const renderSortHeader = (column: TableColumn<unknown>) => {
+      if (!canSort(column)) return <span>{column.header}</span>;
+      const current = sortDirectionFor(sort, column.key);
+      const next = nextSort(sort, column.key, sortCycle)?.direction ?? null;
+      return (
+        <SortHeader
+          current={current}
+          next={next}
+          label={formatSortLabel?.(column, current, next)}
+          onSort={() => handleSort(column.key)}
+        >
+          {column.header}
+        </SortHeader>
+      );
+    };
 
     const displayData = useMemo(() => {
       if (!enableSorting || serverSideSorting) {
@@ -496,6 +519,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                             id={column.key}
                             disabled={dragDisabled}
                             as="th"
+                            aria-sort={sortState(column)}
                             rowSpan={hasGroup ? 2 : 1}
                             className={cn(
                               getTableHeaderCellClasses(),
@@ -518,7 +542,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                               </span>
                             )}
                             <div className="flex items-center justify-center w-full pr-1 pl-3 select-none">
-                              <span>{column.header}</span>
+                              {renderSortHeader(column)}
                             </div>
                             {/* 시스템 컬럼은 프리셋 셀렉터에 노출되지 않고 위치도 고정이라
                                 너비만 조절 가능하면 일관성이 깨진다. 리사이즈 핸들 자체를 숨긴다. */}
@@ -562,6 +586,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                         .map((column) => (
                           <th
                             key={column.key}
+                            aria-sort={sortState(column)}
                             className={cn(
                               getTableHeaderCellClasses(),
                               getColumnAlignClasses(column.align ?? "center"),
@@ -573,7 +598,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                             }}
                           >
                             <div className="flex items-center justify-center w-full pr-1 pl-3 select-none">
-                              <span>{column.header}</span>
+                              {renderSortHeader(column)}
                             </div>
                           </th>
                         ))}

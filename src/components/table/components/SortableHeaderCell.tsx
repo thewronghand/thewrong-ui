@@ -17,6 +17,7 @@ interface SortableHeaderCellProps {
   colSpan?: number;
   /** `as="th"`일 때만 의미. 그룹과 평면 컬럼이 섞일 때 평면 컬럼은 rowSpan=2. */
   rowSpan?: number;
+  "aria-sort"?: "ascending" | "descending" | "none";
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
@@ -33,6 +34,7 @@ export function SortableHeaderCell({
   as = "div",
   colSpan,
   rowSpan,
+  "aria-sort": ariaSort,
   className,
   style,
   children,
@@ -71,6 +73,8 @@ export function SortableHeaderCell({
       {...tableCellAttrs}
       {...(disabled ? {} : attributes)}
       {...(disabled ? {} : listeners)}
+      role={as === "th" ? "columnheader" : disabled ? undefined : attributes.role}
+      aria-sort={ariaSort}
     >
       {children}
     </Tag>

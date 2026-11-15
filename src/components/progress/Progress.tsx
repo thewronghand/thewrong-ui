@@ -10,15 +10,14 @@ const PROGRESS_TRACK_SIZE_CLASS: Record<ProgressSize, string> = {
 };
 
 /**
- * Progress — 결정형(determinate) 진행률 바 원자.
+ * Progress — 결정형 또는 불확정 진행률 바 원자.
  *
  * `value`는 0~100 스케일이다. 서버 계약이 0~1(비율)을 내려주는 도메인이
  * 있더라도 이 컴포넌트에는 항상 0~100으로 변환해 넘긴다 — 컴포넌트가
  * 스케일을 추측하지 않는다.
  *
- * 접근성: `role="progressbar"` + `aria-valuenow/min/max`. 시각 바는 트랙
- * 위에 채움 막대를 폭(%)으로 표현하고, transition은 순수 시각 효과라
- * `motion-reduce:transition-none`으로 감쇠한다.
+ * 접근성: `role="progressbar"`를 유지한다. 결정형은 값과 범위를 알리고,
+ * 불확정형은 값과 범위를 생략한다. 움직임 감소 설정에서는 정적으로 표시한다.
  */
 export function Progress({
   value,
@@ -26,14 +25,15 @@ export function Progress({
   className,
   ...rest
 }: ProgressProps) {
-  const clamped = Math.min(100, Math.max(0, value));
+  const clamped =
+    value === undefined ? undefined : Math.min(100, Math.max(0, value));
 
   return (
     <div
       role="progressbar"
       aria-valuenow={clamped}
-      aria-valuemin={0}
-      aria-valuemax={100}
+      aria-valuemin={clamped === undefined ? undefined : 0}
+      aria-valuemax={clamped === undefined ? undefined : 100}
       className={cn(
         "w-full overflow-hidden rounded-full bg-bg-subtle",
         PROGRESS_TRACK_SIZE_CLASS[size],
@@ -42,8 +42,13 @@ export function Progress({
       {...rest}
     >
       <div
-        className="h-full rounded-full bg-primary transition-[width] duration-200 ease-out motion-reduce:transition-none"
-        style={{ width: `${clamped}%` }}
+        className={cn(
+          "h-full rounded-full bg-primary",
+          clamped === undefined
+            ? "progress-indeterminate"
+            : "transition-[width] duration-200 ease-out motion-reduce:transition-none",
+        )}
+        style={clamped === undefined ? undefined : { width: `${clamped}%` }}
       />
     </div>
   );

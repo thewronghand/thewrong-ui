@@ -36,6 +36,10 @@ export interface SelectCommonProps {
    * Select 필드의 상단의 라벨
    */
   label?: string;
+  /** 트리거의 접근성 이름. 명시된 aria 속성은 시각 label보다 우선한다. */
+  "aria-label"?: string;
+  /** 참조한 요소로 접근성 이름을 지정한다. aria-label과 함께 주면 이 속성이 우선한다. */
+  "aria-labelledby"?: string;
   /**
    * label 표시 방식
    * 'appear': value가 있을 때만 label이 보여요

@@ -219,6 +219,14 @@ export interface TableCommonProps<T> {
    * @default false
    */
   enableSorting?: boolean;
+  /** 정렬 순서. 기본 tri(오름차순 → 내림차순 → 해제), toggle은 두 방향만 순환한다. */
+  sortCycle?: "tri" | "toggle";
+  /** 정렬 버튼 이름을 현지화하거나 복잡한 헤더의 이름을 지정한다. */
+  formatSortLabel?: (
+    column: TableColumn<T>,
+    current: SortDirection,
+    next: SortDirection,
+  ) => string;
   /**
    * 서버 사이드 정렬 사용 여부
    * @default false

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useMemo, useState } from "react";
 import { Table } from "./table";
+import { AccordionTable } from "./accordion-table";
 import { PaginatedTable } from "./paginated-table";
 import { MiniTable } from "./mini-table";
 import { TableCheckbox } from "@/components/table-checkbox";
@@ -157,6 +158,25 @@ export const 체크박스_단독: Story = {
         <TableCheckbox checked={false} indeterminate ariaLabel="부분선택" />
         <TableCheckbox checked={true} disabled ariaLabel="비활성 선택" />
         <TableCheckbox checked={false} disabled ariaLabel="비활성" />
+      </div>
+    );
+  },
+};
+
+export const AccessibleSorting: Story = {
+  render: () => {
+    const data = SAMPLE.slice(0, 4);
+    const columns: TableColumn<Tenant>[] = [
+      { key: "name", header: "이름", accessor: (row) => row.name, sortable: true },
+      { key: "rate", header: "사용률", accessor: (row) => row.usageRate, sortable: true },
+      { key: "status", header: "상태", accessor: (row) => row.status },
+    ];
+    return (
+      <div className="grid gap-6">
+        <section aria-label="세 단계 정렬"><h2>세 단계 정렬</h2><Table data={data} columns={columns} enableSorting fillEmptyRows={false} /></section>
+        <section aria-label="두 단계 정렬"><h2>두 단계 정렬</h2><Table data={data} columns={columns} enableSorting sortCycle="toggle" fillEmptyRows={false} /></section>
+        <section aria-label="그룹 정렬"><h2>그룹 정렬</h2><Table data={data} columns={columns} enableSorting columnGroups={[{ key: "details", header: "상세", columnKeys: ["rate", "status"] }]} fillEmptyRows={false} /></section>
+        <section aria-label="아코디언 정렬"><h2>아코디언 정렬</h2><AccordionTable data={data} columns={columns} enableSorting currentPage={1} totalPages={1} onPageChange={() => {}} fillEmptyRows={false} /></section>
       </div>
     );
   },

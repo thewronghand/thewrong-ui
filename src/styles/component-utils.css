@@ -150,3 +150,19 @@
 .table-cell-weight-emphasis {
   --table-cell-font-weight: var(--font-weight-table-emphasis);
 }
+
+/* 불확정 진행률은 움직임 감소 설정에서 정적인 막대로 표시한다. */
+.progress-indeterminate {
+  width: 40%;
+  animation: progress-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes progress-indeterminate {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-indeterminate { animation: none; }
+}
+

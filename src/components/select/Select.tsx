@@ -156,6 +156,8 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     variant,
     selectSize = "medium",
     label,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
     labelOption = "appear",
     help,
     placeholder = "선택해주세요",
@@ -506,6 +508,10 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               if (!isOpen) setIsOpen(true);
             },
           })}
+          role="presentation"
+          aria-expanded={undefined}
+          aria-controls={undefined}
+          aria-haspopup={undefined}
           className={cn(
             variantClasses,
             "flex w-full min-w-0 items-center",
@@ -527,6 +533,8 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
             id={triggerId}
             type="text"
             role="combobox"
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledBy}
             // 닫힌 상태에선 input이 selected.label만 보여주는 "chip" 역할.
             // 사용자가 native로 글자 지우는 게 아니라, Backspace/Delete로 selected 통째 클리어해야 자연스러움.
             // 열린 상태에선 readonly 해제해 자유 검색.
@@ -627,6 +635,8 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
           aria-activedescendant={activeOptionId}
           data-testid={testId}
           {...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
           className={cn(
             variantClasses,
             "flex w-full min-w-0 items-center",

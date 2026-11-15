@@ -103,3 +103,13 @@ export const Block: Story = {
     ),
   ],
 };
+
+export const InlineLink: Story = {
+  render: () => (
+    <div className="max-w-md text-base leading-7 text-fg-default">
+      이용 전 <Button appearance="link" onClick={() => {}}>자세한 안내</Button>를 확인하세요.
+      {" "}<Button appearance="link" variant="danger">삭제</Button>
+      {" "}<Button appearance="link" disabled>사용할 수 없음</Button>
+    </div>
+  ),
+};
