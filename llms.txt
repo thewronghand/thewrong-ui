@@ -59,16 +59,16 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - `Textarea` — `showCount`+`maxLength`로 글자 수. resize는 기본 고정.
 - `Select` — 단일 선택. `searchable`로 필터(클라이언트). `aria-label` 또는 `aria-labelledby`로 트리거 이름을 지정한다. 둘 다 지정하면 `aria-labelledby`가 우선하며, 명시 이름이 없을 때 시각 `label`을 사용한다. 보이는 라벨이 있으면 접근성 이름에 그 텍스트를 포함한다(WCAG 2.5.3). 서버 검색 시 호출부가 selected snapshot 보존. `open`과 `onOpenChange`로 패널을 제어할 수 있다. searchable에서 `openOnFocus`는 포커스로 패널을 열고, `validateSearchQuery`가 false를 반환한 입력은 검색어에 반영하지 않는다.
 - `MultiSelect` — 다중 선택. 값은 `string[]`. `aria-label` 또는 `aria-labelledby`로 트리거 이름을 지정한다. 보이는 라벨이 있으면 접근성 이름에 그 텍스트를 포함한다(WCAG 2.5.3). 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
-- `Switch`, `Checkbox`, `Badge`.
-- `Radio.Group`, `Radio.Item` — 네이티브 라디오 행. 같은 name과 fieldset/legend를 사용한다.
+- `Switch`, `Checkbox`, `Badge`. Checkbox와 TableCheckbox의 실제 input은 보이는 박스에 겹쳐진다.
+- `Radio.Group`, `Radio.Item` — 네이티브 라디오 행. 같은 name과 fieldset/legend를 사용하며 조상 fieldset의 disabled를 따른다.
 - `SegmentedControl` — controlled 라디오 선택지. 그룹에 aria-label 또는 aria-labelledby를 전달한다.
 - `Field`, `FieldMessage` — 라벨과 폼 메시지. animated 메시지는 컴포넌트를 유지하고 children을 변경한다.
 
 ### 오버레이
-- `Modal` — 데스크탑 중앙 카드 / 모바일 바텀시트 자동 분기. 너비 고정(`widthPx`). 헤더-바디-푸터 3단(`footer`).
-- `StandardModal` — 표준 폼 모달. `primaryAction`/`secondaryAction`/`leftAction`으로 footer 자동 생성. 폼 80% 케이스.
+- `Modal` — 데스크탑 중앙 카드 / 모바일 바텀시트 자동 분기. 너비 고정(`widthPx`). 헤더-바디-푸터 3단(`footer`). `initialFocus?: RefObject<HTMLElement | null>`로 내부 첫 포커스를 지정한다. 없거나 사용할 수 없으면 기존 autoFocus/첫 tabbable을 따른다. 본문은 기본 설명이며 `describedBy?: string | false`로 다른 id를 연결하거나 끈다. 빈 children은 자동 연결하지 않는다.
+- `StandardModal` — 표준 폼 모달. `primaryAction`/`secondaryAction`/`leftAction`으로 footer 자동 생성. `initialFocus`, `describedBy`를 Modal로 전달하며 action의 `ref`로 버튼을 첫 포커스 대상으로 지정할 수 있다.
 - `ModalSubView` — 모달 안 우측 슬라이드 인 푸시 네비. 모달 위에 모달 쌓는 대신 이걸 쓴다.
-- `Drawer` — 가장자리 고정 패널 / 모바일 바텀시트.
+- `Drawer` — 가장자리 고정 패널 / 모바일 바텀시트. Modal과 같은 `initialFocus`를 지원한다.
 - `Popover` — 클릭으로 여닫는 자유 콘텐츠(ReactNode).
 - `Tooltip` — hover/focus 짧은 텍스트(string). `InfoTooltip` — 물음표 아이콘 도움말(ReactNode).
 - `Toast` — 자동 사라지는 알림. `ToastProvider`를 앱 루트에 두고 `toast()` 호출(react-hot-toast 재export).
@@ -90,7 +90,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ### 레이아웃 / 유틸
 - `TablePageLayout`, `TableCard`, `Toolbar`, `PageTitle`.
 - `AnimatedHeight`(높이 트랜지션), `Collapsible`, `LoadingSpinner`.
-- `Stepper`, `StepperContent`, `useStepper` — 단계 표시와 상태·콘텐츠 전환. 단계 검증은 호출부에서 처리한다.
+- `Stepper`, `StepperContent`, `useStepper` — 단계 표시와 상태·콘텐츠 전환. 목록 이름은 `aria-label`/`aria-labelledby`로 지정한다(기본 `진행 단계`). 현재 단계보다 앞선 `steps[].skipped`는 완료 대신 건너뜀으로 표시한다. 건너뛰기 기록과 단계 검증은 호출부에서 처리한다.
 - `Tabs` — items 배열로 가로 탭과 패널을 구성. value/defaultValue 및 onValueChange, activation="auto"/"manual"을 지원한다. value가 활성 항목에 없으면 첫 활성 탭을 표시하지만 onValueChange는 호출하지 않으므로 부모에서 값을 맞춘다. 선택된 패널만 마운트하므로 탭 전환 시 이전 패널의 상태가 소멸한다.
 - `Slider` — 단일 range 입력. min/max/step, value/defaultValue, onValueChange, formatValue를 지원한다. 범위 밖 controlled 값은 화면에서만 범위 내로 보정하며 그 자체로 콜백을 호출하지 않는다.
 - `Progress` — 0~100 결정형 진행률, value 생략 시 불확정 진행률. `Skeleton` — 크기를 className으로 지정하는 장식용 로딩 블록.

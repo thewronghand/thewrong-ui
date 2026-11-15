@@ -76,3 +76,31 @@ export const Vertical: Story = {
     </div>
   ),
 };
+
+export const Skipped: Story = {
+  args: { steps, currentStep: 2 },
+  render: () => {
+    const items = [steps[0], { ...steps[1], skipped: true }, steps[2]];
+    return (
+      <div className="space-y-6">
+        <div className="w-[560px] bg-bg-page p-4">
+          <Stepper
+            steps={items}
+            currentStep={2}
+            aria-label="주문 진행"
+            allowNonLinear
+            onStepChange={() => {}}
+          />
+        </div>
+        <div className="w-80 bg-bg-surface p-4">
+          <Stepper
+            steps={items}
+            currentStep={2}
+            aria-label="주문 진행 세로"
+            orientation="vertical"
+          />
+        </div>
+      </div>
+    );
+  },
+};
