@@ -18,7 +18,7 @@ describe("테이블 정렬 순환", () => {
   it("선택된 열만 정렬 방향을 표시한다", () => {
     const sort = { key: "name", direction: "asc" } as const;
     expect(ariaSort(sortDirectionFor(sort, "name"))).toBe("ascending");
-    expect(ariaSort(sortDirectionFor(sort, "rate"))).toBe("none");
+    expect(ariaSort(sortDirectionFor(sort, "rate"))).toBeUndefined();
     expect(ariaSort("desc")).toBe("descending");
   });
 });

@@ -137,7 +137,6 @@ export const Table = forwardRef<HTMLDivElement, TableProps<unknown>>(
       return (
         <SortHeader
           current={current}
-          next={next}
           label={formatSortLabel?.(column, current, next)}
           onSort={() => handleSort(column.key)}
         >
@@ -520,6 +519,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<unknown>>(
                             disabled={dragDisabled}
                             as="th"
                             aria-sort={sortState(column)}
+                            hasSortButton={canSort(column)}
                             rowSpan={hasGroup ? 2 : 1}
                             className={cn(
                               getTableHeaderCellClasses(),

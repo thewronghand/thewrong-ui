@@ -18,6 +18,6 @@ export function sortDirectionFor(sort: ColumnSort | null, key: string): SortDire
   return sort?.key === key ? sort.direction : null;
 }
 
-export function ariaSort(direction: SortDirection): "ascending" | "descending" | "none" {
-  return direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none";
+export function ariaSort(direction: SortDirection): "ascending" | "descending" | undefined {
+  return direction === "asc" ? "ascending" : direction === "desc" ? "descending" : undefined;
 }

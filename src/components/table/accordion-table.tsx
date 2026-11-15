@@ -154,7 +154,6 @@ export const AccordionTable = forwardRef<
     return (
       <SortHeader
         current={current}
-        next={next}
         label={formatSortLabel?.(column, current, next)}
         onSort={() => handleSort(column.key)}
       >
@@ -506,6 +505,7 @@ export const AccordionTable = forwardRef<
                             disabled={dragDisabled}
                             as="th"
                             aria-sort={sortState(column)}
+                            hasSortButton={canSort(column)}
                             className={cn(
                               getTableHeaderCellClasses(),
                               getColumnAlignClasses("center"),

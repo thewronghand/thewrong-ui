@@ -36,7 +36,8 @@ interface SortableHeaderCellProps {
   colSpan?: number;
   /** `as="th"`일 때만 의미. 그룹과 평면 컬럼이 섞일 때 평면 컬럼은 rowSpan=2. */
   rowSpan?: number;
-  "aria-sort"?: "ascending" | "descending" | "none";
+  "aria-sort"?: "ascending" | "descending";
+  hasSortButton?: boolean;
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
@@ -54,6 +55,7 @@ export function SortableHeaderCell({
   colSpan,
   rowSpan,
   "aria-sort": ariaSort,
+  hasSortButton = false,
   className,
   style,
   children,
@@ -68,7 +70,6 @@ export function SortableHeaderCell({
     isDragging,
   } = useSortable({ id, disabled });
   const descriptionId = useId();
-  const hasSortButton = ariaSort !== undefined;
   const keyboardDrag =
     !disabled && hasSortButton
       ? {

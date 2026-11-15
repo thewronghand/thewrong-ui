@@ -98,12 +98,45 @@ describe("Button link 모양", () => {
     const classes = classesFromMarkup(markup);
     expect(markup).toContain("disabled");
     expect(classes).toEqual(expect.arrayContaining([
-      "inline-flex", "[font-size:inherit]", "[line-height:inherit]", "underline",
+      "inline", "text-[length:inherit]", "leading-[inherit]", "font-[inherit]", "no-underline",
       "text-error-fg", "hover:decoration-2", "active:decoration-[3px]",
     ]));
     expect(classes).not.toContain("w-full");
+    expect(classes).not.toContain("font-control-action");
     expect(classes).not.toContain("h-control-large");
     expect(classes).not.toContain("hover:text-error-hover");
+  });
+
+  it("호출부 글자 크기·줄높이·굵기가 상속 유틸을 대체한다", () => {
+    const inherited = "text-[length:inherit] leading-[inherit] font-[inherit]";
+    const override = "text-lg leading-tight font-bold";
+    expect(cn(inherited, override).split(" ")).toEqual(override.split(" "));
+    const markup = renderToStaticMarkup(createElement(Button, {
+      appearance: "link", className: override,
+    }, "안내"));
+    const classes = classesFromMarkup(markup);
+    expect(classes).toEqual(expect.arrayContaining(override.split(" ")));
+    for (const name of inherited.split(" ")) expect(classes).not.toContain(name);
+    expect(classes).not.toContain("[font-size:inherit]");
+    expect(classes).not.toContain("[line-height:inherit]");
+    expect(classes).not.toContain("[font-weight:inherit]");
+  });
+
+  it.each(["primary", "secondary", "tertiary", "danger"] as const)("%s 비활성 버튼과 링크는 밑줄을 제거한다", (variant) => {
+    for (const props of [{}, { as: "a" as const, href: "/" }]) {
+      const active = classesFromMarkup(renderToStaticMarkup(createElement(Button, {
+        ...props, appearance: "link", variant,
+      }, "안내")));
+      const disabled = classesFromMarkup(renderToStaticMarkup(createElement(Button, {
+        ...props, appearance: "link", variant, disabled: true,
+      }, "안내")));
+      expect(active).toContain("underline");
+      expect(active).not.toContain("no-underline");
+      expect(disabled).toContain("no-underline");
+      expect(disabled).not.toContain("underline");
+      expect(disabled).toContain("disabled:text-fg-disabled");
+      expect(disabled).toContain("aria-disabled:text-fg-disabled");
+    }
   });
 
   it("primary와 danger의 대화형 상태에 배경 전용 색을 글자색으로 쓰지 않는다", () => {

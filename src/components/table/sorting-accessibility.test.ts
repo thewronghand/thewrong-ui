@@ -34,7 +34,7 @@ describe("Table 정렬 헤더", () => {
     const name = header(markup, "이름");
     const rate = header(markup, "사용률");
     expect(name).toMatch(/<th\b[^>]*aria-sort="descending"/);
-    expect(rate).toMatch(/<th\b[^>]*aria-sort="none"/);
+    expect(rate).not.toMatch(/<th\b[^>]*aria-sort=/);
     expect(name).toMatch(/<button\b(?![^>]*aria-label)[^>]*>이름<svg[^>]*aria-hidden="true"/);
     expect(name).toContain("lucide-arrow-down");
     expect(rate).toContain("lucide-arrow-up-down");
@@ -42,9 +42,10 @@ describe("Table 정렬 헤더", () => {
 
   it("복잡한 헤더의 사용자 지정 버튼 이름을 유지한다", () => {
     const markup = renderToStaticMarkup(createElement(Table<Row>, {
-      ...shared, formatSortLabel: () => "이름 정렬",
+      ...shared, formatSortLabel: (column, current, next) => `${column.key}:${current ?? "none"}:${next ?? "none"}`,
     }));
-    expect(header(markup, "이름")).toContain('aria-label="이름 정렬"');
+    expect(header(markup, "이름")).toContain('aria-label="name:desc:none"');
+    expect(header(markup, "사용률")).toContain('aria-label="rate:none:asc"');
   });
 
   it("정렬과 컬럼 이동이 가능한 헤더는 버튼 하나만 Tab에 노출한다", () => {
@@ -63,5 +64,19 @@ describe("Table 정렬 헤더", () => {
     expect(descriptionId).toBeDefined();
     expect(name).toContain(`id="${descriptionId}"`);
     expect(name).toContain("Shift+Space로 컬럼 이동");
+    const rate = header(markup, "사용률");
+    expect(rate).not.toMatch(/<th\b[^>]*aria-sort=/);
+    expect(rate).not.toMatch(/<th\b[^>]*tabindex=/);
+    expect(rate).toMatch(/<button\b[^>]*aria-keyshortcuts="Shift\+Space"/);
+  });
+
+  it("그룹 하위 헤더 중 정렬된 열에만 정렬 상태를 전달한다", () => {
+    const markup = renderToStaticMarkup(createElement(Table<Row>, {
+      ...shared,
+      columnGroups: [{ key: "details", header: "상세", columnKeys: ["name", "rate"] }],
+    }));
+    expect(header(markup, "이름")).toMatch(/<th\b[^>]*aria-sort="descending"/);
+    expect(header(markup, "사용률")).not.toMatch(/<th\b[^>]*aria-sort=/);
+    expect(header(markup, "상세")).not.toMatch(/<th\b[^>]*aria-sort=/);
   });
 });

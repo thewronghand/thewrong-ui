@@ -7,7 +7,6 @@ import { useSortableHeaderKeyboardDrag } from "./SortableHeaderCell";
 interface SortHeaderProps {
   children: ReactNode;
   current: SortDirection;
-  next: SortDirection;
   label?: string;
   onSort: () => void;
 }

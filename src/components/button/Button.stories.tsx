@@ -138,3 +138,18 @@ export const LinkContrast: Story = {
     </div>
   ),
 };
+
+export const LinkDetails: Story = {
+  render: () => (
+    <div className="grid w-72 gap-4 text-base leading-7 text-fg-default">
+      <p>활성: <Button appearance="link" variant="tertiary">자세한 안내</Button>{" "}
+        비활성: <Button appearance="link" variant="tertiary" disabled>자세한 안내</Button></p>
+      <p>글꼴: <Button appearance="link" className="text-lg leading-tight font-bold">크고 굵은 안내</Button></p>
+      <p>문장 속 <Button as="a" href="#details" appearance="link"
+        leadingIcon={<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="currentColor" /></svg>}
+        trailingIcon={<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" fill="none" /></svg>}
+      >여러 줄에 자연스럽게 이어지는 아주 긴 링크 안내 문구</Button>를 확인하세요.</p>
+      <p>버튼도 <Button appearance="link">여러 줄에 자연스럽게 이어지는 아주 긴 버튼 안내 문구</Button>로 표시합니다.</p>
+    </div>
+  ),
+};

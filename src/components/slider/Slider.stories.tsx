@@ -9,6 +9,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const Disabled: Story = { args: { disabled: true } };
+export const NormalizedChange: Story = {
+  render: () => {
+    const [changed, setChanged] = useState<number | null>(null);
+    return (
+      <div className="grid w-72 gap-3">
+        <Slider aria-label="정규화 확인" min={0} max={1} step={0.1} defaultValue={0.2} onValueChange={setChanged} />
+        <output aria-label="변경 값">{changed === null ? "변경 전" : String(changed)}</output>
+      </div>
+    );
+  },
+};
 export const OpacityWithInput: Story = {
   render: () => {
     const [opacity, setOpacity] = useState(70);

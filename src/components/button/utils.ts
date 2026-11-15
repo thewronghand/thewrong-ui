@@ -70,8 +70,8 @@ export const getButtonDisplayClasses = (
   return map[display];
 };
 
-export const getButtonBaseClasses = (): string =>
-  "items-center justify-center font-control-action border-button transition-colors duration-button ease-button outline-none focus-visible:ring-button focus-visible:ring-inset disabled:cursor-not-allowed disabled:pointer-events-none";
+export const getButtonBaseClasses = (appearance: ButtonAppearance = "filled"): string =>
+  `items-center justify-center ${appearance === "link" ? "" : "font-control-action "}border-button transition-colors duration-button ease-button outline-none focus-visible:ring-button focus-visible:ring-inset disabled:cursor-not-allowed disabled:pointer-events-none`;
 
 export const getButtonFocusRing = (
   variant: ButtonVariant = "primary",
