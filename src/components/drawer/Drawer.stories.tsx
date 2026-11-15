@@ -223,8 +223,10 @@ export const 포커스_트랩_끄기: Story = {
     const [subOpen, setSubOpen] = useState(false);
     return (
       <>
-        <Button onClick={() => setOpen(true)}>트랩 없는 드로어 열기</Button>
-        <Button>배경 버튼</Button>
+        <div className="flex gap-1">
+          <Button onClick={() => setOpen(true)}>트랩 없는 드로어 열기</Button>
+          <Button>배경 버튼</Button>
+        </div>
         <Drawer
           open={open}
           onClose={() => setOpen(false)}

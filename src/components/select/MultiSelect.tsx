@@ -411,9 +411,9 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
 
     return (
       <div
-        ref={containerRef}
-        className={cn(getInputContainerClasses(), "min-w-0")}
         {...containerProps}
+        ref={containerRef}
+        className={cn(getInputContainerClasses(), "min-w-0", containerProps?.className)}
       >
         {/* 측정 전용 hidden span — 풀 텍스트의 자연 폭을 얻기 위해 nowrap + visibility:hidden.
           fixed top:-9999px로 화면 밖에 두어 부모 overflow의 영향을 받지 않게 함.

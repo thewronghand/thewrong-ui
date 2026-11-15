@@ -8,7 +8,7 @@ export interface StepperStep {
   id: string;
   label: string;
   description?: string;
-  /** 현재 단계보다 앞선 항목을 완료 대신 건너뜀으로 표시한다. */
+  /** 지난 단계는 건너뜀, 앞으로 올 단계는 건너뜀 예정으로 표시한다. 현재 단계가 우선한다. */
   skipped?: boolean;
 }
 
@@ -17,7 +17,8 @@ export type StepperStepStatus =
   | "completed"
   | "current"
   | "pending"
-  | "skipped";
+  | "skipped"
+  | "skipped-pending";
 export type StepperStepContentTransition = "height" | "none";
 export type StepperTransition = "none" | "fade" | "scale" | "slide";
 export type StepperSlideDirection = "left" | "right" | "up" | "down";
@@ -34,7 +35,7 @@ export interface StepperProps {
   orientation?: StepperOrientation;
   allowNonLinear?: boolean;
   onStepChange?: (step: number) => void;
-  /** 세로형에서 각 단계 헤더와 다음 marker 사이에 콘텐츠를 렌더링합니다. */
+  /** 세로형 단계 콘텐츠. 대기와 건너뜀 예정(skipped-pending)은 숨긴다. */
   renderStepContent?: (context: StepperStepContentContext) => ReactNode;
   /** 세로형 단계 콘텐츠의 펼침·접힘 전환. 기본 height. */
   stepContentTransition?: StepperStepContentTransition;
@@ -99,7 +100,8 @@ const motionVariants = {
 };
 
 /** 단계 표시는 상태와 검증을 소유하지 않는다. 유효한 단계와 이동 검증은 호출부에서 관리하고,
- * 여러 단계를 건너뛰려면 훅과 표시 양쪽에 allowNonLinear를 지정한다. */
+ * 여러 단계를 건너뛰려면 훅과 표시 양쪽에 allowNonLinear를 지정한다.
+ * 예정 라벨은 일반 대기와 같은 색이다. 기본 라이트의 bg-bg-subtle에서는 대비가 4.5:1 미만이므로 bg-bg-page 또는 bg-bg-surface 등 대비가 확보된 배경을 사용한다. */
 export function Stepper({
   steps,
   currentStep,
@@ -130,7 +132,9 @@ export function Stepper({
               : "completed"
             : index === currentStep
               ? "current"
-              : "pending";
+              : step.skipped
+                ? "skipped-pending"
+                : "pending";
         const canSelect = allowNonLinear && Boolean(onStepChange);
         const content =
           orientation === "vertical"
@@ -140,6 +144,7 @@ export function Stepper({
           <span
             className={cn(
               "flex h-7 w-7 shrink-0 items-center justify-center rounded-chip border text-xs font-semibold transition-colors",
+              "group-focus-visible/step:relative group-focus-visible/step:z-10 group-focus-visible/step:ring-2 group-focus-visible/step:ring-focus-primary group-focus-visible/step:ring-offset-2 group-focus-visible/step:ring-offset-bg-surface",
               status === "current" &&
                 "border-primary bg-primary text-fg-inverse",
               status === "completed" &&
@@ -148,6 +153,8 @@ export function Stepper({
                 "border-border-subtle bg-bg-surface text-fg-subtle",
               status === "skipped" &&
                 "border-dashed border-fg-default bg-bg-surface text-fg-default line-through",
+              status === "skipped-pending" &&
+                "border-dashed border-fg-default bg-bg-surface text-fg-default",
             )}
             aria-hidden="true"
           >
@@ -171,14 +178,13 @@ export function Stepper({
               <button
                 type="button"
                 className={cn(
-                  "flex min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  "group/step flex min-w-0 text-left focus-visible:outline-none",
                   orientation === "horizontal"
                     ? "w-full flex-col items-center gap-1.5"
                     : "col-span-2 grid grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-x-3",
-                  status === "skipped" && "focus-visible:ring-fg-default",
                 )}
                 onClick={() => onStepChange?.(index)}
-                aria-label={`${index + 1}단계: ${step.label}${status === "skipped" ? " (건너뜀)" : ""}`}
+                aria-label={`${index + 1}단계: ${step.label}${status === "skipped" ? " (건너뜀)" : status === "skipped-pending" ? " (건너뜀 예정)" : ""}`}
               >
                 {marker}
                 <StepText
@@ -209,7 +215,7 @@ export function Stepper({
                 <AnimatedHeight
                   durationMs={stepContentTransition === "height" ? 220 : 0}
                 >
-                  <div hidden={status === "pending"} className="px-3 pt-3">
+                  <div hidden={status === "pending" || status === "skipped-pending"} className="px-3 pt-3">
                     {content}
                   </div>
                 </AnimatedHeight>
@@ -253,7 +259,7 @@ function StepText({
           orientation === "horizontal" ? "text-xs" : "text-sm",
           status === "current" && "text-fg-default",
           status === "completed" && "text-fg-muted",
-          status === "pending" && "text-fg-subtle",
+          (status === "pending" || status === "skipped-pending") && "text-fg-subtle",
           status === "skipped" && "text-fg-default line-through",
         )}
       >
@@ -261,6 +267,9 @@ function StepText({
       </span>
       {status === "skipped" && (
         <span className="block text-xs text-fg-default">건너뜀</span>
+      )}
+      {status === "skipped-pending" && (
+        <span className="block text-xs text-fg-subtle">건너뜀 예정</span>
       )}
       {step.description && (
         <span className="mt-0.5 hidden text-xs text-fg-muted sm:block">

@@ -33,8 +33,8 @@
     --p-color-violet-50
   ); /* 배경 틴트 (선택 상태 등) */
   --color-primary-border: var(--p-color-violet-300);
-  /* 키보드 포커스 링 — 기본 라이트는 primary·surface와의 대비가 3:1 미달(대비 테스트의 existingFailures 참조). */
-  --color-focus-primary: var(--p-color-violet-400);
+  /* 키보드 포커스 링 — 라이트 배경과 3:1 이상. primary 채움에는 배경색 띠를 둔다. */
+  --color-focus-primary: var(--p-color-violet-800);
   /* 약한 포커스 역할. 기본값은 full 링과 같다. */
   --color-focus-primary-soft: var(--color-focus-primary);
   --color-button-secondary-hover: color-mix(
@@ -453,7 +453,7 @@
   --color-primary-fg: var(--p-color-violet-300);
   --color-primary-subtle: var(--p-color-violet-950);
   --color-primary-border: var(--p-color-violet-300);
-  --color-focus-primary: var(--p-color-gray-100);
+  --color-focus-primary: var(--p-color-violet-300);
   --color-focus-primary-soft: var(--color-focus-primary);
   --color-icon-button-primary-active: color-mix(
     in srgb,

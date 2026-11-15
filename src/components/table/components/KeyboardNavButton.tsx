@@ -18,7 +18,7 @@ export function KeyboardNavButton({ onKeyDown }: KeyboardNavButtonProps) {
       onKeyDown={onKeyDown}
       title="키보드로 페이지 이동 (포커스 후 ← / → 키)"
       aria-label="키보드로 페이지 이동 활성화"
-      className="group/kbd inline-flex items-center gap-0 rounded-control-mini border border-border-subtle bg-bg-surface px-1.5 py-1 text-fg-muted transition-[color,background-color,border-color,gap] duration-200 hover:border-primary-border hover:text-primary-fg focus:gap-1.5 focus:border-primary focus:bg-primary-subtle focus:text-primary-fg focus:outline-hidden focus-visible:ring-control focus-visible:ring-focus-primary pointer-coarse:hidden"
+      className="group/kbd inline-flex items-center gap-0 rounded-control-mini border border-border-subtle bg-bg-surface px-1.5 py-1 text-fg-muted transition-[color,background-color,border-color,gap] duration-200 hover:border-primary-border hover:text-primary-fg focus:gap-1.5 focus:border-primary focus:bg-primary-subtle focus:text-primary-fg focus:outline-hidden focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-focus-primary focus-visible:outline-offset-2 pointer-coarse:hidden"
     >
       <Keyboard className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       {/*

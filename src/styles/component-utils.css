@@ -151,6 +151,8 @@
   --table-cell-font-weight: var(--font-weight-table-emphasis);
 }
 
+/* 컴포넌트 기본값은 소비자의 유틸리티로 덮어쓸 수 있다. */
+@layer components {
 /* 불확정 진행률은 움직임 감소 설정에서 전체 트랙의 정적인 줄무늬로 표시한다. */
 .progress-indeterminate {
   width: 40%;
@@ -223,3 +225,4 @@
 .ui-slider:disabled::-moz-range-track { background: var(--color-bg-disabled); }
 .ui-slider:disabled::-webkit-slider-thumb { border-color: var(--color-fg-disabled); background: var(--color-bg-disabled); }
 .ui-slider:disabled::-moz-range-thumb { border-color: var(--color-fg-disabled); background: var(--color-bg-disabled); }
+}

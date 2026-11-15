@@ -82,7 +82,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const restRef = (restProps as { ref?: React.Ref<HTMLInputElement> }).ref;
 
     const filled = displayValue.length > 0;
-    const containerClasses = getInputContainerClasses();
     const variantClasses = getInputVariantClasses(
       variant,
       hasError,
@@ -199,7 +198,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     );
 
     return (
-      <div ref={containerRef} className={containerClasses} {...containerProps}>
+      <div {...containerProps} ref={containerRef} className={cn(getInputContainerClasses(), containerProps?.className)}>
         {showLabel && label && (
           <label
             className={getInputLabelClasses(variant, hasError)}

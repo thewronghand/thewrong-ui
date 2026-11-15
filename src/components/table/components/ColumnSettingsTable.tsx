@@ -85,7 +85,7 @@ function SortableRow<T>({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "border-b border-border-subtle transition-colors",
+        "group/table-row border-b border-border-subtle transition-colors",
         isHidden
           ? "bg-bg-subtle text-fg-subtle"
           : "bg-bg-surface text-fg-default hover:bg-bg-subtle",
@@ -132,6 +132,11 @@ function SortableRow<T>({
             checked={isHidden}
             onChange={(checked) => onHiddenChange(slot.key, !checked)}
             ariaLabel={`${headerLabel} 숨김`}
+            focusOffsetClassName={
+              isHidden
+                ? "ring-offset-bg-subtle"
+                : "ring-offset-bg-surface group-hover/table-row:ring-offset-bg-subtle"
+            }
           />
         </div>
       </td>
@@ -194,7 +199,7 @@ function ColumnWidthInput({
         }
       }}
       aria-label={`${columnKey} 컬럼 너비 (px)`}
-      className="w-16 rounded-control-mini border border-border-subtle bg-bg-surface px-1.5 py-0.5 text-center text-xs tabular-nums text-fg-default transition-colors hover:border-primary-border focus:border-primary focus:outline-hidden focus-visible:ring-control focus-visible:ring-focus-primary"
+      className="w-16 rounded-control-mini border border-border-subtle bg-bg-surface px-1.5 py-0.5 text-center text-xs tabular-nums text-fg-default transition-colors hover:border-primary-border focus:border-primary focus:outline-hidden focus-visible:ring-control focus-visible:ring-focus-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface"
     />
   );
 }
