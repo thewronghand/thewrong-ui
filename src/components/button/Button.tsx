@@ -103,7 +103,7 @@ export const Button = forwardRef<
       ? "h-auto min-w-0 border-0 p-0 align-baseline text-start underline hover:decoration-2 hover:underline-offset-2 active:decoration-[3px] active:underline-offset-4 text-[length:inherit] leading-[inherit] font-[inherit]"
       : getButtonSizeClasses(size),
     appearance === "link" ? "inline" : getButtonDisplayClasses(display),
-    getButtonFocusRing(variant),
+    getButtonFocusRing(variant, appearance),
     appearance === "link" && isDisabled && "no-underline",
     loading && "opacity-70 cursor-wait",
     isLink && isDisabled && "pointer-events-none",

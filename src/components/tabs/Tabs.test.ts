@@ -21,6 +21,7 @@ describe("Tabs 컴포넌트", () => {
     expect(tabs).toHaveLength(3);
     expect(panels).toHaveLength(3);
     expect(tabs[1]![1]).toContain('aria-selected="true"');
+    expect(tabs[1]![1]).toContain("border-primary-fg");
     expect(tabs[1]![1]).toContain('tabindex="0"');
     expect(tabs[2]![1]).toContain("disabled");
     for (let i = 0; i < tabs.length; i++) {

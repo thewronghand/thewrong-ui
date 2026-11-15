@@ -74,4 +74,12 @@ describe("정렬 헤더 키 전파", () => {
     mocks.dragging = true;
     expect(press(true, "Escape").listener).toHaveBeenCalledOnce();
   });
+
+  it("드래그 중 Space는 놓기 동작에 전달된다", () => {
+    mocks.dragging = true;
+    const result = press(true, "Space");
+    expect(result.stopped).toBe(false);
+    expect(mocks.activate).toHaveBeenCalledOnce();
+    expect(result.listener).toHaveBeenCalledOnce();
+  });
 });

@@ -91,6 +91,14 @@ describe("Button className 덮어쓰기", () => {
 });
 
 describe("Button link 모양", () => {
+  it.each(["primary", "secondary", "tertiary", "danger"] as const)("%s 링크의 포커스 링은 배경과 대비되는 색을 쓴다", (variant) => {
+    const classes = classesFromMarkup(renderToStaticMarkup(createElement(Button, {
+      appearance: "link", variant,
+    }, "안내")));
+    expect(classes).toContain("focus-visible:ring-primary-fg");
+    expect(classes).toContain("focus-visible:ring-button");
+  });
+
   it("링크 모양은 바깥쪽 포커스 링을 쓰고 비활성 anchor에 불투명도를 더하지 않는다", () => {
     const anchor = classesFromMarkup(renderToStaticMarkup(createElement(Button, {
       as: "a", href: "/", appearance: "link", disabled: true,

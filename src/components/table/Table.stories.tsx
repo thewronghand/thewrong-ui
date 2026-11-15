@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fireEvent, waitFor, within } from "storybook/test";
-import { useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { Table } from "./table";
 import { AccordionTable } from "./accordion-table";
 import { PaginatedTable } from "./paginated-table";
@@ -247,7 +247,8 @@ export const SortingKeyPropagation: Story = {
   render: () => {
     const [keys, setKeys] = useState<string[]>([]);
     const [order, setOrder] = useState(["name"]);
-    useEffect(() => {
+    // play가 시작되기 전에 window 리스너를 설치한다.
+    useLayoutEffect(() => {
       const record = (event: KeyboardEvent) => setKeys((previous) => [...previous, event.key]);
       window.addEventListener("keydown", record);
       return () => window.removeEventListener("keydown", record);

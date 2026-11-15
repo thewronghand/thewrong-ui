@@ -75,7 +75,9 @@ export const getButtonBaseClasses = (appearance: ButtonAppearance = "filled"): s
 
 export const getButtonFocusRing = (
   variant: ButtonVariant = "primary",
+  appearance: ButtonAppearance = "filled",
 ): string => {
+  if (appearance === "link") return "focus-visible:ring-primary-fg";
   const map: Record<ButtonVariant, string> = {
     primary: "focus-visible:ring-focus-primary",
     secondary: "focus-visible:ring-focus-primary",

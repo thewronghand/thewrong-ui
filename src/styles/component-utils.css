@@ -184,13 +184,13 @@
 .ui-slider::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 9999px;
-  background: linear-gradient(to right, var(--color-primary) var(--slider-fill), var(--color-bg-disabled) var(--slider-fill));
+  background: linear-gradient(to right, var(--color-primary-fg) var(--slider-fill), var(--color-icon-secondary) var(--slider-fill));
 }
 
 .ui-slider::-moz-range-track {
   height: 4px;
   border-radius: 9999px;
-  background: linear-gradient(to right, var(--color-primary) var(--slider-fill), var(--color-bg-disabled) var(--slider-fill));
+  background: linear-gradient(to right, var(--color-primary-fg) var(--slider-fill), var(--color-icon-secondary) var(--slider-fill));
 }
 
 .ui-slider::-webkit-slider-thumb {
@@ -198,7 +198,7 @@
   width: 16px;
   height: 16px;
   margin-top: -6px;
-  border: 2px solid var(--color-primary);
+  border: 2px solid var(--color-primary-fg);
   border-radius: 50%;
   background: var(--color-bg-surface);
 }
@@ -206,7 +206,7 @@
 .ui-slider::-moz-range-thumb {
   width: 12px;
   height: 12px;
-  border: 2px solid var(--color-primary);
+  border: 2px solid var(--color-primary-fg);
   border-radius: 50%;
   background: var(--color-bg-surface);
 }

@@ -66,12 +66,11 @@ export interface TableColumn<T> {
    */
   sortable?: boolean;
   /**
-   * 컬럼 정렬 방향
-   * @default null
+   * @deprecated 무시됨. 정렬은 Table의 enableSorting/serverSideSorting과 useTableSort로 설정한다.
    */
   sortDirection?: SortDirection;
   /**
-   * 컬럼 정렬 변경 콜백
+   * @deprecated 무시됨. 정렬은 Table의 enableSorting/serverSideSorting과 useTableSort로 설정한다.
    */
   onSort?: (direction: SortDirection) => void;
   /**
