@@ -51,7 +51,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ## 컴포넌트 (전부 `@thewrong/ui`에서 named export)
 
 ### 폼
-- `Button` — variant×appearance×size. `as="a"`+`href`로 링크. `clickThrottleMs`로 더블클릭 방지(비가역 액션). `display="block"`으로 풀폭.
+- `Button` — variant×appearance×size. `appearance="link"`는 부모의 글자 크기와 줄높이를 상속하고 size를 무시한다. `as="a"`+`href`로 링크. `clickThrottleMs`로 더블클릭 방지(비가역 액션). `display="block"`으로 풀폭.
 - `Input`, `PasswordInput`, `DecimalInput` — size 토큰 4단계. `prefix`/`suffix`/`clearable` 지원. `format`은 `InputFormat` 객체를 받으며, `inputFormats.phoneNumber`/`inputFormats.businessNumber`/`inputFormats.price` 프리셋을 넘긴다(`format={inputFormats.price}`).
 - `DecimalInput`은 소수 초안과 범위를 관리하며 onChange에 문자열을 전달한다. 범위에 도달 가능한 접두사는 임시로 유지하고 blur 시 마지막 유효 값으로 복원한다. 빈 값 전달은 `emitEmpty`.
 - `SegmentedCodeInput` — 단일 입력으로 OTP·PIN 슬롯을 표시하며 숫자만 허용한다. OTP는 `masked={false}`.
@@ -90,7 +90,9 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - `TablePageLayout`, `TableCard`, `Toolbar`, `PageTitle`.
 - `AnimatedHeight`(높이 트랜지션), `Collapsible`, `LoadingSpinner`.
 - `Stepper`, `StepperContent`, `useStepper` — 단계 표시와 상태·콘텐츠 전환. 단계 검증은 호출부에서 처리한다.
-- `Progress` — 0~100 결정형 진행률. `Skeleton` — 크기를 className으로 지정하는 장식용 로딩 블록.
+- `Tabs` — items 배열로 가로 탭과 패널을 구성. value/defaultValue 및 onValueChange, activation="auto"/"manual"을 지원한다.
+- `Slider` — 단일 range 입력. min/max/step, value/defaultValue, onValueChange, formatValue를 지원한다.
+- `Progress` — 0~100 결정형 진행률, value 생략 시 불확정 진행률. `Skeleton` — 크기를 className으로 지정하는 장식용 로딩 블록.
 - `TypingDots` — 상위 글자 크기·색을 따르는 로딩 표시. `TypewriterText` — 글자/단어 단위 텍스트 표시.
 - `ErrorBoundary` — 렌더 오류 폴백과 재시도. 청크 자동 복구에는 영속 저장·보고·reload를 담은 `chunkReloadPort`가 필요하다.
 - `cn`(clsx+tailwind-merge), `Portal`, `overlayStack`, `formatYearMonth`, `ColumnPresetStorage`.

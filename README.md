@@ -33,11 +33,11 @@ TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodene
 
 | 분류 | 컴포넌트 |
 |------|----------|
-| 폼 | Button · Input(+PasswordInput) · Textarea · Select · MultiSelect · Switch · Checkbox · Badge |
+| 폼 | Button · Input(+PasswordInput) · Textarea · Select · MultiSelect · Slider · Switch · Checkbox · Badge |
 | 오버레이 | Modal(+SubView/Standard) · Drawer · Popover · Tooltip · InfoTooltip · Toast · ActionToast |
 | 날짜 | DatePicker · DateRangePicker · MonthPicker · DateInput |
 | 데이터 | Table · PaginatedTable · AccordionTable · MiniTable · Pagination · SearchBox |
-| 레이아웃 | TablePageLayout · TableCard · Toolbar · PageTitle |
+| 레이아웃 | TablePageLayout · TableCard · Toolbar · PageTitle · Tabs |
 | 모션/유틸 | AnimatedHeight · Collapsible · LoadingSpinner · cn |
 
 ## 테마 · 토큰
