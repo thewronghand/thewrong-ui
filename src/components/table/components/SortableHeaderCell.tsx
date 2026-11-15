@@ -1,6 +1,25 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { CSSProperties, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useId,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
+
+interface SortableHeaderKeyboardDrag {
+  setActivatorNodeRef: (element: HTMLElement | null) => void;
+  descriptionId: string;
+  onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
+}
+
+const SortableHeaderKeyboardDragContext =
+  createContext<SortableHeaderKeyboardDrag | null>(null);
+
+export const useSortableHeaderKeyboardDrag = () =>
+  useContext(SortableHeaderKeyboardDragContext);
 
 interface SortableHeaderCellProps {
   id: string;
@@ -41,12 +60,29 @@ export function SortableHeaderCell({
 }: SortableHeaderCellProps) {
   const {
     setNodeRef,
+    setActivatorNodeRef,
     attributes,
     listeners,
     transform,
     transition,
     isDragging,
   } = useSortable({ id, disabled });
+  const descriptionId = useId();
+  const hasSortButton = ariaSort !== undefined;
+  const keyboardDrag =
+    !disabled && hasSortButton
+      ? {
+          setActivatorNodeRef,
+          descriptionId,
+          onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
+            if (isDragging) return;
+            event.stopPropagation();
+            if (event.shiftKey && event.code === "Space") {
+              listeners?.onKeyDown?.(event);
+            }
+          },
+        }
+      : null;
 
   const mergedStyle: CSSProperties = {
     ...style,
@@ -66,17 +102,34 @@ export function SortableHeaderCell({
         }
       : {};
   return (
-    <Tag
-      ref={setNodeRef as never}
-      className={className}
-      style={mergedStyle}
-      {...tableCellAttrs}
-      {...(disabled ? {} : attributes)}
-      {...(disabled ? {} : listeners)}
-      role={as === "th" ? "columnheader" : disabled ? undefined : attributes.role}
-      aria-sort={ariaSort}
-    >
-      {children}
-    </Tag>
+    <SortableHeaderKeyboardDragContext.Provider value={keyboardDrag}>
+      <Tag
+        ref={setNodeRef as never}
+        className={className}
+        style={mergedStyle}
+        {...tableCellAttrs}
+        {...(disabled
+          ? {}
+          : hasSortButton
+            ? {
+                ...attributes,
+                tabIndex: undefined,
+                "aria-roledescription": undefined,
+                "aria-describedby": undefined,
+                "aria-disabled": undefined,
+              }
+            : attributes)}
+        {...(disabled ? {} : listeners)}
+        role={as === "th" ? "columnheader" : disabled ? undefined : attributes.role}
+        aria-sort={ariaSort}
+      >
+        {children}
+        {keyboardDrag && (
+          <span id={descriptionId} aria-hidden="true" className="sr-only">
+            Shift+Space로 컬럼 이동을 시작하고 화살표로 이동한 뒤 Space 또는 Enter로 놓습니다.
+          </span>
+        )}
+      </Tag>
+    </SortableHeaderKeyboardDragContext.Provider>
   );
 }

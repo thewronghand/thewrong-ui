@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 import type { SortDirection } from "@/components/table/types";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+
+import { useSortableHeaderKeyboardDrag } from "./SortableHeaderCell";
 
 interface SortHeaderProps {
   children: ReactNode;
@@ -9,28 +12,26 @@ interface SortHeaderProps {
   onSort: () => void;
 }
 
-const directionText: Record<"asc" | "desc" | "none", string> = {
-  asc: "오름차순",
-  desc: "내림차순",
-  none: "정렬 없음",
-};
-
-export function SortHeader({ children, current, next, label, onSort }: SortHeaderProps) {
-  const status = `현재 ${directionText[current ?? "none"]}, 다음 ${directionText[next ?? "none"]}`;
+export function SortHeader({ children, current, label, onSort }: SortHeaderProps) {
+  const keyboardDrag = useSortableHeaderKeyboardDrag();
+  const Icon =
+    current === "asc" ? ArrowUp : current === "desc" ? ArrowDown : ArrowUpDown;
   return (
     <button
+      ref={keyboardDrag?.setActivatorNodeRef}
       type="button"
       aria-label={label}
-      onPointerDown={(event) => event.stopPropagation()}
-      onKeyDown={(event) => event.stopPropagation()}
+      aria-describedby={keyboardDrag?.descriptionId}
+      aria-keyshortcuts={keyboardDrag ? "Shift+Space" : undefined}
+      onKeyDown={keyboardDrag?.onKeyDown ?? ((event) => event.stopPropagation())}
       onClick={(event) => {
         event.stopPropagation();
         onSort();
       }}
-      className="cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-control focus-visible:ring-focus-primary"
+      className="inline-flex items-center gap-1 cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-control focus-visible:ring-focus-primary"
     >
       {children}
-      {!label && <span className="sr-only">, {status}</span>}
+      <Icon aria-hidden="true" className="size-3.5 shrink-0" />
     </button>
   );
 }

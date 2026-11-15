@@ -181,3 +181,30 @@ export const AccessibleSorting: Story = {
     );
   },
 };
+
+export const DragSorting: Story = {
+  render: () => {
+    const columns: TableColumn<Tenant>[] = [
+      { key: "name", header: "이름", accessor: (row) => row.name, sortable: true, width: 300 },
+      { key: "rate", header: "사용률", accessor: (row) => row.usageRate, sortable: true, width: 300 },
+      { key: "status", header: "상태", accessor: (row) => row.status, width: 300 },
+    ];
+    const [order, setOrder] = useState(["name", "rate", "status"]);
+    const [widths, setWidths] = useState<Record<string, number>>({});
+    return (
+      <Table
+        data={SAMPLE.slice(0, 4)}
+        columns={columns}
+        enableSorting
+        fillEmptyRows={false}
+        columnState={{
+          columnOrder: order,
+          hiddenColumns: [],
+          columnWidths: widths,
+          onColumnOrderChange: setOrder,
+          onColumnWidthsChange: setWidths,
+        }}
+      />
+    );
+  },
+};
