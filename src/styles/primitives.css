@@ -1,0 +1,177 @@
+/*
+  1계층 — 프리미티브 토큰 (원료)
+  ================================
+  • 네이밍: --p-<카테고리>-<스케일>  ("p-" = private, 외부 직참조 금지)
+  • 컴포넌트 코드는 이 변수를 직접 참조하지 않는다. 시맨틱 토큰(semantic.css)을 경유한다.
+    직참조 금지는 scripts/check-tokens.mjs가 검사한다.
+  • --p-* 네임스페이스는 Tailwind 유틸리티를 만들지 않는다(bg-p-* 같은 클래스는 생기지 않음).
+  • 취향(색·반경·크기)을 바꿀 때는 이 파일의 값을 바꾼다. 역할 배정은 semantic.css가 맡는다.
+*/
+
+@theme {
+  /* ── 색 팔레트 ─────────────────────────────────────────────────────────── */
+
+  /* violet — 기본 accent 스케일 (채도를 Tailwind violet의 90%로 낮춘 값) */
+  --p-color-violet-50: #f5f4fe;
+  --p-color-violet-100: #eeeafd;
+  --p-color-violet-200: #ded8fc;
+  --p-color-violet-300: #c6b9f9;
+  --p-color-violet-400: #aa91f4;
+  --p-color-violet-500: #8e64ee;
+  --p-color-violet-600: #7e43e4;
+  --p-color-violet-700: #6f31d0;
+  --p-color-violet-800: #5d28af;
+  --p-color-violet-900: #4d238f;
+  --p-color-violet-950: #2f1461;
+
+  /* gray (neutral) — 색조 없는 Tailwind gray 팔레트 */
+  --p-color-gray-50: #f9fafb;
+  --p-color-gray-100: #f3f4f6;
+  --p-color-gray-200: #e5e7eb;
+  --p-color-gray-300: #d1d5db;
+  --p-color-gray-400: #9ca3af;
+  --p-color-gray-500: #6b7280;
+  --p-color-gray-600: #4b5563;
+  --p-color-gray-700: #374151;
+  --p-color-gray-800: #1f2937;
+  --p-color-gray-900: #111827;
+  --p-color-gray-950: #030712;
+
+  /* success (green) */
+  --p-color-green-50: #f0fdf4;
+  --p-color-green-100: #dcfce7;
+  --p-color-green-300: #86efac;
+  --p-color-green-400: #4ade80;
+  --p-color-green-500: #22c55e;
+  --p-color-green-600: #16a34a;
+  --p-color-green-700: #15803d;
+  --p-color-green-800: #166534;
+  --p-color-green-900: #14532d;
+
+  /* error (red 쪽 rose) — 채도를 90%로 낮춘 값 */
+  --p-color-rose-50: #fdf3f3;
+  --p-color-rose-100: #fde3e3;
+  --p-color-rose-300: #f8a9a9;
+  --p-color-rose-400: #f17878;
+  --p-color-rose-500: #e64d4d;
+  --p-color-rose-600: #b12424; /* hover + 약한 텍스트 — white 대비 6.25:1 */
+  --p-color-rose-700: #932121; /* active — white 대비 8.03:1 */
+  --p-color-rose-950: #4c0519; /* 다크 오류 블록 배경 */
+  --p-color-rose-danger: #d32f2f; /* danger 기준값 — white 대비 4.98:1 */
+
+  /* warning (amber/yellow) */
+  --p-color-yellow-50: #fffbeb;
+  --p-color-yellow-100: #fef3c7;
+  --p-color-yellow-300: #fcd34d;
+  --p-color-yellow-400: #fbbf24;
+  --p-color-yellow-500: #f59e0b;
+  --p-color-yellow-600: #d97706;
+  --p-color-yellow-700: #b45309;
+  --p-color-yellow-primary: #f0b100;
+  --p-color-yellow-secondary: #ffdf20;
+  --p-color-yellow-tertiary: #fef9c2;
+
+  /* 레이블·상태 강조색 */
+  --p-color-cyan-500: #00b8db;
+  --p-color-violet-label: #8e51ff;
+  --p-color-fuchsia-500: #e12afb;
+  --p-color-green-label: #00c950;
+  --p-color-rose-label: #ff2056;
+
+  /* white / black */
+  --p-color-white: #ffffff;
+  --p-color-black: #000000;
+
+  /* ── 반경 스케일 ────────────────────────────────────────────────────────── */
+
+  --p-radius-none: 0;
+  --p-radius-1: 3px;
+  --p-radius-2: 5px;
+  --p-radius-3: 7px;
+  --p-radius-4: 10px;
+  --p-radius-5: 14px;
+  --p-radius-6: 18px;
+  --p-radius-7: 24px;
+  --p-radius-full: 9999px;
+
+  /* ── 타이포그래피 스케일 (px, 루트 16px 기준) ───────────────────────────── */
+
+  --p-text-xs: 12px;
+  --p-text-xs--line-height: 16px;
+  --p-text-sm: 14px;
+  --p-text-sm--line-height: 20px;
+  --p-text-base: 16px;
+  --p-text-base--line-height: 24px;
+  --p-text-lg: 18px;
+  --p-text-lg--line-height: 28px;
+  --p-text-xl: 20px;
+  --p-text-xl--line-height: 28px;
+  --p-text-2xl: 24px;
+  --p-text-2xl--line-height: 32px;
+  --p-text-3xl: 30px;
+  --p-text-3xl--line-height: 36px;
+  --p-text-4xl: 36px;
+  --p-text-4xl--line-height: 40px;
+  --p-text-5xl: 48px;
+  --p-text-5xl--line-height: 1;
+
+  /* ── 폰트 원료 ──────────────────────────────────────────────────────────── */
+
+  /* 시스템 스택 — 웹폰트를 번들하지 않는다. Tailwind 기본 sans와 같은 값이다. */
+  --p-font-family-sans:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  --p-font-weight-regular: 400;
+  --p-font-weight-medium: 500;
+  --p-font-weight-semibold: 600;
+  --p-font-weight-bold: 700;
+
+  /* ── 컨트롤 측정 원료 ───────────────────────────────────────────────────── */
+
+  --p-border-width-thin: 1px;
+  --p-border-width-strong: 1.5px;
+  --p-ring-width-control: 2px;
+  --p-space-4: 4px;
+  --p-space-6: 6px;
+  --p-space-8: 8px;
+  --p-size-14: 14px;
+  --p-size-16: 16px;
+  --p-size-20: 20px;
+  --p-alpha-20: 20%;
+  --p-alpha-30: 30%;
+  --p-alpha-40: 40%;
+  --p-alpha-70: 70%;
+  --p-opacity-0: 0;
+  --p-opacity-25: 0.25;
+  --p-opacity-40: 0.4;
+  --p-opacity-50: 0.5;
+  --p-opacity-60: 0.6;
+  --p-opacity-70: 0.7;
+  --p-opacity-75: 0.75;
+
+  /* ── 그림자 스케일 ──────────────────────────────────────────────────────── */
+
+  --p-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --p-shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --p-shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --p-shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --p-shadow-e1: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --p-shadow-e2: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --p-shadow-e3: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --p-shadow-e4: 0 8px 16px rgba(0, 0, 0, 0.08);
+
+  /* ── 트랜지션 타이밍 ────────────────────────────────────────────────────── */
+
+  --p-duration-fast: 150ms;
+  --p-duration-default: 200ms;
+  --p-duration-slow: 300ms;
+  --p-duration-spinner: 1s;
+
+  --p-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --p-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --p-ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --p-ease-linear: linear;
+}

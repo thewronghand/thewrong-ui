@@ -28,6 +28,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 import {
   CHEVRON_SIZE_CLASS,
+  CONTROL_TEXT_CLASS,
   SLOT_BADGE_TEXT_CLASS,
   SLOT_CHILD_ICON_CLASS,
   SLOT_GAP_CLASS,
@@ -40,8 +41,10 @@ import {
   getInputTrailingIconColor,
   getInputVariantClasses,
 } from "@/components/input/utils";
+import { cn } from "@/lib/utils";
 
 import { LoadingDots } from "./loading-dots";
+import { computeSelectPanelMaxWidth } from "./panel-width";
 import type { SelectCommonProps, SelectOption } from "./types";
 
 /**
@@ -58,6 +61,8 @@ type SelectSearchProps =
       onLoadMore?: never;
       hasMore?: never;
       searchDebounceMs?: never;
+      openOnFocus?: never;
+      validateSearchQuery?: never;
     }
   | {
       searchable: true;
@@ -80,6 +85,10 @@ type SelectSearchProps =
        * @default 300
        */
       searchDebounceMs?: number | false;
+      /** searchable 입력에 포커스만 해도 패널을 연다. @default false */
+      openOnFocus?: boolean;
+      /** searchable 입력의 다음 검색어를 검사한다. false면 검색어와 검색 콜백에 반영하지 않는다. */
+      validateSearchQuery?: (query: string) => boolean;
     };
 
 /** Select의 search 외 base props (SelectCommonProps에서 search 관련 제외). */
@@ -93,7 +102,11 @@ type SelectBaseProps = Omit<
   value: string;
   /** 값 변경 콜백. clearable로 비울 때도 빈 문자열로 호출. */
   onChange: (value: string) => void;
-  /** 드롭다운 패널 추가 className. */
+  /**
+   * 드롭다운 패널 추가 className. 긴 라벨이 패널을 뷰포트 밖으로 밀어내지 않도록 인라인 maxWidth가
+   * 패널 폭을 `max(트리거 폭, min(가용 폭, 420px))`로 제한하므로 `max-w-*`/`min-w-*`로
+   * 이 범위를 넘길 수 없다. 범위 안에서는 `w-*`로 지정하고, 더 큰 폭이 필요하면 트리거 폭을 조정한다.
+   */
   panelClassName?: string;
   /** 트리거 추가 className. */
   className?: string;
@@ -101,6 +114,10 @@ type SelectBaseProps = Omit<
   id?: string;
   /** name (form 제출용 hidden input). */
   name?: string;
+  /** 지정하면 드롭다운 열림 상태를 제어한다. 생략하면 내부 상태를 사용한다. */
+  open?: boolean;
+  /** 드롭다운 열기·닫기 요청을 전달한다. open을 제어할 때는 이 값으로 상태를 갱신한다. */
+  onOpenChange?: (open: boolean) => void;
 };
 
 type SelectProps = SelectBaseProps & SelectSearchProps;
@@ -161,11 +178,20 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     onLoadMore,
     hasMore = false,
     searchDebounceMs = 300,
+    openOnFocus = false,
+    validateSearchQuery,
+    open,
+    onOpenChange,
     "data-testid": testId,
   },
   ref,
 ) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = open ?? internalOpen;
+  const setIsOpen = (next: boolean) => {
+    if (open === undefined) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const listRef = useRef<Array<HTMLElement | null>>([]);
@@ -176,24 +202,27 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
   const [loadMoreNode, setLoadMoreNode] = useState<HTMLDivElement | null>(null);
   // 옵션 리스트의 실제 스크롤 컨테이너. IntersectionObserver root로 사용해 viewport가 아닌
   // 패널 내부 스크롤 영역 기준으로 sentinel 가시성 판정 (첫 페이지가 패널을 못 채워도 무한 fetch 방지).
-  const [optionsScrollNode, setOptionsScrollNode] = useState<HTMLDivElement | null>(null);
+  const [optionsScrollNode, setOptionsScrollNode] =
+    useState<HTMLDivElement | null>(null);
   // a11y: aria-controls / aria-activedescendant 연결용 안정 ID.
   const listboxId = useId();
+  const generatedId = useId();
+  const triggerId = id ?? generatedId;
   const optionId = (index: number) => `${listboxId}-opt-${index}`;
-  const activeOptionId = activeIndex !== null ? optionId(activeIndex) : undefined;
+  const activeOptionId =
+    activeIndex !== null ? optionId(activeIndex) : undefined;
 
   // 외부 검색(서버) 모드: onSearchChange 제공 시 클라이언트 필터를 끄고 입력만 외부에 전달.
   const isExternalSearch = typeof onSearchChange === "function";
+  const onSearchChangeRef = useRef(onSearchChange);
+  onSearchChangeRef.current = onSearchChange;
 
   // 외부 검색 디바운스. searchDebounceMs > 0일 때만 적용. 0/false면 즉시 호출.
   const debounceMs =
     searchDebounceMs === false || searchDebounceMs <= 0 ? 0 : searchDebounceMs;
-  const debouncedSearch = useDebouncedCallback(
-    (q: string) => {
-      onSearchChange?.(q);
-    },
-    debounceMs,
-  );
+  const debouncedSearch = useDebouncedCallback((q: string) => {
+    onSearchChangeRef.current?.(q);
+  }, debounceMs);
 
   // close 시점에 빈 query를 즉시 emit해야 부모 옵션 리셋이 한 프레임 늦어지지 않는다.
   // 닫힐 때 pending된 디바운스가 있다면 cancel하고 우리가 빈 값을 직접 부른다.
@@ -201,13 +230,17 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     if (!isExternalSearch) return;
     if (immediate || debounceMs === 0) {
       debouncedSearch.cancel();
-      onSearchChange(q);
+      onSearchChangeRef.current?.(q);
     } else {
       debouncedSearch(q);
     }
   };
 
   const selectedOption = options.find((o) => String(o.value) === value);
+  const selectedLabelRef = useRef(selectedOption?.label ?? "");
+  selectedLabelRef.current = selectedOption?.label ?? "";
+  const emitSearchRef = useRef(emitSearch);
+  emitSearchRef.current = emitSearch;
 
   // 검색어가 selected.label과 정확히 같으면 "사용자가 아직 편집 안 함" 상태 — 전체 옵션 노출.
   // 사용자가 한 글자라도 다르게 입력하면 자유 편집 모드로 전환되어 필터링 시작.
@@ -219,12 +252,23 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
       (selectedOption === undefined && value !== "" && searchQuery !== ""));
 
   const filteredOptions = useMemo(() => {
-    if (!searchable || isExternalSearch || searchQuery.length === 0 || isShowingSelectedAsQuery) {
+    if (
+      !searchable ||
+      isExternalSearch ||
+      searchQuery.length === 0 ||
+      isShowingSelectedAsQuery
+    ) {
       return options;
     }
     const q = searchQuery.toLowerCase();
     return options.filter((o) => o.label.toLowerCase().includes(q));
-  }, [options, searchable, isExternalSearch, searchQuery, isShowingSelectedAsQuery]);
+  }, [
+    options,
+    searchable,
+    isExternalSearch,
+    searchQuery,
+    isShowingSelectedAsQuery,
+  ]);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -235,11 +279,12 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
       offset(4),
       flip({ padding: 8 }),
       shift({ padding: 8 }),
-      // 패널 폭을 트리거와 매칭. 옵션 라벨이 길면 늘어나도록 minWidth만.
+      // 트리거 폭을 하한으로, 가용 화면과 최대 폭을 상한으로 사용한다.
       floatingSize({
-        apply({ rects, elements, availableHeight }) {
+        apply({ rects, elements, availableHeight, availableWidth }) {
           Object.assign(elements.floating.style, {
             minWidth: `${rects.reference.width}px`,
+            maxWidth: `${computeSelectPanelMaxWidth(rects.reference.width, availableWidth)}px`,
             maxHeight: `${Math.min(availableHeight, 320)}px`,
           });
         },
@@ -268,13 +313,9 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     enabled: !searchable,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    click,
-    dismiss,
-    role,
-    listNav,
-    typeahead,
-  ]);
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions(
+    [click, dismiss, role, listNav, typeahead],
+  );
 
   // 첫 마운트 시 useEffect(isOpen)이 isOpen=false 분기로 한 번 발화하면서 외부 검색 모드에 onSearchChange("")를
   // 부르면, 부모가 마운트 즉시 fetch를 시작해 트리거에 스피너가 떠있는 부작용이 생긴다. 첫 발화는 스킵.
@@ -290,7 +331,7 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     if (isOpen) {
       hasOpenedOnceRef.current = true;
       if (searchable) {
-        const label = selectedOption?.label ?? "";
+        const label = selectedLabelRef.current;
         setSearchQuery(label);
         if (label !== "") {
           requestAnimationFrame(() => {
@@ -302,14 +343,10 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
       setSearchQuery("");
       setActiveIndex(null);
       // 닫힐 때 빈 query 즉시 emit (디바운스 우회) — 부모 옵션 리셋 race 방지.
-      if (hasOpenedOnceRef.current) emitSearch("", true);
+      if (hasOpenedOnceRef.current) emitSearchRef.current("", true);
     }
-    // selectedOption은 value 변화에 따라 매 렌더 새로 계산되지만, 의존성에 넣으면 옵션 클릭으로
-    // value가 바뀐 직후(아직 isOpen=true) effect가 발화해 searchQuery를 새 selected.label로 덮어씀.
-    // 그건 불필요하고 옵션 클릭 → setIsOpen(false) → 같은 effect의 닫힘 분기가 처리하므로
-    // selectedOption은 의존성에서 제외 (eslint exhaustive-deps 경고 감수).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, searchable, isExternalSearch, onSearchChange]);
+    // 값 변경 중에는 검색어를 덮지 않고, 패널이 열릴 때만 현재 라벨을 읽는다.
+  }, [isOpen, searchable, isExternalSearch]);
 
   // 무한스크롤: sentinel이 옵션 리스트 스크롤 컨테이너 안에서 가시 진입 시 onLoadMore 호출.
   // isSearchLoading 중에는 중복 호출 방지(부모가 다음 페이지 fetch 중).
@@ -330,7 +367,14 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     );
     observer.observe(loadMoreNode);
     return () => observer.disconnect();
-  }, [isOpen, onLoadMore, hasMore, isSearchLoading, loadMoreNode, optionsScrollNode]);
+  }, [
+    isOpen,
+    onLoadMore,
+    hasMore,
+    isSearchLoading,
+    loadMoreNode,
+    optionsScrollNode,
+  ]);
 
   const handleSelect = (optionValue: string) => {
     onChange(optionValue);
@@ -356,6 +400,11 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const next = e.target.value;
+    if (validateSearchQuery && !validateSearchQuery(next)) return;
+    if (next !== searchQuery) {
+      if (optionsScrollNode) optionsScrollNode.scrollTop = 0;
+      setActiveIndex(null);
+    }
     setSearchQuery(next);
     // 외부 검색은 디바운스 적용. 클라이언트 필터는 setSearchQuery로 즉시 반영.
     emitSearch(next, false);
@@ -385,7 +434,9 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
     }
   };
 
-  const showLabel = labelOption === "sustain" || (labelOption === "appear" && Boolean(selectedOption));
+  const showLabel =
+    labelOption === "sustain" ||
+    (labelOption === "appear" && Boolean(selectedOption));
   const filled = Boolean(selectedOption);
   // 비-searchable: button 트리거 라벨. searchable: input value(아래 inlineSearchValue)로 별도 처리.
   const triggerText = selectedOption ? selectedOption.label : placeholder;
@@ -393,7 +444,9 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
   // searchable 트리거 input의 표시값. 열린 상태에선 searchQuery(사용자 편집 + selected.label 초기값),
   // 닫힌 상태에선 selectedOption.label 직접 표시. useEffect(isOpen)이 open 시 searchQuery를
   // selected.label로 동기화 + close 시 빈 값으로 리셋하므로, 닫힌 상태의 표시는 이 분기로 자연 처리됨.
-  const inlineSearchValue = isOpen ? searchQuery : (selectedOption?.label ?? "");
+  const inlineSearchValue = isOpen
+    ? searchQuery
+    : (selectedOption?.label ?? "");
 
   // size 토큰
   const slotGap = SLOT_GAP_CLASS[selectSize];
@@ -403,53 +456,75 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
   const chevronSize = CHEVRON_SIZE_CLASS[selectSize];
 
   // Input variant utils 재사용 — Input과 같은 height/border/padding 토큰.
-  const variantClasses = getInputVariantClasses(variant, hasError, disabled, selectSize);
-  const trailingIconColor = getInputTrailingIconColor(hasError, disabled, filled || isOpen);
+  const variantClasses = getInputVariantClasses(
+    variant,
+    hasError,
+    disabled,
+    selectSize,
+  );
+  const trailingIconColor = getInputTrailingIconColor(
+    hasError,
+    disabled,
+    filled || isOpen,
+  );
 
-  const fontSize =
-    selectSize === "mini" ? "text-xs" : selectSize === "large" ? "text-base" : "text-sm";
+  const fontSize = CONTROL_TEXT_CLASS[selectSize];
   const triggerTextColor = disabled
-    ? "text-text-disabled"
+    ? "text-fg-disabled"
     : hasError
-      ? "text-text-danger"
+      ? "text-fg-danger"
       : filled
-        ? "text-text-primary"
-        : "text-text-tertiary";
+        ? "text-fg-default"
+        : "text-fg-subtle";
 
   return (
     <div
       ref={containerRef}
-      className={getInputContainerClasses()}
+      className={cn(getInputContainerClasses(), "min-w-0")}
       {...containerProps}
     >
       {showLabel && label && (
-        <label className={getInputLabelClasses(variant, hasError)} htmlFor={id}>
+        <label
+          className={getInputLabelClasses(variant, hasError)}
+          htmlFor={triggerId}
+        >
           {label}
         </label>
       )}
       {searchable ? (
         // searchable 모드: 트리거 자체가 input. 포커스/입력 시 자동 open, 옵션 선택 시 close.
         // 닫힐 때 selected.label로 복원 — useEffect(isOpen)에서 setSearchQuery("") 처리.
-        // wrapper div가 reference. useClick의 click 토글은 input/wrapper 양쪽에서 발화 가능 —
-        // 옵션 클릭의 portal 이벤트가 wrapper에 reach하지 않도록 useClick 의존, wrapper 자체엔 onClick 미적용.
+        // wrapper의 빈 공간이나 아이콘을 눌러도 input을 포커스하고 패널을 연다.
         <div
           ref={(node) => {
             refs.setReference(node);
           }}
-          {...getReferenceProps()}
-          className={`${variantClasses} flex w-full items-center ${slotGap} ${
-            disabled ? "cursor-not-allowed" : "cursor-text"
-          } ${className}`
-            .trim()
-            .replace(/\s+/g, " ")}
+          {...getReferenceProps({
+            onClick: () => {
+              if (disabled) return;
+              searchInputRef.current?.focus();
+              if (!isOpen) setIsOpen(true);
+            },
+          })}
+          className={cn(
+            variantClasses,
+            "flex w-full min-w-0 items-center",
+            slotGap,
+            variant !== "box" && "focus-within:border-primary",
+            variant !== "box" && variant !== "line" && "focus-within:ring-control focus-within:ring-primary",
+            disabled ? "cursor-not-allowed" : "cursor-text",
+            className,
+          )}
         >
           <input
             ref={(node) => {
               searchInputRef.current = node;
               if (typeof ref === "function") ref(node);
-              else if (ref) (ref as React.RefObject<SelectTriggerRef | null>).current = node;
+              else if (ref)
+                (ref as React.RefObject<SelectTriggerRef | null>).current =
+                  node;
             }}
-            id={id}
+            id={triggerId}
             type="text"
             role="combobox"
             // 닫힌 상태에선 input이 selected.label만 보여주는 "chip" 역할.
@@ -469,29 +544,34 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
             placeholder={selectedOption ? searchPlaceholder : placeholder}
             onChange={handleSearchChange}
             onKeyDown={handleSearchKeyDown}
-            // 클릭으로만 open. (focus 기반 자동 open은 옵션 선택 후 input 포커스 유지로 인해
-            // setIsOpen(false) 직후 다시 true가 되는 race를 만들어 비활성. 클릭 트리거가 신뢰성 있음.)
-            // selected 있는 상태에서 클릭 시 텍스트 전체 선택은 useEffect(isOpen) 안에서 처리.
-            onClick={() => {
-              if (disabled) return;
-              if (!isOpen) setIsOpen(true);
+            onFocus={() => {
+              if (openOnFocus && !disabled && !isOpen) setIsOpen(true);
             }}
-            className={`flex-1 bg-transparent text-left outline-hidden ${fontSize} ${triggerTextColor} ${
-              disabled ? "cursor-not-allowed" : ""
-            } placeholder:text-text-tertiary`}
+            className={cn(
+              "min-w-0 flex-1 truncate bg-transparent text-left outline-hidden placeholder:text-fg-subtle",
+              fontSize,
+              triggerTextColor,
+              disabled && "cursor-not-allowed",
+            )}
           />
           {suffix && (
-            <span className={`shrink-0 whitespace-nowrap ${fontSize} ${trailingIconColor}`}>
+            <span
+              className={cn("shrink-0 whitespace-nowrap", fontSize, trailingIconColor)}
+            >
               {suffix}
             </span>
           )}
           {trailingIcon && (
-            <span className={`flex shrink-0 items-center ${trailingIconColor} ${slotIconSize}`}>
+            <span
+              className={cn("flex shrink-0 items-center", trailingIconColor, slotIconSize)}
+            >
               {trailingIcon}
             </span>
           )}
           {isSearchLoading && (
-            <LoadingDots className={`shrink-0 text-icon-tertiary ${builtinIconSize}`} />
+            <LoadingDots
+              className={cn("shrink-0 text-fg-subtle", builtinIconSize)}
+            />
           )}
           {clearable && !disabled && filled && (
             <button
@@ -499,20 +579,33 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               tabIndex={-1}
               onClick={handleClear}
               aria-label="선택 지우기"
-              className={`flex shrink-0 cursor-pointer items-center rounded ${trailingIconColor} hover:text-text-primary focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500/40`}
+              className={cn(
+                "flex shrink-0 cursor-pointer items-center rounded",
+                trailingIconColor,
+                "hover:text-fg-default focus:outline-hidden focus-visible:ring-input-clear focus-visible:ring-input-clear-ring",
+              )}
             >
-              <CircleX className={builtinIconSize} strokeWidth={1.5} aria-hidden />
+              <CircleX
+                className={builtinIconSize}
+                strokeWidth={1.5}
+                aria-hidden
+              />
             </button>
           )}
           {badge && (
-            <span className={`flex shrink-0 items-center ${slotIconSize} ${slotBadgeText}`}>
+            <span
+              className={cn("flex shrink-0 items-center", slotIconSize, slotBadgeText)}
+            >
               {badge}
             </span>
           )}
           <ChevronDown
-            className={`shrink-0 transition-transform ${chevronSize} ${trailingIconColor} ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "shrink-0 transition-transform",
+              chevronSize,
+              trailingIconColor,
+              isOpen && "rotate-180",
+            )}
             strokeWidth={1.5}
             aria-hidden
           />
@@ -522,9 +615,10 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
           ref={(node) => {
             refs.setReference(node);
             if (typeof ref === "function") ref(node);
-            else if (ref) (ref as React.RefObject<SelectTriggerRef | null>).current = node;
+            else if (ref)
+              (ref as React.RefObject<SelectTriggerRef | null>).current = node;
           }}
-          id={id}
+          id={triggerId}
           type="button"
           disabled={disabled}
           aria-haspopup="listbox"
@@ -533,23 +627,29 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
           aria-activedescendant={activeOptionId}
           data-testid={testId}
           {...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
-          className={`${variantClasses} flex w-full items-center ${slotGap} ${
-            disabled ? "cursor-not-allowed" : "cursor-pointer"
-          } ${className}`
-            .trim()
-            .replace(/\s+/g, " ")}
+          className={cn(
+            variantClasses,
+            "flex w-full min-w-0 items-center",
+            slotGap,
+            disabled ? "cursor-not-allowed" : "cursor-pointer",
+            className,
+          )}
         >
-          <span className={`flex-1 truncate text-left ${fontSize} ${triggerTextColor}`}>
+          <span
+            className={cn("min-w-0 flex-1 truncate text-left", fontSize, triggerTextColor)}
+          >
             {triggerText}
           </span>
           {suffix && (
-            <span className={`shrink-0 whitespace-nowrap ${fontSize} ${trailingIconColor}`}>
+            <span
+              className={cn("shrink-0 whitespace-nowrap", fontSize, trailingIconColor)}
+            >
               {suffix}
             </span>
           )}
           {trailingIcon && (
             <span
-              className={`flex shrink-0 items-center ${trailingIconColor} ${slotIconSize}`}
+              className={cn("flex shrink-0 items-center", trailingIconColor, slotIconSize)}
             >
               {trailingIcon}
             </span>
@@ -560,22 +660,33 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               tabIndex={-1}
               onClick={handleClear}
               aria-label="선택 지우기"
-              className={`flex shrink-0 cursor-pointer items-center ${trailingIconColor} hover:text-text-primary`}
+              className={cn(
+                "flex shrink-0 cursor-pointer items-center",
+                trailingIconColor,
+                "hover:text-fg-default",
+              )}
             >
-              <CircleX className={builtinIconSize} strokeWidth={1.5} aria-hidden />
+              <CircleX
+                className={builtinIconSize}
+                strokeWidth={1.5}
+                aria-hidden
+              />
             </span>
           )}
           {badge && (
             <span
-              className={`flex shrink-0 items-center ${slotIconSize} ${slotBadgeText}`}
+              className={cn("flex shrink-0 items-center", slotIconSize, slotBadgeText)}
             >
               {badge}
             </span>
           )}
           <ChevronDown
-            className={`shrink-0 transition-transform ${chevronSize} ${trailingIconColor} ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "shrink-0 transition-transform",
+              chevronSize,
+              trailingIconColor,
+              isOpen && "rotate-180",
+            )}
             strokeWidth={1.5}
             aria-hidden
           />
@@ -597,12 +708,18 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
               id={listboxId}
               style={floatingStyles}
               {...getFloatingProps()}
-              className={`z-9999 overflow-hidden rounded-lg border border-border-tertiary bg-bg-white shadow-lg dark:border-border-secondary dark:bg-neutral-800 ${panelClassName}`}
+              className={cn(
+                "z-floating overflow-hidden rounded-surface border border-border-subtle bg-bg-surface shadow-overlay",
+                panelClassName,
+              )}
             >
               {/* searchable 모드는 트리거 input이 검색 역할을 하므로 패널 안 별도 검색창 없음. */}
-              <div ref={setOptionsScrollNode} className="max-h-72 overflow-y-auto py-1">
+              <div
+                ref={setOptionsScrollNode}
+                className="max-h-72 overflow-y-auto py-1"
+              >
                 {filteredOptions.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-sm text-text-tertiary">
+                  <div className="px-3 py-4 text-center text-sm text-fg-subtle">
                     {isSearchLoading ? "검색 중..." : "옵션이 없어요"}
                   </div>
                 ) : (
@@ -633,30 +750,32 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
                             }
                           },
                         })}
-                        className={`flex cursor-pointer items-start gap-3 px-3 py-2 text-sm transition-colors ${
+                        className={cn(
+                          "flex cursor-pointer items-start gap-3 px-3 py-2 text-sm transition-colors",
                           option.disabled
-                            ? "cursor-not-allowed text-text-disabled"
+                            ? "cursor-not-allowed text-fg-disabled"
                             : isSelected
-                              ? `font-medium text-primary-600 dark:text-primary-400 ${
+                              ? cn(
+                                  "font-medium text-primary-fg",
                                   isActive
-                                    ? "bg-primary-50 dark:bg-primary-900/30"
-                                    : "hover:bg-primary-50/60 dark:hover:bg-primary-900/20"
-                                }`
+                                    ? "bg-primary-subtle"
+                                    : "bg-primary-subtle/60 hover:bg-primary-subtle/80",
+                                )
                               : isActive
-                                ? "bg-neutral-100 text-text-primary dark:bg-neutral-700"
-                                : "text-text-primary hover:bg-neutral-50 dark:hover:bg-neutral-700"
-                        }`}
+                                ? "bg-bg-subtle text-fg-default"
+                                : "text-fg-default hover:bg-bg-subtle",
+                        )}
                       >
                         <div className="min-w-0 flex-1">
                           <div className="truncate">{option.label}</div>
                           {option.description && (
-                            <div className="mt-0.5 truncate text-xs text-text-tertiary">
+                            <div className="mt-0.5 truncate text-xs text-fg-subtle">
                               {option.description}
                             </div>
                           )}
                         </div>
                         {option.trailing && (
-                          <span className="shrink-0 text-xs text-text-tertiary">
+                          <span className="shrink-0 text-xs text-fg-subtle">
                             {option.trailing}
                           </span>
                         )}
@@ -670,7 +789,7 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
                   <div
                     ref={setLoadMoreNode}
                     aria-hidden
-                    className="flex items-center justify-center px-3 py-3 text-text-tertiary"
+                    className="flex items-center justify-center px-3 py-3 text-fg-subtle"
                   >
                     {isSearchLoading && <LoadingDots />}
                   </div>

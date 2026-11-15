@@ -1,21 +1,22 @@
 import { forwardRef, useState } from "react";
 
+import { CONTROL_TEXT_CLASS } from "@/components/_shared/form-size-tokens";
+import { cn } from "@/lib/utils";
+
 import type { TextareaProps, TextareaSize } from "./types";
 
 // size 토큰은 Button/Input/Select와 정렬: rounded·horizontal padding을 동일하게.
 // height는 textarea 특성상 rows로 결정되니 vertical padding만 통일하고 h-* 미사용.
 const WRAPPER_BASE_BY_SIZE: Record<TextareaSize, string> = {
   large:
-    "rounded-xl border px-5 py-3.5 transition-colors focus-within:outline-hidden",
+    "rounded-control-large border px-control-pad-large py-3.5 transition-colors focus-within:outline-hidden",
   medium:
-    "rounded-xl border px-3.5 py-3 transition-colors focus-within:outline-hidden",
+    "rounded-control-medium border px-control-pad-medium py-3 transition-colors focus-within:outline-hidden",
   small:
-    "rounded-lg border px-3 py-2 transition-colors focus-within:outline-hidden",
-  mini: "rounded-md border px-2 py-1.5 transition-colors focus-within:outline-hidden",
+    "rounded-control-small border px-control-pad-small py-2 transition-colors focus-within:outline-hidden",
+  mini: "rounded-control-mini border px-control-pad-mini py-1.5 transition-colors focus-within:outline-hidden",
 };
 
-// 다크모드: border-tertiary가 모달 배경과 거의 동색이라 외곽선이 사라져 보인다.
-// dark:border-border-secondary로 한 단계 밝게 override. (input/select 동일 정책)
 const getWrapperClasses = (
   hasError: boolean,
   disabled: boolean,
@@ -25,15 +26,15 @@ const getWrapperClasses = (
   if (disabled) {
     return [
       WRAPPER_BASE,
-      "bg-bg-disabled border-border-tertiary dark:border-border-secondary",
+      "bg-bg-disabled border-border-subtle",
     ].join(" ");
   }
   if (hasError) {
-    return [WRAPPER_BASE, "bg-bg-white border-border-danger"].join(" ");
+    return [WRAPPER_BASE, "bg-bg-surface border-border-danger"].join(" ");
   }
   return [
     WRAPPER_BASE,
-    "bg-bg-white border-border-tertiary dark:border-border-secondary focus-within:border-border-primary",
+    "bg-bg-surface border-border-subtle focus-within:border-border-primary",
   ].join(" ");
 };
 
@@ -44,37 +45,36 @@ const getTextareaClasses = (
   resize: boolean,
   size: TextareaSize,
 ): string => {
-  const fontSize =
-    size === "mini" ? "text-xs" : size === "large" ? "text-base" : "text-sm";
+  const fontSize = CONTROL_TEXT_CLASS[size];
   const base = `w-full bg-transparent ${fontSize} focus:outline-hidden disabled:cursor-not-allowed ${
     resize ? "resize-y" : "resize-none"
   }`;
   if (disabled) {
-    return [base, "text-text-disabled placeholder:text-text-disabled"].join(
+    return [base, "text-fg-disabled placeholder:text-fg-disabled"].join(
       " ",
     );
   }
   if (hasError) {
-    return [base, "text-text-danger placeholder:text-text-danger"].join(" ");
+    return [base, "text-fg-danger placeholder:text-fg-danger-placeholder"].join(" ");
   }
   if (filled) {
-    return [base, "text-text-primary placeholder:text-text-tertiary"].join(
+    return [base, "text-fg-default placeholder:text-fg-subtle"].join(
       " ",
     );
   }
-  return [base, "text-text-tertiary placeholder:text-text-tertiary"].join(" ");
+  return [base, "text-fg-subtle placeholder:text-fg-subtle"].join(" ");
 };
 
 const getLabelClasses = (hasError: boolean): string =>
   [
     "block text-xs font-medium mb-2",
-    hasError ? "text-text-danger" : "text-text-secondary",
+    hasError ? "text-fg-danger" : "text-fg-muted",
   ].join(" ");
 
 const getHelpClasses = (hasError: boolean): string =>
   [
     "mt-2 text-sm",
-    hasError ? "text-text-danger" : "text-text-secondary",
+    hasError ? "text-fg-danger" : "text-fg-muted",
   ].join(" ");
 
 /**
@@ -134,17 +134,17 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
     const counter = showCount && maxLength != null && (
       <span
-        className={[
+        className={cn(
           "text-xs",
-          hasError ? "text-text-danger" : "text-text-tertiary",
-        ].join(" ")}
+          hasError ? "text-fg-danger" : "text-fg-subtle",
+        )}
       >
         {currentValue.length} / {maxLength}
       </span>
     );
 
     return (
-      <div className={`w-full ${containerClassName}`.trim()}>
+      <div className={cn("w-full", containerClassName)}>
         {label && (
           <label className={getLabelClasses(hasError)} htmlFor={id}>
             {label}
@@ -162,7 +162,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             placeholder={placeholder}
             disabled={disabled}
             maxLength={maxLength}
-            className={`${textareaClasses} ${className}`.trim()}
+            className={cn(textareaClasses, className)}
           />
           {counter && <div className="mt-1 flex justify-end">{counter}</div>}
         </div>

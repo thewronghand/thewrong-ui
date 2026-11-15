@@ -1,5 +1,7 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 
+import { cn } from "@/lib/utils";
+
 import type { ButtonBaseProps, ButtonCommonProps, ButtonLinkProps } from "./types";
 import {
   getButtonBaseClasses,
@@ -11,13 +13,13 @@ import {
 
 const Spinner = () => (
   <svg
-    className="animate-spin h-4 w-4"
+    className="animate-button-spinner size-button-spinner-small"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
   >
     <circle
-      className="opacity-25"
+      className="opacity-button-spinner-track"
       cx="12"
       cy="12"
       r="10"
@@ -25,7 +27,7 @@ const Spinner = () => (
       strokeWidth="4"
     />
     <path
-      className="opacity-75"
+      className="opacity-button-spinner-head"
       fill="currentColor"
       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
     />
@@ -39,6 +41,7 @@ const Spinner = () => (
  * - 저장·정산·전송 같은 **비가역 async 액션**에는 `clickThrottleMs`로 더블클릭을 막는다.
  * - 모달 푸터·모바일 등 부모 폭을 채워야 하면 `display="block"`.
  * - 시각은 버튼이지만 실제 이동이 필요하면 `as="a"` + `href`(링크로 렌더, loading/disabled 동일 동작).
+ * - 크기와 색상은 `className`으로 덮어쓸 수 있다.
  *
  * @example
  * ```tsx
@@ -86,21 +89,21 @@ export const Button = forwardRef<
     [],
   );
 
-  const classes = [
+  const isLink = "as" in props && props.as === "a";
+  const disabled = "disabled" in props ? props.disabled : false;
+  const isDisabled = disabled || loading || isThrottled;
+
+  const classes = cn(
     getButtonBaseClasses(),
     getButtonColorClasses(variant, appearance),
     getButtonSizeClasses(size),
     getButtonDisplayClasses(display),
     getButtonFocusRing(variant),
-    loading ? "opacity-70 cursor-wait" : "",
+    loading && "opacity-70 cursor-wait",
+    isLink && isDisabled && "pointer-events-none",
+    isLink && isDisabled && !loading && "opacity-button-disabled",
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const isLink = "as" in props && props.as === "a";
-  const disabled = "disabled" in props ? props.disabled : false;
-  const isDisabled = disabled || loading || isThrottled;
+  );
 
   if (isLink) {
     const linkProps = restProps as Omit<
@@ -118,9 +121,7 @@ export const Button = forwardRef<
     return (
       <a
         ref={ref as React.ForwardedRef<HTMLAnchorElement>}
-        className={`${classes} ${
-          isDisabled ? "pointer-events-none opacity-60" : ""
-        }`.trim()}
+        className={classes}
         aria-disabled={isDisabled}
         tabIndex={isDisabled ? -1 : linkProps.tabIndex}
         {...linkProps}

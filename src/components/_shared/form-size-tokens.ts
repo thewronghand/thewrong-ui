@@ -6,42 +6,50 @@
 
 export type FormFieldSize = "mini" | "small" | "medium" | "large";
 
+/** 필드 텍스트의 크기와 줄 높이. */
+export const CONTROL_TEXT_CLASS: Record<FormFieldSize, string> = {
+  mini: "text-control-mini",
+  small: "text-control-small",
+  medium: "text-control-medium",
+  large: "text-control-large",
+};
+
 /** 빌트인 clearable의 X 아이콘과 호출부 trailingIcon의 svg에 적용할 height/width 클래스. */
 export const SLOT_ICON_SIZE_CLASS: Record<FormFieldSize, string> = {
-  mini: "h-3.5 w-3.5",
-  small: "h-4 w-4",
-  medium: "h-4.5 w-4.5",
-  large: "h-5 w-5",
+  mini: "h-slot-icon-mini w-slot-icon-mini",
+  small: "h-slot-icon-small w-slot-icon-small",
+  medium: "h-slot-icon-medium w-slot-icon-medium",
+  large: "h-slot-icon-large w-slot-icon-large",
 };
 
 /** Select의 chevron 전용 사이즈 — 일반 슬롯 아이콘과 동일 비율. */
 export const CHEVRON_SIZE_CLASS: Record<FormFieldSize, string> = {
-  mini: "h-3.5 w-3.5",
-  small: "h-4 w-4",
-  medium: "h-4.5 w-4.5",
-  large: "h-5 w-5",
+  mini: "h-slot-icon-mini w-slot-icon-mini",
+  small: "h-slot-icon-small w-slot-icon-small",
+  medium: "h-slot-icon-medium w-slot-icon-medium",
+  large: "h-slot-icon-large w-slot-icon-large",
 };
 
 /** trailingIcon/badge wrapper에 깔아 안의 svg가 자동으로 따라가게 하는 arbitrary selector. */
 export const SLOT_CHILD_ICON_CLASS: Record<FormFieldSize, string> = {
-  mini: "[&>svg]:h-3.5 [&>svg]:w-3.5",
-  small: "[&>svg]:h-4 [&>svg]:w-4",
-  medium: "[&>svg]:h-4.5 [&>svg]:w-4.5",
-  large: "[&>svg]:h-5 [&>svg]:w-5",
+  mini: "[&>svg]:h-slot-icon-mini [&>svg]:w-slot-icon-mini",
+  small: "[&>svg]:h-slot-icon-small [&>svg]:w-slot-icon-small",
+  medium: "[&>svg]:h-slot-icon-medium [&>svg]:w-slot-icon-medium",
+  large: "[&>svg]:h-slot-icon-large [&>svg]:w-slot-icon-large",
 };
 
-/** badge wrapper에 적용할 텍스트 사이즈 — 호출부가 inline className으로 명시 시 override. */
+/** badge wrapper의 텍스트 크기와 줄 높이. */
 export const SLOT_BADGE_TEXT_CLASS: Record<FormFieldSize, string> = {
-  mini: "text-[10px]",
-  small: "text-xs",
-  medium: "text-xs",
-  large: "text-sm",
+  mini: "text-slot-badge-mini",
+  small: "text-slot-badge-small",
+  medium: "text-slot-badge-medium",
+  large: "text-slot-badge-large",
 };
 
 /** 슬롯 간 gap — 디자인 시안 medium 기준 12px. */
 export const SLOT_GAP_CLASS: Record<FormFieldSize, string> = {
-  mini: "gap-1.5",
-  small: "gap-2",
-  medium: "gap-3",
-  large: "gap-3.5",
+  mini: "gap-slot-mini",
+  small: "gap-slot-small",
+  medium: "gap-slot-medium",
+  large: "gap-slot-large",
 };

@@ -19,6 +19,7 @@ import { forwardRef, useMemo, useRef } from "react";
 
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { TableCheckbox } from "@/components/table-checkbox";
+import { cn } from "@/lib/utils";
 
 import {
   applyColumnState,
@@ -75,6 +76,7 @@ const restrictHeaderDrag: Modifier = ({
  *
  * 페이지네이션이 없는 조회 API 또는 페이지네이션 영역을 별도로 렌더하는 경우 사용.
  * PaginatedTable은 이 컴포넌트를 wrap해서 footer(Pagination/PageJump/PageSize)를 추가.
+ * 컬럼 너비 합이 컨테이너보다 작아 열이 늘어나면 브라우저가 남는 폭을 재분배하므로 드래그 이동량과 화면 변화량이 비례하지 않는다. 컬럼 합을 컨테이너 이상으로 지정한다(여백 컬럼이 필요하면 AccordionTable을 쓴다 — Table에는 여백 컬럼 옵션이 없다).
  */
 // forwardRef가 제네릭 인자를 그대로 보존하지 못해서 `any`로 우회 후 아래에서 제네릭 시그니처로 cast.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -328,14 +330,14 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
       const classes: string[] = [getStripedRowClasses(index)];
       if (isRowSelected(row)) classes.push(getSelectedRowClasses());
       if (onRowClick) classes.push(getHoverableRowClasses());
-      return classes.join(" ");
+      return cn(classes);
     };
 
     if (loading) {
       return (
         <div
           ref={ref}
-          className={`flex items-center justify-center p-8 flex-1 ${className}`}
+          className={cn("flex items-center justify-center p-8 flex-1", className)}
           style={containerStyle}
           data-testid={testId}
           {...restProps}
@@ -348,7 +350,10 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
     return (
       <div
         ref={ref}
-        className={`relative flex flex-col min-h-0 gap-4 md:gap-5 xl:gap-6 ${className}`}
+        className={cn(
+          "isolate relative flex flex-col min-h-0 gap-4 md:gap-5 xl:gap-6",
+          className,
+        )}
         style={containerStyle}
         data-testid={testId}
         {...restProps}
@@ -363,9 +368,10 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
           {/* overlay와 scroll-container를 한 relative wrapper로 묶어 overlay의 inset-0가 footer를 포함하지 않게 분리. */}
           <div className="relative flex flex-1 flex-col min-h-0">
             <div
-              className={`pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-white/50 backdrop-blur-[2px] transition-opacity duration-150 dark:bg-neutral-900/50 ${
-                isFetching ? "opacity-100" : "opacity-0"
-              }`}
+              className={cn(
+                "pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-bg-surface/60 backdrop-blur-[2px] transition-opacity duration-150",
+                isFetching ? "opacity-100" : "opacity-0",
+              )}
               {...(isFetching
                 ? { role: "status", "aria-live": "polite" as const }
                 : { "aria-hidden": true as const })}
@@ -374,11 +380,11 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
             </div>
             <div
               ref={scrollContainerRef}
-              className="scrollbar-table overflow-auto flex-1 bg-[#f9fafb] dark:bg-slate-900/50"
+              className="scrollbar-table overflow-auto flex-1 bg-bg-page"
             >
             {displayData.length === 0 ? (
               <div className="flex items-center justify-center p-8 h-full">
-                <p className="text-neutral-600 dark:text-neutral-400">
+                <p className="text-fg-muted">
                   {emptyMessage}
                 </p>
               </div>
@@ -391,7 +397,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
               >
               <table
                 ref={tableRef}
-                className={`${baseClasses} ${variantClasses} ${sizeClasses}`}
+                className={cn(baseClasses, variantClasses, sizeClasses)}
                 style={{
                   tableLayout: "fixed",
                   minWidth: "100%",
@@ -418,8 +424,8 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                   style={{
                     position: stickyHeader ? "sticky" : "relative",
                     top: stickyHeader ? 0 : undefined,
-                    zIndex: stickyHeader ? 10 : undefined,
-                    // 배경은 getTableHeaderClasses()의 bg-bg-base-secondary 토큰을 그대로 쓴다.
+                    zIndex: stickyHeader ? 20 : undefined,
+                    // 배경은 getTableHeaderClasses()의 bg-bg-table-header 토큰을 그대로 쓴다.
                     // 과거 여기에 "white"를 하드코딩해, 다크모드에서 헤더 드래그로 셀이 자리를
                     // 비우면 흰 배경이 드러나는 버그가 있었다.
                   }}
@@ -428,7 +434,11 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                     {enableRowSelection && enableSelectAll && (
                       <th
                         rowSpan={hasGroup ? 2 : 1}
-                        className={`${getTableHeaderCellClasses()} ${getColumnAlignClasses("center")} w-12 px-0`}
+                        className={cn(
+                          getTableHeaderCellClasses(),
+                          getColumnAlignClasses("center"),
+                          "w-12 px-0",
+                        )}
                       >
                         <div className="flex items-center justify-center">
                           <TableCheckbox
@@ -454,11 +464,16 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                               disabled={!columnStateEnabled}
                               as="th"
                               colSpan={slot.leafColumns.length}
-                              className={`${getTableHeaderCellClasses()} ${getColumnAlignClasses("center")} group/header-cell ${slot.hideOnMobile ? "hidden md:table-cell" : ""} relative`}
+                              className={cn(
+                                getTableHeaderCellClasses(),
+                                getColumnAlignClasses("center"),
+                                "group/header-cell relative",
+                                slot.hideOnMobile && "hidden md:table-cell",
+                              )}
                             >
                               {columnStateEnabled && (
                                 <span
-                                  className="absolute left-0.5 top-1/2 -translate-y-1/2 text-text-tertiary opacity-0 transition-opacity group-hover/header-cell:opacity-100"
+                                  className="absolute left-0.5 top-1/2 -translate-y-1/2 text-fg-subtle opacity-0 transition-opacity group-hover/header-cell:opacity-100"
                                   aria-hidden="true"
                                 >
                                   <GripVertical className="h-3.5 w-3.5" />
@@ -482,11 +497,13 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                             disabled={dragDisabled}
                             as="th"
                             rowSpan={hasGroup ? 2 : 1}
-                            className={`${getTableHeaderCellClasses()} ${getColumnAlignClasses("center")} group/header-cell ${
-                              column.sticky
-                                ? "sticky left-0 z-20 bg-bg-base-secondary"
-                                : ""
-                            } ${column.hideOnMobile ? "hidden md:table-cell" : ""} relative`}
+                            className={cn(
+                              getTableHeaderCellClasses(),
+                              getColumnAlignClasses("center"),
+                              "group/header-cell relative",
+                              column.sticky && "sticky left-0 z-20 bg-bg-table-header",
+                              column.hideOnMobile && "hidden md:table-cell",
+                            )}
                             style={{
                               width: getColumnWidth(column.key, column.width),
                               minWidth: column.minWidth || 50,
@@ -494,7 +511,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                           >
                             {!dragDisabled && (
                               <span
-                                className="absolute left-0.5 top-1/2 -translate-y-1/2 text-text-tertiary opacity-0 transition-opacity group-hover/header-cell:opacity-100"
+                                className="absolute left-0.5 top-1/2 -translate-y-1/2 text-fg-subtle opacity-0 transition-opacity group-hover/header-cell:opacity-100"
                                 aria-hidden="true"
                               >
                                 <GripVertical className="h-3.5 w-3.5" />
@@ -528,7 +545,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                               >
                                 <span
                                   aria-hidden="true"
-                                  className="h-1/2 w-0.5 rounded-full bg-transparent transition-colors group-hover/header-cell:bg-text-tertiary group-hover/resize:!bg-primary-500 group-active/resize:!bg-primary-600"
+                                  className="h-1/2 w-0.5 rounded-full bg-transparent transition-colors group-hover/header-cell:bg-border-default group-hover/resize:!bg-primary group-active/resize:!bg-primary-hover"
                                 />
                               </div>
                             )}
@@ -545,9 +562,11 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                         .map((column) => (
                           <th
                             key={column.key}
-                            className={`${getTableHeaderCellClasses()} ${getColumnAlignClasses(column.align ?? "center")} ${
-                              column.hideOnMobile ? "hidden md:table-cell" : ""
-                            }`}
+                            className={cn(
+                              getTableHeaderCellClasses(),
+                              getColumnAlignClasses(column.align ?? "center"),
+                              column.hideOnMobile && "hidden md:table-cell",
+                            )}
                             style={{
                               width: getColumnWidth(column.key, column.width),
                               minWidth: column.minWidth || 50,
@@ -573,7 +592,11 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                       >
                         {enableRowSelection && enableSelectAll && (
                           <td
-                            className={`${getTableCellClasses()} ${getColumnAlignClasses("center")} w-12 select-none`}
+                            className={cn(
+                              getTableCellClasses(),
+                              getColumnAlignClasses("center"),
+                              "w-12 select-none",
+                            )}
                             onClick={(e) => e.stopPropagation()}
                             onMouseDown={
                               dragSelectionEnabled
@@ -609,11 +632,12 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                           return (
                             <td
                               key={column.key}
-                              className={`${getTableCellClasses()} ${getColumnAlignClasses(column.align)} ${
-                                column.sticky ? "sticky left-0 z-10 bg-inherit" : ""
-                              } ${
-                                column.hideOnMobile ? "hidden md:table-cell" : ""
-                              }`}
+                              className={cn(
+                                getTableCellClasses(),
+                                getColumnAlignClasses(column.align),
+                                column.sticky && "sticky left-0 z-10 bg-inherit",
+                                column.hideOnMobile && "hidden md:table-cell",
+                              )}
                               style={{
                                 width: getColumnWidth(column.key, column.width),
                                 minWidth: column.minWidth || 50,
@@ -651,7 +675,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                         >
                           {enableRowSelection && enableSelectAll && (
                             <td
-                              className={`${getTableCellClasses()} w-12`}
+                              className={cn(getTableCellClasses(), "w-12")}
                               style={
                                 fillerHeight ? { height: `${fillerHeight}px` } : undefined
                               }
@@ -661,7 +685,10 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
                             return (
                               <td
                                 key={column.key}
-                                className={`${getTableCellClasses()} ${column.hideOnMobile ? "hidden md:table-cell" : ""}`}
+                                className={cn(
+                                  getTableCellClasses(),
+                                  column.hideOnMobile && "hidden md:table-cell",
+                                )}
                                 style={{
                                   width: getColumnWidth(column.key, column.width),
                                   minWidth: column.minWidth || 50,
@@ -682,7 +709,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<any>>(
 
           {footerSlot ??
             (totalElements !== undefined ? (
-              <div className="flex justify-end shrink-0 text-sm text-neutral-600 dark:text-neutral-300">
+              <div className="flex justify-end shrink-0 text-sm text-fg-muted">
                 <span>총 {totalElements.toLocaleString()}건</span>
               </div>
             ) : null)}

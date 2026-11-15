@@ -1,0 +1,9 @@
+{
+  "note": "check-tokens.mjs 래칫 기준선 — 파일별 카운트. 파일별 증가에는 --force가 필요하다.",
+  "counts": {
+    "dark": {},
+    "palette": {
+      "src/components/modal/ModalSubView.tsx": 1
+    }
+  }
+}

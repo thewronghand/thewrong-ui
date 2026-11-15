@@ -42,7 +42,7 @@ export const 좁은폭: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="w-64 border border-border-tertiary p-2">
+      <div className="w-64 border border-border-faint p-2">
         <Story />
       </div>
     ),

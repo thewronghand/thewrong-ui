@@ -1,0 +1,31 @@
+/* 차분한 중립 테마 — 시맨틱 역할만 바꾼다. */
+[data-theme="quiet"] {
+  --color-primary: #64748b;
+  --color-primary-hover: #334155;
+  --color-primary-active: #1e293b;
+  --color-primary-fg: #475569;
+  --color-primary-subtle: #f1f5f9;
+  --color-primary-border: #94a3b8;
+  --color-focus-primary: #030712;
+  /* 상속된 별칭은 조상에서 계산되므로 테마 스코프에서 다시 연결한다. */
+  --color-focus-primary-soft: var(--color-focus-primary);
+  --color-info: #64748b;
+  --color-border-primary: #94a3b8;
+  --color-fg-subtle: #475569;
+}
+
+.dark[data-theme="quiet"],
+.dark [data-theme="quiet"],
+[data-theme="quiet"] .dark {
+  --color-primary: #475569;
+  --color-primary-hover: #334155;
+  --color-primary-active: #1e293b;
+  --color-primary-fg: #e2e8f0;
+  --color-primary-subtle: #1e293b;
+  --color-primary-border: #94a3b8;
+  --color-focus-primary: #f3f4f6;
+  --color-focus-primary-soft: var(--color-focus-primary);
+  --color-info: #cbd5e1;
+  --color-border-primary: #94a3b8;
+  --color-fg-subtle: #cbd5e1;
+}

@@ -2,6 +2,7 @@ import { useContext, useMemo } from "react";
 
 import { Button } from "@/components/button";
 import { DateInput } from "@/components/date-input";
+import { cn } from "@/lib/utils";
 
 import { parseDateRangeValue, serializeDateRangeValue } from "./parseDateRange";
 import { SearchBoxSheetContext } from "./SearchBoxSheetContext";
@@ -50,14 +51,16 @@ export function SearchBoxDateRange({ value, onChange, presets, size }: Props) {
           value={from}
           onChange={(next) => onChange(serializeDateRangeValue(next, to))}
           size={size}
+          className={size === "mini" ? "h-8 rounded-control-mini" : "h-10 rounded-control-small"}
           ariaLabel="시작일"
           disableMobileSheet={inSearchBoxSheet}
         />
-        <span className="text-neutral-400">~</span>
+        <span className="text-fg-subtle">~</span>
         <DateInput
           value={to}
           onChange={(next) => onChange(serializeDateRangeValue(from, next))}
           size={size}
+          className={size === "mini" ? "h-8 rounded-control-mini" : "h-10 rounded-control-small"}
           ariaLabel="종료일"
           disableMobileSheet={inSearchBoxSheet}
         />
@@ -73,13 +76,10 @@ export function SearchBoxDateRange({ value, onChange, presets, size }: Props) {
                 appearance={isActive ? "filled" : "outlined"}
                 size={size}
                 onClick={() => applyPreset(preset)}
-                className={`whitespace-nowrap ${
-                  size === "small" ? "h-10" : ""
-                } ${
-                  isActive
-                    ? ""
-                    : "border-border-tertiary! dark:border-border-secondary!"
-                }`}
+                className={cn(
+                  "whitespace-nowrap",
+                  size === "mini" ? "h-8" : "h-10",
+                )}
               >
                 {preset.label}
               </Button>

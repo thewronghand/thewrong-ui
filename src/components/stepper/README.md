@@ -1,0 +1,46 @@
+# Stepper
+
+단계 상태와 표시를 분리한 공용 UI다. 도메인 검증이나 제출 로직은 소비자가 소유한다.
+
+## 상태
+
+```tsx
+const stepper = useStepper({ stepCount: steps.length });
+
+<Stepper steps={steps} currentStep={stepper.currentStep} />
+<StepperContent
+  stepKey={steps[stepper.currentStep].id}
+  direction={stepper.direction}
+  transition="slide"
+  slideDirection="left"
+>
+  {content}
+</StepperContent>
+```
+
+`useStepper`는 0 기반 `currentStep`, 이동 `direction`, 경계 상태와 `next`, `previous`, `goTo`, `reset`을 제공한다. 기본 `goTo`는 현재 단계에서 한 단계만 이동하며, 임의 점프가 필요할 때만 hook과 표시 양쪽에 `allowNonLinear`를 명시한다. `stepCount`가 줄면 현재 단계를 즉시 유효 범위로 보정한다.
+
+## 표시와 전환
+
+- `orientation`: `horizontal`(기본) 또는 `vertical`
+- `StepperContent transition`: `none | fade | scale | slide`
+- `slideDirection`: `left | right | up | down`
+- `direction`: 진행 `1`, 역행 `-1`; slide 방향에 결합된다.
+- `prefers-reduced-motion`에서는 전환 시간이 0이 된다.
+
+가로형은 단계 표시와 교체 콘텐츠를 분리해 `StepperContent`로 감싼다. 세로형은 단계 사이 콘텐츠가 필요할 때 `renderStepContent`를 사용한다.
+
+```tsx
+<Stepper
+  orientation="vertical"
+  steps={steps}
+  currentStep={stepper.currentStep}
+  renderStepContent={({ step, status }) => (
+    <section aria-label={step.label} data-status={status}>
+      {contentById[step.id]}
+    </section>
+  )}
+/>
+```
+
+세로 콘텐츠는 완료 단계와 현재 단계가 열리고 대기 단계는 숨겨지며 `stepContentTransition="height"`가 기본이다. 애니메이션이 불필요하면 `none`을 사용한다.

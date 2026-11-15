@@ -1,5 +1,4 @@
 import {
-  FloatingPortal,
   autoUpdate,
   flip,
   offset,
@@ -26,11 +25,10 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState, type ReactNode } from "react";
 
-import { useBottomSheetDrag, useIsMobile, useScrollLock } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { PickerSheet, usePickerMobile } from "./PickerSheet";
 import { AnimatedHeight } from "@/components/animated-height";
 
 interface DatePickerProps {
@@ -43,6 +41,7 @@ interface DatePickerProps {
   /**
    * true면 모바일에서도 자체 바텀시트 대신 데스크톱과 동일한 popover로 표시.
    * 호출부가 이미 바텀시트(예: SearchBox 모바일 시트) 안에 있어 시트 두 개가 겹치는 걸 피할 때 사용.
+   * 생략하면 Modal 안에서는 자동으로 popover를 쓰며, false를 명시하면 바텀시트를 유지한다.
    */
   disableMobileSheet?: boolean;
 }
@@ -60,11 +59,10 @@ export function DatePicker({
   value,
   onApply,
   disabled,
-  disableMobileSheet = false,
+  disableMobileSheet,
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const isMobileRaw = useIsMobile();
-  const isMobile = isMobileRaw && !disableMobileSheet;
+  const { useSheet } = usePickerMobile(disableMobileSheet);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -91,18 +89,10 @@ export function DatePicker({
     role,
   ]);
 
-  // 모바일 바텀시트 열렸을 때 body 스크롤 잠금.
-  useScrollLock(isOpen && isMobile);
-
   const handleApply = (date: string) => {
     onApply(date);
     setIsOpen(false);
   };
-
-  // 모바일 바텀시트 드래그-다운 닫기 (공용 훅).
-  const { dragControls, handleDragEnd, startDrag } = useBottomSheetDrag({
-    onDismiss: () => setIsOpen(false),
-  });
 
   return (
     <>
@@ -113,75 +103,22 @@ export function DatePicker({
       >
         {children}
       </span>
-      <FloatingPortal>
-        {isMobile ? (
-          <>
-            {/* dimmer — AnimatePresence로 감싸 fade-out 적용. */}
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="date-picker-dimmer"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-50 bg-black/40"
-                  onClick={() => setIsOpen(false)}
-                />
-              )}
-            </AnimatePresence>
-            {/* 시트 — exit 모션 실행 위해 AnimatePresence 필수. */}
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  key="date-picker-sheet"
-                  ref={refs.setFloating}
-                  {...getFloatingProps()}
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{
-                    y: "100%",
-                    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
-                  }}
-                  transition={{ type: "spring", damping: 30, stiffness: 320 }}
-                  drag="y"
-                  dragListener={false}
-                  dragControls={dragControls}
-                  dragConstraints={{ top: 0 }}
-                  dragElastic={{ top: 0, bottom: 0.4 }}
-                  onDragEnd={handleDragEnd}
-                  className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-5 rounded-t-2xl bg-bg-card p-5 pb-[max(20px,env(safe-area-inset-bottom))] shadow-2xl"
-                >
-                  <div
-                    className="self-center h-1 w-10 rounded-full bg-bg-base-tertiary cursor-grab touch-none active:cursor-grabbing"
-                    onPointerDown={startDrag}
-                  />
-                  <DatePickerBody
-                    initialValue={value}
-                    onApply={handleApply}
-                    onClose={() => setIsOpen(false)}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
-        ) : (
-          isOpen && (
-            <div
-              ref={refs.setFloating}
-              style={floatingStyles}
-              {...getFloatingProps()}
-              className="z-9999 w-80 rounded-2xl border border-border-tertiary bg-bg-card p-6 shadow-md"
-            >
-              <DatePickerBody
-                initialValue={value}
-                onApply={handleApply}
-                onClose={() => setIsOpen(false)}
-              />
-            </div>
-          )
-        )}
-      </FloatingPortal>
+      <PickerSheet
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        useSheet={useSheet}
+        context={context}
+        setFloating={refs.setFloating}
+        floatingStyles={floatingStyles}
+        getFloatingProps={getFloatingProps}
+        desktopClassName="z-floating w-80 rounded-2xl border border-border-subtle bg-bg-surface text-fg-default p-6 shadow-tooltip"
+      >
+        <DatePickerBody
+          initialValue={value}
+          onApply={handleApply}
+          onClose={() => setIsOpen(false)}
+        />
+      </PickerSheet>
     </>
   );
 }
@@ -225,14 +162,14 @@ export function DatePickerBody({ initialValue, onApply, onClose }: DatePickerBod
         <button
           type="button"
           onClick={onClose}
-          className="cursor-pointer rounded-full bg-bg-base-primary px-5 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-bg-base-secondary"
+          className="cursor-pointer rounded-full bg-bg-subtle px-5 py-2 text-sm font-semibold text-fg-muted transition-colors hover:bg-bg-muted"
         >
           닫기
         </button>
         <button
           type="button"
           onClick={handleApplyClick}
-          className="cursor-pointer rounded-full bg-primary-500 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="cursor-pointer rounded-full bg-primary px-5 py-2 text-sm font-semibold text-fg-inverse transition-opacity hover:opacity-90"
         >
           적용
         </button>
@@ -282,13 +219,13 @@ function CalendarPanel({
           <button
             type="button"
             onClick={() => setDropdownOpen((v) => !v)}
-            className="flex cursor-pointer items-center gap-1 rounded px-3 py-1.5 text-sm font-semibold text-text-primary transition-colors hover:bg-bg-base-primary"
+            className="flex cursor-pointer items-center gap-1 rounded px-3 py-1.5 text-sm font-semibold text-fg-default transition-colors hover:bg-bg-subtle"
           >
             {format(month, "yyyy. MM.")}
-            <ChevronDown className="h-3.5 w-3.5 text-text-tertiary" />
+            <ChevronDown className="h-3.5 w-3.5 text-fg-subtle" />
           </button>
           {dropdownOpen && (
-            <div className="scrollbar-brand absolute top-full z-20 mt-1 max-h-60 w-35 overflow-y-auto rounded-lg border border-border-tertiary bg-bg-card py-1 shadow-lg">
+            <div className="scrollbar-brand absolute top-full z-20 mt-1 max-h-60 w-35 overflow-y-auto rounded-lg border border-border-subtle bg-bg-surface py-1 shadow-overlay">
               {monthOptions.map((m) => {
                 const isSelected = isSameMonth(m, month);
                 return (
@@ -300,10 +237,10 @@ function CalendarPanel({
                       setDropdownOpen(false);
                     }}
                     className={cn(
-                      "w-full cursor-pointer bg-bg-card px-4 py-2 text-left text-sm transition-colors",
+                      "w-full cursor-pointer bg-bg-surface px-4 py-2 text-left text-sm transition-colors",
                       isSelected
-                        ? "bg-bg-base-secondary font-semibold text-text-primary"
-                        : "text-text-secondary hover:bg-bg-base-primary",
+                        ? "bg-bg-muted font-semibold text-fg-default"
+                        : "text-fg-muted hover:bg-bg-subtle",
                     )}
                   >
                     {format(m, "yyyy. MM.")}
@@ -320,7 +257,7 @@ function CalendarPanel({
         {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
           <div
             key={d}
-            className="py-1 text-center text-xs font-medium text-text-tertiary"
+            className="py-1 text-center text-xs font-medium text-fg-subtle"
           >
             {d}
           </div>
@@ -346,16 +283,16 @@ function CalendarPanel({
             >
               {isSelected && (
                 <span
-                  className="absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500"
+                  className="absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
                   aria-hidden
                 />
               )}
               <span
                 className={cn(
                   "relative z-10",
-                  !inMonth && "text-text-disabled",
-                  inMonth && !isSelected && "text-text-primary",
-                  isSelected && "font-bold text-white",
+                  !inMonth && "text-fg-disabled",
+                  inMonth && !isSelected && "text-fg-default",
+                  isSelected && "font-bold text-fg-inverse",
                 )}
               >
                 {format(day, "d")}
@@ -381,7 +318,7 @@ function NavButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-tertiary text-text-secondary transition-colors hover:bg-bg-base-primary"
+      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-border-subtle text-fg-muted transition-colors hover:bg-bg-subtle"
       aria-label={direction === "left" ? "이전 달" : "다음 달"}
     >
       <Icon className="h-4 w-4" />

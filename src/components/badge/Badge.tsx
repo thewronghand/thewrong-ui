@@ -1,5 +1,7 @@
 import { forwardRef } from "react";
 
+import { cn } from "@/lib/utils";
+
 import type { BadgeProps } from "./types";
 import {
   getBadgeBaseClasses,
@@ -18,14 +20,12 @@ export const Badge = forwardRef<HTMLSpanElement | HTMLDivElement, BadgeProps>(
       ...restProps
     } = props;
 
-    const classes = [
+    const classes = cn(
       getBadgeBaseClasses(),
       getBadgeColorClasses(color, variant),
       getBadgeSizeClasses(size),
       className,
-    ]
-      .filter(Boolean)
-      .join(" ");
+    );
 
     const isDiv = "as" in props && props.as === "div";
 

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Drawer } from "./Drawer";
 import { Button } from "@/components/button";
+import { ModalSubView } from "@/components/modal";
 
 /**
  * Drawer — 데스크탑(sm+)에서는 우측 사이드 드로어, 모바일에서는 하단 바텀시트로 자동 분기.
@@ -40,7 +41,7 @@ export const 기본: Story = {
       <>
         <Button onClick={() => setOpen(true)}>드로어 열기</Button>
         <Drawer open={open} onClose={() => setOpen(false)} title="상세 정보">
-          <div className="p-4 text-sm text-text-primary">
+          <div className="p-4 text-sm text-fg-default">
             우측 사이드 드로어 본문입니다. 좌측 페이지 맥락을 유지한 채 보조
             정보를 띄운다.
           </div>
@@ -66,7 +67,7 @@ export const 고정폭_560: Story = {
           title="필터"
           widthPx={560}
         >
-          <div className="p-4 text-sm text-text-primary">폭 560px 드로어.</div>
+          <div className="p-4 text-sm text-fg-default">폭 560px 드로어.</div>
         </Drawer>
       </>
     );
@@ -84,7 +85,7 @@ export const 제목없음: Story = {
           제목 없는 드로어
         </Button>
         <Drawer open={open} onClose={() => setOpen(false)}>
-          <div className="p-4 text-sm text-text-primary">
+          <div className="p-4 text-sm text-fg-default">
             헤더 없이 본문만. 닫기는 ESC/백드롭으로.
           </div>
         </Drawer>
@@ -106,7 +107,7 @@ export const 긴본문_스크롤: Story = {
             {Array.from({ length: 30 }, (_, i) => (
               <div
                 key={i}
-                className="rounded-lg bg-bg-base-secondary px-3 py-2 text-sm text-text-secondary"
+                className="rounded-lg bg-bg-subtle px-3 py-2 text-sm text-fg-muted"
               >
                 이력 항목 {i + 1}
               </div>
@@ -135,9 +136,77 @@ export const 모바일_바텀시트: Story = {
       <>
         <Button onClick={() => setOpen(true)}>바텀시트 열기</Button>
         <Drawer open={open} onClose={() => setOpen(false)} title="필터">
-          <div className="flex flex-col gap-3 p-4 text-sm text-text-primary">
+          <div className="flex flex-col gap-3 p-4 text-sm text-fg-default">
             모바일에서는 하단 바텀시트로 뜬다. Drawer와 Modal이 같은 바텀시트
             정책을 공유.
+          </div>
+        </Drawer>
+      </>
+    );
+  },
+};
+
+export const 닫기_제한과_종료: Story = {
+  args: { open: false, onClose: () => {}, children: null },
+  parameters: story(
+    "dismissible=false에서는 외부 닫기 동작을 막고 내부 버튼으로 닫는다. 종료 모션이 끝나면 onExitComplete가 호출된다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [exits, setExits] = useState(0);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>닫기 제한 드로어 열기</Button>
+        <p>종료 모션 완료: {exits}회</p>
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          dismissible={false}
+          onExitComplete={() => setExits((count) => count + 1)}
+          title="직접 닫는 드로어"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <label>
+              입력
+              <input autoFocus className="border p-1" />
+            </label>
+            <Button onClick={() => setOpen(false)}>직접 닫기</Button>
+          </div>
+        </Drawer>
+      </>
+    );
+  },
+};
+
+export const 포커스_트랩_끄기: Story = {
+  name: "포커스 트랩 끄기",
+  args: { open: false, onClose: () => {}, children: null },
+  parameters: story(
+    "trapFocus={false}면 Tab이 드로어 밖으로 이동할 수 있다. 열릴 때 드로어에 포커스하고 닫히면 여는 버튼으로 복원한다. 안에 둔 ModalSubView도 같은 설정을 따른다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>트랩 없는 드로어 열기</Button>
+        <Button>배경 버튼</Button>
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          title="트랩 없는 드로어"
+          trapFocus={false}
+        >
+          <div className="relative flex h-full flex-col gap-3 p-4">
+            <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+            <Button onClick={() => setOpen(false)}>드로어 닫기</Button>
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="트랩 없는 서브뷰"
+            >
+              <Button>서브뷰 버튼</Button>
+            </ModalSubView>
           </div>
         </Drawer>
       </>

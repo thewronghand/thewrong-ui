@@ -1,15 +1,17 @@
+import { CONTROL_TEXT_CLASS } from "@/components/_shared/form-size-tokens";
+
 import type { SelectSize, SelectVariant } from "./types";
 
 // size 토큰은 Button/Input/Textarea와 정렬: 같은 size에서 동일 height/rounded/horizontal padding.
 const BOX_BASE_BY_SIZE: Record<SelectSize, string> = {
   large:
-    "h-12 rounded-xl border px-5 transition-colors focus-within:outline-hidden",
+    "h-control-large rounded-control-large border-control px-control-pad-large transition-colors focus-within:outline-hidden",
   medium:
-    "h-11 rounded-xl border px-3.5 transition-colors focus-within:outline-hidden",
+    "h-control-medium rounded-control-medium border-control px-control-pad-medium transition-colors focus-within:outline-hidden",
   small:
-    "h-9 rounded-lg border px-3 transition-colors focus-within:outline-hidden",
+    "h-control-small rounded-control-small border-control px-control-pad-small transition-colors focus-within:outline-hidden",
   mini:
-    "h-7 rounded-md border px-2 transition-colors focus-within:outline-hidden",
+    "h-control-mini rounded-control-mini border-control px-control-pad-mini transition-colors focus-within:outline-hidden",
 };
 
 /**
@@ -24,29 +26,27 @@ export const getSelectVariantClasses = (
 ): string => {
   if (variant === "box") {
     const BOX_BASE = BOX_BASE_BY_SIZE[size];
-    // 다크모드: border-tertiary(slate/800)가 모달 배경(neutral-800)과 거의 동일색이라
-    // 외곽선이 사라져 보인다. dark:border-secondary로 한 단계 밝게 override.
     if (disabled) {
       return [
         BOX_BASE,
-        "bg-bg-disabled border-border-tertiary dark:border-border-secondary",
+        "bg-bg-disabled border-border-subtle",
       ].join(" ");
     }
     if (hasError) {
-      return [BOX_BASE, "bg-bg-white border-border-danger"].join(" ");
+      return [BOX_BASE, "bg-bg-surface border-border-danger"].join(" ");
     }
     return [
       BOX_BASE,
-      "bg-bg-white border-border-tertiary dark:border-border-secondary focus-within:border-border-primary",
+      "bg-bg-surface border-border-subtle focus-within:border-border-primary",
     ].join(" ");
   }
 
   // 레거시 variant — 기존 로직 유지
   const variantMap: Record<SelectVariant, string> = {
     box: "",
-    line: "border-b-2 border-neutral-300 dark:border-neutral-600 px-0 py-2 pr-0 focus:border-primary-500 dark:focus:border-primary-400 focus:ring-0",
-    big: "border-2 border-neutral-300 dark:border-neutral-600 rounded pl-5 pr-5 py-0 text-lg focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:ring-offset-0 h-[52px] leading-[52px]",
-    hero: "border-2 border-neutral-300 dark:border-neutral-600 rounded pl-6 pr-6 py-0 text-xl font-semibold focus:border-primary-500 dark:focus:border-primary-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:ring-offset-0 h-[64px] leading-[64px]",
+    line: "border-b-2 border-border-subtle px-0 py-2 pr-0 focus:border-primary focus:ring-0",
+    big: "border-2 border-border-subtle rounded pl-5 pr-5 py-0 text-lg focus:border-primary focus:ring-control focus:ring-primary focus:ring-offset-0 h-[52px] leading-[52px]",
+    hero: "border-2 border-border-subtle rounded pl-6 pr-6 py-0 text-xl font-semibold focus:border-primary focus:ring-control focus:ring-primary focus:ring-offset-0 h-[64px] leading-[64px]",
   };
   return variantMap[variant];
 };
@@ -63,30 +63,29 @@ export const getSelectBaseClasses = (
   size: SelectSize = "medium",
 ): string => {
   // 폰트 사이즈는 size 토큰을 따라간다 — Button/Input/Textarea와 동일 위계.
-  const fontSize =
-    size === "mini" ? "text-xs" : size === "large" ? "text-base" : "text-sm";
+  const fontSize = CONTROL_TEXT_CLASS[size];
   const base = `w-full bg-transparent ${fontSize} focus:outline-hidden disabled:cursor-not-allowed appearance-none`;
 
   if (variant !== "box") {
     return [
-      "w-full bg-white dark:bg-neutral-800 text-sm text-neutral-900 dark:text-white transition-all duration-200 ease-out focus:outline-hidden disabled:bg-neutral-50 disabled:text-neutral-400 disabled:cursor-not-allowed disabled:border-neutral-200 appearance-none",
+      "w-full bg-bg-surface text-sm text-fg-default transition-all duration-200 ease-out focus:outline-hidden disabled:bg-bg-disabled disabled:text-fg-disabled disabled:cursor-not-allowed disabled:border-border-subtle appearance-none",
     ].join(" ");
   }
 
   if (disabled) {
-    return [base, "text-text-disabled placeholder:text-text-disabled"].join(
+    return [base, "text-fg-disabled placeholder:text-fg-disabled"].join(
       " ",
     );
   }
   if (hasError) {
-    return [base, "text-text-danger placeholder:text-text-danger"].join(" ");
+    return [base, "text-fg-danger placeholder:text-fg-danger-placeholder"].join(" ");
   }
   if (filled) {
-    return [base, "text-text-primary placeholder:text-text-tertiary"].join(
+    return [base, "text-fg-default placeholder:text-fg-subtle"].join(
       " ",
     );
   }
-  return [base, "text-text-tertiary placeholder:text-text-tertiary"].join(" ");
+  return [base, "text-fg-subtle placeholder:text-fg-subtle"].join(" ");
 };
 
 /** trailing chevron 색 — Input의 trailing icon과 동일 위계. */
@@ -95,10 +94,10 @@ export const getSelectTrailingIconColor = (
   disabled: boolean,
   filledOrFocused: boolean,
 ): string => {
-  if (disabled) return "text-icon-disabled";
-  if (hasError) return "text-icon-danger";
-  if (filledOrFocused) return "text-icon-secondary";
-  return "text-icon-tertiary";
+  if (disabled) return "text-fg-disabled";
+  if (hasError) return "text-fg-danger";
+  if (filledOrFocused) return "text-fg-muted";
+  return "text-fg-subtle";
 };
 
 export const getSelectContainerClasses = (): string => "w-full";
@@ -109,13 +108,13 @@ export const getSelectLabelClasses = (
 ): string => {
   return [
     "block text-xs font-medium mb-2",
-    hasError ? "text-text-danger" : "text-text-secondary",
+    hasError ? "text-fg-danger" : "text-fg-muted",
   ].join(" ");
 };
 
 export const getSelectHelpClasses = (hasError: boolean): string => {
   return [
     "mt-2 text-sm",
-    hasError ? "text-text-danger" : "text-text-secondary",
+    hasError ? "text-fg-danger" : "text-fg-muted",
   ].join(" ");
 };

@@ -10,12 +10,13 @@ import { ChevronDown, Wrench } from "lucide-react";
 import { useIsMobile } from "@/hooks";
 import { Button } from "@/components/button";
 import { Popover } from "@/components/popover";
+import { cn } from "@/lib/utils";
 
 /**
  * 테이블 위에 놓이는 표준 툴바 — 컴파운드 컴포넌트.
  *
  * 자식 슬롯:
- * - `<Toolbar.Title>`: 영역 타이틀(옵션). 패딩 없는 16px text-text-tertiary 텍스트.
+ * - `<Toolbar.Title>`: 영역 타이틀(옵션). 패딩 없는 16px text-fg-muted 텍스트.
  * - `<Toolbar.Summary>`: 데이터 요약 칩 영역 (옵션, mini summary). collapsible로 펼치기/접기.
  * - `<Toolbar.Left>`: 좌측 컨트롤 (ColumnPresetSelector 등).
  * - `<Toolbar.Right>`: 우측 액션 (엑셀 다운로드, 등록 버튼 등).
@@ -118,7 +119,7 @@ function Toolbar({ children, className = "" }: ToolbarProps) {
   const hasBottomRow = leftNode || rightNode;
 
   return (
-    <div className={`flex flex-col ${className}`}>
+    <div className={cn("flex flex-col", className)}>
       {/* Title ↔ 아래 영역: 14/24px (모바일/md+). 다른 자식 없으면 mb 없음. */}
       {titleNode ? (
         <div className={summaryNode || hasBottomRow ? "mb-3.5 md:mb-6" : ""}>
@@ -128,9 +129,7 @@ function Toolbar({ children, className = "" }: ToolbarProps) {
       {summaryNode}
       {hasBottomRow && (
         <div
-          className={`flex flex-wrap items-center gap-2 ${
-            summaryNode ? "mt-2.5 md:mt-4.5" : ""
-          }`}
+          className={cn("flex flex-wrap items-center gap-2", summaryNode && "mt-2.5 md:mt-4.5")}
         >
           {leftNode}
           {rightNode ? <div className="ml-auto">{rightNode}</div> : null}
@@ -148,7 +147,7 @@ interface ToolbarTitleProps {
 function ToolbarTitle({ children, className = "" }: ToolbarTitleProps) {
   return (
     <h2
-      className={`text-sm font-medium text-text-tertiary md:text-base ${className}`}
+      className={cn("text-sm font-medium text-fg-muted md:text-base", className)}
     >
       {children}
     </h2>
@@ -176,7 +175,7 @@ function ToolbarSummary({
   const triggerLabel = `총 ${totalPrefix ? `${totalPrefix} ` : ""}${totalElements?.toLocaleString() ?? 0}${totalUnit}`;
   const triggerInteractive = collapsible && items.length > 0 && isMobile;
   const triggerClassName =
-    "inline-flex items-center gap-1 rounded-full border border-border-secondary px-2.5 py-1 text-sm font-medium text-text-secondary";
+    "inline-flex items-center gap-1 rounded-full border border-border-subtle px-2.5 py-1 text-sm font-medium text-fg-muted";
   const triggerNode = hasTrigger ? (
     triggerInteractive ? (
       <button
@@ -189,9 +188,7 @@ function ToolbarSummary({
         <span>{triggerLabel}</span>
         <ChevronDown
           aria-hidden="true"
-          className={`h-3.5 w-3.5 transition-transform ${
-            collapsed ? "" : "rotate-180"
-          }`}
+          className={cn("h-3.5 w-3.5 transition-transform", !collapsed && "rotate-180")}
         />
       </button>
     ) : (
@@ -204,7 +201,7 @@ function ToolbarSummary({
   if (!collapsible) {
     return (
       <div
-        className={`flex flex-wrap items-center gap-x-2 gap-y-1.5 ${className}`}
+        className={cn("flex flex-wrap items-center gap-x-2 gap-y-1.5", className)}
       >
         {triggerNode}
         {items}
@@ -216,7 +213,7 @@ function ToolbarSummary({
   // 모바일에서 collapsed면 칩들을 max-height 트랜지션으로 접음.
   return (
     <div
-      className={`flex flex-wrap items-center gap-x-2 gap-y-1.5 ${className}`}
+      className={cn("flex flex-wrap items-center gap-x-2 gap-y-1.5", className)}
     >
       {triggerNode}
       {items.map((child, i) => {
@@ -228,11 +225,10 @@ function ToolbarSummary({
         return (
           <div
             key={key}
-            className={`grid transition-[grid-template-rows,opacity,margin] duration-200 ease-out sm:grid-rows-[1fr]! sm:opacity-100! ${
-              collapsed
-                ? "grid-rows-[0fr] opacity-0 -my-1"
-                : "grid-rows-[1fr] opacity-100"
-            }`}
+            className={cn(
+              "grid transition-[grid-template-rows,opacity,margin] duration-200 ease-out sm:grid-rows-[1fr]! sm:opacity-100!",
+              collapsed ? "grid-rows-[0fr] opacity-0 -my-1" : "grid-rows-[1fr] opacity-100",
+            )}
           >
             <div className="overflow-hidden min-h-0">{child}</div>
           </div>
@@ -244,7 +240,7 @@ function ToolbarSummary({
 
 function ToolbarLeft({ children, className = "" }: ToolbarSlotProps) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>{children}</div>
+    <div className={cn("flex items-center gap-2", className)}>{children}</div>
   );
 }
 
@@ -263,7 +259,7 @@ function ToolbarRight({
 
   if (!shouldCollapse) {
     return (
-      <div className={`flex items-center gap-2 ${className}`}>{children}</div>
+      <div className={cn("flex items-center gap-2", className)}>{children}</div>
     );
   }
 
@@ -279,7 +275,7 @@ function ToolbarRight({
   );
 
   return (
-    <div className={`flex items-center ${className}`}>
+    <div className={cn("flex items-center", className)}>
       <Popover
         trigger={trigger}
         content={
@@ -320,14 +316,11 @@ const SUMMARY_ITEM_VARIANT_CLASSES: Record<
   Exclude<ToolbarSummaryItemVariant, "danger">,
   string
 > = {
-  neutral:
-    "border border-border-secondary text-text-secondary dark:border-border-secondary",
-  info: "bg-info-50 text-info-600 dark:bg-info-900/40 dark:text-info-200",
-  success:
-    "bg-success-50 text-success-600 dark:bg-success-900/40 dark:text-success-200",
-  warning:
-    "bg-warning-50 text-warning-600 dark:bg-warning-900/40 dark:text-warning-200",
-  error: "bg-error-50 text-error-600 dark:bg-error-900/40 dark:text-error-200",
+  neutral: "border border-border-subtle text-fg-muted",
+  info: "bg-info-subtle text-info-fg",
+  success: "bg-success-subtle text-success-fg",
+  warning: "bg-warning-subtle text-warning-fg",
+  error: "bg-error-subtle text-error-fg",
 };
 
 function ToolbarSummaryItem({
@@ -338,7 +331,7 @@ function ToolbarSummaryItem({
   const key = variant === "danger" ? "error" : variant;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium ${SUMMARY_ITEM_VARIANT_CLASSES[key]} ${className}`}
+      className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium", SUMMARY_ITEM_VARIANT_CLASSES[key], className)}
     >
       {children}
     </span>
@@ -371,7 +364,7 @@ function ToolbarMenuItem({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-2 rounded px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50 dark:text-neutral-200 dark:hover:bg-neutral-700 ${className}`}
+      className={cn("flex items-center gap-2 rounded px-3 py-2 text-sm text-fg-default transition-colors hover:bg-bg-subtle disabled:opacity-50", className)}
     >
       {icon ? (
         <span className="shrink-0 [&>svg]:h-4 [&>svg]:w-4">{icon}</span>

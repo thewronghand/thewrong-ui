@@ -1,6 +1,8 @@
 import { forwardRef, useEffect, useRef } from "react";
 import { Check, Minus } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface Props {
   checked: boolean;
   /** 일부만 선택된 상태(전체선택 헤더용). true이면 가로선 아이콘 표시. */
@@ -40,9 +42,11 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
 
     return (
       <label
-        className={`relative inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center ${
-          disabled ? "cursor-not-allowed" : "cursor-pointer"
-        } ${pointerEventsNone ? "pointer-events-none" : ""}`}
+        className={cn(
+          "relative inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center",
+          disabled ? "cursor-not-allowed" : "cursor-pointer",
+          pointerEventsNone && "pointer-events-none",
+        )}
         style={{ flex: "0 0 18px" }}
         aria-label={ariaLabel}
       >
@@ -59,16 +63,16 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
           onChange={(e) => onChange?.(e.target.checked)}
         />
         <span
-          className={`flex h-full w-full items-center justify-center rounded-md border-[1.5px] transition-colors ${
-            isOn
-              ? "border-primary-500 bg-primary-500"
-              : "border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-800"
-          } ${disabled ? "opacity-40" : ""}`}
+          className={cn(
+            "flex h-full w-full items-center justify-center rounded-checkbox border-[1.5px] transition-colors",
+            isOn ? "border-primary bg-primary" : "border-border-default bg-bg-surface",
+            disabled && "opacity-40",
+          )}
         >
           {showIndeterminate ? (
-            <Minus className="h-3 w-3 text-white" strokeWidth={3} />
+            <Minus className="h-3 w-3 text-fg-inverse" strokeWidth={3} />
           ) : checked ? (
-            <Check className="h-3 w-3 text-white" strokeWidth={3} />
+            <Check className="h-3 w-3 text-fg-inverse" strokeWidth={3} />
           ) : null}
         </span>
       </label>

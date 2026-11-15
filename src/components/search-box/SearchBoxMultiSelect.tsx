@@ -15,6 +15,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 import type { SelectOption } from "@/components/select";
+import { cn } from "@/lib/utils";
 
 interface Props {
   /** 라벨 — 미선택일 땐 트리거 안의 placeholder처럼, 선택/오픈 시 상단 보더로 부유. */
@@ -33,7 +34,7 @@ interface Props {
  * 시그니처를 유지한다. 빈 값이면 미선택, "A,B"면 두 항목 선택.
  *
  * SearchBoxFloatingInput/Select와 동일한 플로팅 라벨 UX. 보더와 라벨이 포커스/오픈 시
- * primary-500으로 통일된다.
+ * 시맨틱 primary 색을 따른다.
  *
  * number[] 전용 드롭다운은 적합하지 않아 별도 inline 컴포넌트로 둔다.
  *
@@ -95,6 +96,7 @@ export function SearchBoxMultiSelect({
   };
 
   const heightClass = size === "mini" ? "h-8" : "h-10";
+  const radiusClass = size === "mini" ? "rounded-control-mini" : "rounded-control-small";
   const textClass = size === "mini" ? "text-xs" : "text-sm";
   const paddingX = size === "mini" ? "px-2.5" : "px-3";
 
@@ -114,36 +116,33 @@ export function SearchBoxMultiSelect({
         {...getReferenceProps()}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        className={`relative ${heightClass} w-full rounded-lg border bg-bg-white ${paddingX} text-left transition-colors focus-visible:border-primary-500 focus-visible:outline-hidden ${
-          isOpen
-            ? "border-primary-500"
-            : "border-border-tertiary dark:border-border-secondary"
-        }`}
+        className={cn(
+          "relative w-full border bg-bg-surface text-left transition-colors focus-visible:border-primary focus-visible:outline-hidden",
+          heightClass,
+          radiusClass,
+          paddingX,
+          isOpen ? "border-primary" : "border-border-subtle",
+        )}
       >
         <div className="flex h-full w-full items-center justify-between gap-2">
           <span
-            className={`truncate ${textClass} ${
-              filled ? "text-text-primary" : "text-text-tertiary"
-            }`}
+            className={cn("truncate", textClass, filled ? "text-fg-default" : "text-fg-subtle")}
           >
             {triggerText}
           </span>
           <ChevronDown
-            className={`h-3.5 w-3.5 shrink-0 text-icon-tertiary transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn("h-3.5 w-3.5 shrink-0 text-icon-tertiary transition-transform", isOpen && "rotate-180")}
           />
         </div>
         {/* 플로팅 라벨 — 노치 배경은 트리거 배경(white)과 일치. */}
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute left-2 px-1 transition-all bg-bg-white ${
+          className={cn(
+            "pointer-events-none absolute left-2 px-1 transition-all bg-bg-surface",
             floated
-              ? `-top-2 ${size === "mini" ? "text-[10px]" : "text-xs"} ${
-                  isOpen ? "text-primary-500" : "text-text-secondary"
-                }`
-              : `top-1/2 -translate-y-1/2 ${textClass} text-text-tertiary`
-          }`}
+              ? ["-top-2", size === "mini" ? "text-[10px]" : "text-xs", isOpen ? "text-primary-fg" : "text-fg-muted"]
+              : ["top-1/2 -translate-y-1/2 text-fg-subtle", textClass],
+          )}
         >
           {label}
         </span>
@@ -154,7 +153,7 @@ export function SearchBoxMultiSelect({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-9999 max-h-60 overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
+            className="z-floating max-h-60 overflow-y-auto rounded-surface border border-border-subtle bg-bg-surface py-1 shadow-overlay"
           >
             {options.map((opt) => {
               const optValue = String(opt.value);
@@ -164,18 +163,19 @@ export function SearchBoxMultiSelect({
                   key={optValue}
                   type="button"
                   onClick={() => toggle(optValue)}
-                  className={`flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-700 ${textClass} ${
-                    checked ? "text-text-primary" : "text-text-secondary"
-                  }`}
+                  className={cn(
+                    "flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-bg-subtle",
+                    textClass,
+                    checked ? "text-fg-default" : "text-fg-muted",
+                  )}
                   role="option"
                   aria-selected={checked}
                 >
                   <span
-                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
-                      checked
-                        ? "border-primary-500 bg-primary-500 text-white"
-                        : "border-neutral-300 dark:border-neutral-600"
-                    }`}
+                    className={cn(
+                      "flex h-4 w-4 shrink-0 items-center justify-center rounded border",
+                      checked ? "border-primary bg-primary text-fg-inverse" : "border-border-default",
+                    )}
                   >
                     {checked && <Check className="h-3 w-3" strokeWidth={3} />}
                   </span>
@@ -184,7 +184,7 @@ export function SearchBoxMultiSelect({
               );
             })}
             {options.length === 0 && (
-              <div className="px-3 py-2 text-xs text-text-tertiary">
+              <div className="px-3 py-2 text-xs text-fg-subtle">
                 옵션이 없어요
               </div>
             )}

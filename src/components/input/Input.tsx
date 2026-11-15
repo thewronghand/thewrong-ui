@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useState } from "react";
+import { forwardRef, useState } from "react";
 import { CircleX } from "lucide-react";
 
 import {
@@ -7,8 +7,10 @@ import {
   SLOT_GAP_CLASS,
   SLOT_ICON_SIZE_CLASS,
 } from "@/components/_shared/form-size-tokens";
+import { cn } from "@/lib/utils";
 
 import type { InputProps } from "./types";
+import { useInputFormat } from "./use-input-format";
 import {
   getInputClasses,
   getInputContainerClasses,
@@ -56,39 +58,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref,
   ) => {
     const [isFocused, setIsFocused] = useState(false);
-    const [uncontrolledValue, setUncontrolledValue] = useState<string>(() => {
-      const initial = value ?? defaultValue ?? "";
-      return format ? format.transform(initial).toString() : initial.toString();
+    const {
+      displayValue,
+      handleChange,
+      handleCompositionStart,
+      handleCompositionEnd,
+      setMergedInputRef,
+      handleClear,
+    } = useInputFormat({
+      value, defaultValue, format, onChange, readOnly: restProps.readOnly,
     });
-    const inputRef = useRef<HTMLInputElement | null>(null);
-
-    const isControlled = value !== undefined;
-    const rawValue = isControlled ? value.toString() : uncontrolledValue;
-    /**
-     * 화면에 표시할 값. format이 있으면 transform 적용.
-     * controlled 모드에서는 매 렌더마다 derive — 부모가 거부한 입력은 다시 표시되지 않는다.
-     */
-    const displayValue = format
-      ? format.transform(rawValue).toString()
-      : rawValue;
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const typedValue = e.target.value;
-      if (format) {
-        const sanitized = format.transform(typedValue).toString();
-        const rawForParent = format.reset
-          ? format.reset(sanitized).toString()
-          : sanitized;
-        if (!isControlled) setUncontrolledValue(sanitized);
-        onChange?.({
-          ...e,
-          target: { ...e.target, value: rawForParent },
-        } as React.ChangeEvent<HTMLInputElement>);
-      } else {
-        if (!isControlled) setUncontrolledValue(typedValue);
-        onChange?.(e);
-      }
-    };
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true);
@@ -100,36 +79,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       onBlur?.(e);
     };
 
-    // react-hook-form `register` 사용 시 register가 반환하는 ref가 restProps에 섞여 들어옴.
-    // 외부 forwardRef + RHF register ref + 내부 inputRef 셋 다 병합해, clearable의 native dispatch가
-    // 항상 같은 노드를 향하도록 한다.
     const restRef = (restProps as { ref?: React.Ref<HTMLInputElement> }).ref;
-    const setMergedInputRef = (node: HTMLInputElement | null) => {
-      inputRef.current = node;
-      if (typeof ref === "function") ref(node);
-      else if (ref)
-        (ref as React.RefObject<HTMLInputElement | null>).current = node;
-      if (typeof restRef === "function") restRef(node);
-      else if (restRef && "current" in restRef) {
-        (restRef as React.RefObject<HTMLInputElement | null>).current =
-          node;
-      }
-    };
-
-    const handleClear = () => {
-      // input의 native value를 빈 값으로 세팅한 뒤 input 이벤트를 디스패치해
-      // 기존 handleChange/onChange 흐름을 그대로 탄다. react-hook-form/format
-      // 등 부수 로직이 자연스럽게 따라옴.
-      const node = inputRef.current;
-      if (!node) return;
-      const nativeSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        "value",
-      )?.set;
-      nativeSetter?.call(node, "");
-      node.dispatchEvent(new Event("input", { bubbles: true }));
-      node.focus();
-    };
 
     const filled = displayValue.length > 0;
     const containerClasses = getInputContainerClasses();
@@ -169,57 +119,67 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div
         className={
           isBox
-            ? `${variantClasses} flex items-center ${slotGap} ${className}`
-                .trim()
-                .replace(/\s+/g, " ")
+            ? cn(variantClasses, "flex items-center", slotGap, className)
             : "relative flex items-center text-sm"
         }
       >
         {prefix && (
-          <span className={`whitespace-nowrap text-sm ${trailingIconColor}`}>
+          <span className={cn("whitespace-nowrap text-sm", trailingIconColor)}>
             {prefix}
           </span>
         )}
         <input
           {...(restProps as Omit<typeof restProps, "ref">)}
-          ref={setMergedInputRef}
+          ref={setMergedInputRef(ref, restRef)}
           className={
             isBox
               ? inputClasses
-              : `${inputClasses} ${variantClasses} ${
-                  hasError
-                    ? "border-error-500 focus:border-error-500 focus:ring-error-500"
-                    : ""
-                } ${disabled ? "opacity-50" : ""} ${className}`
-                  .trim()
-                  .replace(/\s+/g, " ")
+              : cn(
+                  inputClasses,
+                  variantClasses,
+                  hasError && "border-border-danger focus:border-border-danger focus:ring-focus-danger",
+                  disabled && "opacity-50",
+                  className,
+                )
           }
           value={displayValue}
           onChange={handleChange}
+          onCompositionStart={(e) => {
+            handleCompositionStart(e);
+            restProps.onCompositionStart?.(e);
+          }}
+          onCompositionEnd={(e) => {
+            handleCompositionEnd(e);
+            restProps.onCompositionEnd?.(e);
+          }}
           onFocus={handleFocus}
           onBlur={handleBlur}
           disabled={disabled}
           placeholder={placeholder}
         />
         {suffix && (
-          <span className={`whitespace-nowrap text-sm ${trailingIconColor}`}>
+          <span className={cn("whitespace-nowrap text-sm", trailingIconColor)}>
             {suffix}
           </span>
         )}
         {trailingIcon && (
           <span
-            className={`flex shrink-0 items-center ${trailingIconColor} ${slotIconSize}`}
+            className={cn("flex shrink-0 items-center", trailingIconColor, slotIconSize)}
           >
             {trailingIcon}
           </span>
         )}
-        {clearable && !disabled && filled && (
+        {clearable && !disabled && !restProps.readOnly && filled && (
           <button
             type="button"
             onClick={handleClear}
             aria-label="입력 지우기"
             // focus-visible로 키보드 사용자에게만 ring을 보여 마우스 클릭 후 잔상 ring을 피한다.
-            className={`flex shrink-0 cursor-pointer items-center rounded ${trailingIconColor} hover:text-text-primary focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-500/40`}
+            className={cn(
+              "flex shrink-0 cursor-pointer items-center rounded",
+              trailingIconColor,
+              "hover:text-fg-default focus:outline-hidden focus-visible:ring-input-clear focus-visible:ring-input-clear-ring",
+            )}
           >
             <CircleX
               className={builtinIconSize}
@@ -230,7 +190,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         {badge && (
           <span
-            className={`flex shrink-0 items-center ${slotIconSize} ${slotBadgeText}`}
+            className={cn("flex shrink-0 items-center", slotIconSize, slotBadgeText)}
           >
             {badge}
           </span>

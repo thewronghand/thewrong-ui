@@ -106,7 +106,7 @@ export const 행_선택: Story = {
     const [selected, setSelected] = useState<Tenant[]>([]);
     return (
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-text-tertiary">{selected.length}건 선택됨</span>
+        <span className="text-sm text-fg-subtle">{selected.length}건 선택됨</span>
         <Table
           data={data}
           columns={COLUMNS}

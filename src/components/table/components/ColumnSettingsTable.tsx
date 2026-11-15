@@ -19,6 +19,7 @@ import { GripVertical, RotateCcw, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { TableCheckbox } from "@/components/table-checkbox";
+import { cn } from "@/lib/utils";
 
 import { buildColumnSlots, type ColumnSlot } from "../column-group-utils";
 import type { TableColumn, TableColumnGroupMeta } from "../types";
@@ -83,14 +84,12 @@ function SortableRow<T>({
     <tr
       ref={setNodeRef}
       style={style}
-      className={`
-        border-b border-neutral-200 dark:border-neutral-700 transition-colors
-        ${
-          isHidden
-            ? "bg-neutral-100 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500"
-            : "bg-white text-neutral-900 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700"
-        }
-      `}
+      className={cn(
+        "border-b border-border-subtle transition-colors",
+        isHidden
+          ? "bg-bg-subtle text-fg-subtle"
+          : "bg-bg-surface text-fg-default hover:bg-bg-subtle",
+      )}
     >
       <td
         className="w-10 px-2 py-2 text-center cursor-grab active:cursor-grabbing"
@@ -99,13 +98,13 @@ function SortableRow<T>({
       >
         <GripVertical
           size={16}
-          className="text-neutral-400 dark:text-neutral-500 mx-auto"
+          className="text-icon-tertiary mx-auto"
         />
       </td>
       <td className="px-2 py-2 text-sm whitespace-nowrap">
         {headerLabel}
         {isGroup && (
-          <span className="ml-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <span className="ml-1.5 text-xs text-fg-subtle">
             (그룹 · {slot.leafColumns.length}개)
           </span>
         )}
@@ -113,7 +112,7 @@ function SortableRow<T>({
       <td className="w-14 px-2 py-2 text-center text-sm">{index + 1}</td>
       <td className="w-20 px-2 py-2 text-center text-sm tabular-nums">
         {isGroup ? (
-          <span className="text-neutral-400 dark:text-neutral-500">—</span>
+          <span className="text-fg-subtle">—</span>
         ) : onSetColumnWidth ? (
           <ColumnWidthInput
             columnKey={slot.key}
@@ -121,7 +120,7 @@ function SortableRow<T>({
             onSetColumnWidth={onSetColumnWidth}
           />
         ) : (
-          <span className="text-neutral-500 dark:text-neutral-400">
+          <span className="text-fg-subtle">
             {width ? `${width}px` : "—"}
           </span>
         )}
@@ -195,7 +194,7 @@ function ColumnWidthInput({
         }
       }}
       aria-label={`${columnKey} 컬럼 너비 (px)`}
-      className="w-16 rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-center text-xs tabular-nums text-neutral-700 transition-colors hover:border-primary-300 focus:border-primary-500 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-200 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-100"
+      className="w-16 rounded-control-mini border border-border-subtle bg-bg-surface px-1.5 py-0.5 text-center text-xs tabular-nums text-fg-default transition-colors hover:border-primary-border focus:border-primary focus:outline-hidden focus-visible:ring-control focus-visible:ring-focus-primary"
     />
   );
 }
@@ -248,12 +247,12 @@ export function ColumnSettingsTable<T>({
 
   return (
     <div
-      className="w-full overflow-y-auto bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
+      className="w-full overflow-y-auto bg-bg-surface text-fg-default"
       style={{ maxHeight: COLUMN_SETTINGS_DROPDOWN_MAX_HEIGHT }}
     >
-      <div className="sticky top-0 bg-neutral-50 dark:bg-neutral-900 px-4 py-3 font-semibold z-10 border-b border-neutral-200 dark:border-neutral-700">
+      <div className="sticky top-0 bg-bg-subtle px-4 py-3 font-semibold z-10 border-b border-border-subtle">
         <span className="text-base">컬럼 설정</span>
-        <span className="ml-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <span className="ml-2 text-sm text-fg-subtle">
           프리셋 {num}
         </span>
       </div>
@@ -264,19 +263,19 @@ export function ColumnSettingsTable<T>({
         onDragEnd={handleDragEnd}
       >
         <table className="w-full">
-          <thead className="bg-neutral-50 dark:bg-neutral-900 sticky top-12 z-10">
-            <tr className="border-y border-neutral-200 dark:border-neutral-700 font-bold">
+          <thead className="bg-bg-subtle sticky top-12 z-10">
+            <tr className="border-y border-border-subtle font-bold">
               <th className="w-10 px-2 py-2"></th>
-              <th className="px-2 py-2 text-center text-sm font-medium text-neutral-700 dark:text-neutral-200 whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-sm font-medium text-fg-muted whitespace-nowrap">
                 컬럼명
               </th>
-              <th className="w-14 px-2 py-2 text-center text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <th className="w-14 px-2 py-2 text-center text-sm font-medium text-fg-muted">
                 순서
               </th>
-              <th className="w-20 px-2 py-2 text-center text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <th className="w-20 px-2 py-2 text-center text-sm font-medium text-fg-muted">
                 너비
               </th>
-              <th className="w-14 px-2 py-2 text-center text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <th className="w-14 px-2 py-2 text-center text-sm font-medium text-fg-muted">
                 숨김
               </th>
             </tr>
@@ -302,11 +301,11 @@ export function ColumnSettingsTable<T>({
         </table>
       </DndContext>
 
-      <div className="sticky bottom-0 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 px-4 py-3 flex justify-end gap-2 z-10">
+      <div className="sticky bottom-0 bg-bg-surface border-t border-border-subtle px-4 py-3 flex justify-end gap-2 z-10">
         <button
           type="button"
           onClick={onReset}
-          className="px-3 py-1 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200 rounded text-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors flex items-center gap-1"
+          className="px-3 py-1 border border-border-default text-fg-default rounded-control-small text-sm hover:bg-bg-subtle transition-colors flex items-center gap-1"
         >
           <RotateCcw size={12} />
           <span className="text-xs">초기화</span>
@@ -314,7 +313,7 @@ export function ColumnSettingsTable<T>({
         <button
           type="button"
           onClick={onSave}
-          className="px-3 py-1 bg-primary-500 text-white rounded transition-colors flex items-center gap-1 hover:bg-primary-600"
+          className="px-3 py-1 bg-primary text-fg-inverse rounded-control-small transition-colors flex items-center gap-1 hover:bg-primary-hover"
         >
           <Save size={12} />
           <span className="text-xs">저장</span>

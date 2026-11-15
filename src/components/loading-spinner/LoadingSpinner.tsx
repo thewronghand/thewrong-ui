@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 export interface LoadingSpinnerProps {
   message?: string;
   size?: "sm" | "md" | "lg";
@@ -13,7 +15,7 @@ const sizeClasses = {
 export function Spinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   return (
     <svg
-      className={`animate-spin ${sizeClasses[size]} text-primary-500 dark:text-primary-400`}
+      className={cn("animate-spin text-primary-fg", sizeClasses[size])}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -52,12 +54,12 @@ export function LoadingSpinner({
 }: LoadingSpinnerProps) {
   return (
     <div
-      className={`flex items-center justify-center h-full min-h-[200px] ${className}`}
+      className={cn("flex items-center justify-center h-full min-h-[200px]", className)}
     >
       <div className="flex flex-col items-center gap-2">
         <Spinner size={size} />
         {message && (
-          <span className="text-sm text-neutral-500 dark:text-neutral-400">
+          <span className="text-sm text-fg-muted">
             {message}
           </span>
         )}

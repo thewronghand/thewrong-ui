@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 export interface CollapsibleProps {
   /** true면 펼침, false면 접힘. */
   open: boolean;
@@ -48,7 +50,7 @@ export function Collapsible({
 
   return (
     <div
-      className={`grid ${className}`}
+      className={cn("grid", className)}
       style={{
         gridTemplateRows: open ? "1fr" : "0fr",
         opacity: fade ? (open ? 1 : 0) : undefined,

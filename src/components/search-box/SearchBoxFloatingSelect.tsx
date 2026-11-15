@@ -15,6 +15,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 import type { SelectOption } from "@/components/select";
+import { cn } from "@/lib/utils";
 
 interface Props {
   /** 라벨 — 미선택일 땐 인풋 안의 placeholder처럼, 선택/포커스 시 상단 보더로 부유. */
@@ -76,6 +77,7 @@ export function SearchBoxFloatingSelect({
   const floated = isOpen || filled;
 
   const heightClass = size === "mini" ? "h-8" : "h-10";
+  const radiusClass = size === "mini" ? "rounded-control-mini" : "rounded-control-small";
   const textClass = size === "mini" ? "text-xs" : "text-sm";
   const paddingX = size === "mini" ? "px-2.5" : "px-3";
 
@@ -87,11 +89,13 @@ export function SearchBoxFloatingSelect({
         {...getReferenceProps()}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        className={`relative ${heightClass} w-full rounded-lg border bg-bg-white ${paddingX} text-left transition-colors focus-visible:border-primary-500 focus-visible:outline-hidden ${
-          isOpen
-            ? "border-primary-500"
-            : "border-border-tertiary dark:border-border-secondary"
-        }`}
+        className={cn(
+          "relative w-full border bg-bg-surface text-left transition-colors focus-visible:border-primary focus-visible:outline-hidden",
+          heightClass,
+          radiusClass,
+          paddingX,
+          isOpen ? "border-primary" : "border-border-subtle",
+        )}
       >
         <div className="flex h-full w-full items-center justify-between gap-2">
           {/*
@@ -101,28 +105,23 @@ export function SearchBoxFloatingSelect({
             - 미선택 + 라벨 안에 머무름 → 비움 (라벨이 placeholder 역할)
           */}
           <span
-            className={`truncate ${textClass} ${
-              filled ? "text-text-primary" : "text-text-tertiary"
-            }`}
+            className={cn("truncate", textClass, filled ? "text-fg-default" : "text-fg-subtle")}
           >
             {filled ? selected!.label : ""}
           </span>
           <ChevronDown
-            className={`h-3.5 w-3.5 shrink-0 text-icon-tertiary transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={cn("h-3.5 w-3.5 shrink-0 text-icon-tertiary transition-transform", isOpen && "rotate-180")}
           />
         </div>
         {/* 플로팅 라벨 — input wrapper와 동일 규칙. 노치 배경은 트리거 배경(white)과 일치. */}
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute left-2 px-1 transition-all bg-bg-white ${
+          className={cn(
+            "pointer-events-none absolute left-2 px-1 transition-all bg-bg-surface",
             floated
-              ? `-top-2 ${size === "mini" ? "text-[10px]" : "text-xs"} ${
-                  isOpen ? "text-primary-500" : "text-text-secondary"
-                }`
-              : `top-1/2 -translate-y-1/2 ${textClass} text-text-tertiary`
-          }`}
+              ? ["-top-2", size === "mini" ? "text-[10px]" : "text-xs", isOpen ? "text-primary-fg" : "text-fg-muted"]
+              : ["top-1/2 -translate-y-1/2 text-fg-subtle", textClass],
+          )}
         >
           {label}
         </span>
@@ -133,7 +132,7 @@ export function SearchBoxFloatingSelect({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="z-9999 max-h-60 overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-800"
+            className="z-floating max-h-60 overflow-y-auto rounded-surface border border-border-subtle bg-bg-surface py-1 shadow-overlay"
           >
             {options.map((opt) => {
               const optValue = String(opt.value);
@@ -146,21 +145,23 @@ export function SearchBoxFloatingSelect({
                     onChange(optValue);
                     setIsOpen(false);
                   }}
-                  className={`flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-700 ${textClass} ${
-                    checked ? "text-text-primary" : "text-text-secondary"
-                  }`}
+                  className={cn(
+                    "flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-bg-subtle",
+                    textClass,
+                    checked ? "text-fg-default" : "text-fg-muted",
+                  )}
                   role="option"
                   aria-selected={checked}
                 >
                   <span className="flex-1 truncate">{opt.label}</span>
                   {checked && (
-                    <Check className="h-3 w-3 text-primary-500" strokeWidth={3} />
+                    <Check className="h-3 w-3 text-primary-fg" strokeWidth={3} />
                   )}
                 </button>
               );
             })}
             {options.length === 0 && (
-              <div className="px-3 py-2 text-xs text-text-tertiary">
+              <div className="px-3 py-2 text-xs text-fg-subtle">
                 옵션이 없어요
               </div>
             )}

@@ -1,0 +1,152 @@
+/*
+  컴포넌트 전용 네이티브 CSS — pseudo-element처럼 Tailwind 유틸·인라인 스타일로
+  표현할 수 없는 규칙만 둔다. 색은 시맨틱 토큰만 참조한다(다크는 토큰이 따라간다).
+*/
+
+/*
+  ── 날짜 입력 — 네이티브 캘린더 indicator 숨김 ───────────────────────────────
+  <input type="date">의 브라우저 기본 캘린더 아이콘을 숨긴다. 옆의 커스텀 트리거(DatePicker)가
+  그 역할을 하므로 중복 indicator를 없앤다.
+  `.search-box-date-input`은 현재 DateInput이 쓰는 이름이다. `.date-input-native`와 같은 규칙.
+*/
+.date-input-native::-webkit-calendar-picker-indicator,
+.search-box-date-input::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.date-input-native::-webkit-inner-spin-button,
+.search-box-date-input::-webkit-inner-spin-button {
+  display: none;
+}
+
+/*
+  ── 스크롤바 chrome 숨김 (opt-in) ─────────────────────────────────────────────
+  overflow는 유지해 터치·휠·키보드 스크롤은 그대로 동작하고 thumb만 감춘다.
+  마우스로 쓰는 화면에서는 thumb가 "더 있다"는 유일한 신호라 일괄 적용하지 않는다.
+*/
+.scroll-body-chrome-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scroll-body-chrome-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+  ── 테이블 스크롤바 — 가운데 얇은 레일 + pill thumb ──────────────────────────
+  track: 6px 폭 중 가운데 2px 레일만 그린다. corner는 투명(다크에서 흰 코너가 튀지 않게).
+*/
+.scrollbar-table::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-table::-webkit-scrollbar-track {
+  background: linear-gradient(
+    to right,
+    transparent calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+  border-radius: 9999px;
+}
+
+.scrollbar-table::-webkit-scrollbar-track:horizontal {
+  background: linear-gradient(
+    to bottom,
+    transparent calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+.scrollbar-table::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: 9999px;
+}
+
+.scrollbar-table::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fg-subtle);
+}
+
+.scrollbar-table::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/*
+  ── 브랜드 스크롤바 — 드롭다운 목록용 (date-picker 연·월 목록) ────────────────
+  테이블 스크롤바와 같은 레일 구조에 5px 폭, thumb는 브랜드 보더 색.
+*/
+.scrollbar-brand::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.scrollbar-brand::-webkit-scrollbar-track {
+  background: linear-gradient(
+    to right,
+    transparent calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+  border-radius: 9999px;
+}
+
+.scrollbar-brand::-webkit-scrollbar-track:horizontal {
+  background: linear-gradient(
+    to bottom,
+    transparent calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% - 1px),
+    var(--color-bg-disabled) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+.scrollbar-brand::-webkit-scrollbar-thumb {
+  background: var(--color-primary-border);
+  border-radius: 9999px;
+}
+
+/*
+  ── 테이블 density(2단) — 셀·헤더 세로 padding ───────────────────────────────
+  스코프 클래스가 커스텀 프로퍼티를 재정의한다. 셀의 `paddingBlock: var(--table-cell-pad-y)`는
+  가장 가까운 조상의 값을 받으므로 compact가 이긴다. default는 클래스 없음.
+*/
+.table-density-compact {
+  --table-cell-pad-y: 2px;
+  --table-header-pad-y: 4px;
+}
+
+/*
+  ── 테이블 size(3단) — 셀·헤더 폰트 크기 ─────────────────────────────────────
+  density와 직교하는 축. medium(기본)은 클래스 없음.
+*/
+.table-size-small {
+  --table-cell-font: var(--text-xs);
+}
+
+.table-size-large {
+  --table-cell-font: var(--text-base);
+}
+
+/*
+  ── 테이블 fontWeight(2단) — 본문 셀 굵기 ────────────────────────────────────
+  normal(기본)은 클래스 없음.
+*/
+.table-weight-bold {
+  --table-cell-font-weight: var(--font-weight-table-emphasis);
+}
+
+/*
+  ── 셀 단위 강조 굵기 ─────────────────────────────────────────────────────────
+  셀 굵기는 인라인 `fontWeight: var(--table-cell-font-weight)`로 들어가 font-semibold 같은
+  클래스로는 덮이지 않는다. 그래서 커스텀 프로퍼티 자체를 재정의한다.
+*/
+.table-cell-weight-emphasis {
+  --table-cell-font-weight: var(--font-weight-table-emphasis);
+}

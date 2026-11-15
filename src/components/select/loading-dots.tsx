@@ -4,9 +4,11 @@
  *
  * @keyframes는 tailwind animate-pulse를 stagger로 사용 — animationDelay만 inline.
  */
+import { cn } from "@/lib/utils";
+
 export const LoadingDots = ({ className = "" }: { className?: string }) => (
   <span
-    className={`inline-flex items-end gap-0.5 ${className}`}
+    className={cn("inline-flex items-end gap-0.5", className)}
     aria-label="로딩 중"
     role="status"
   >

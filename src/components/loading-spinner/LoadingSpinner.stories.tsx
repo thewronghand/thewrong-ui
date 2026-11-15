@@ -25,7 +25,7 @@ export const Sizes: Story = {
       {(["sm", "md", "lg"] as const).map((s) => (
         <div key={s} className="flex flex-col items-center gap-2">
           <Spinner size={s} />
-          <span className="text-xs text-text-secondary">{s}</span>
+          <span className="text-xs text-fg-muted">{s}</span>
         </div>
       ))}
     </div>

@@ -20,6 +20,12 @@ export interface StandardModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  /** Modal의 `dismissible`로 전달한다. footer 액션 버튼의 표시는 바꾸지 않는다. @default true */
+  dismissible?: boolean;
+  /** Modal의 `trapFocus`로 전달한다(규칙은 Modal 참고). @default true */
+  trapFocus?: boolean;
+  /** Modal의 `onExitComplete`로 전달한다. 닫힘 모션이 끝난 뒤 호출된다. */
+  onExitComplete?: () => void;
   widthPx?: number;
   /** 우측 슬라이드 서브뷰. ModalSubView 그대로 전달. */
   subView?: ReactNode;
@@ -67,6 +73,9 @@ export function StandardModal({
   isOpen,
   onClose,
   title,
+  dismissible,
+  trapFocus,
+  onExitComplete,
   widthPx,
   subView,
   primaryAction,
@@ -104,13 +113,16 @@ export function StandardModal({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
+      dismissible={dismissible}
+      trapFocus={trapFocus}
+      onExitComplete={onExitComplete}
       widthPx={widthPx}
       bodyPadded
       subView={subView}
       footer={
         hasFooter ? (
           // 모바일에선 px-4·py-3 + 버튼 좁게 / 데스크탑에선 px-5·py-4 + 버튼 넓게.
-          <div className="flex items-center justify-between gap-2 border-t border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 dark:border-neutral-700">
+          <div className="flex items-center justify-between gap-2 border-t border-border-subtle px-4 py-3 sm:px-5 sm:py-4">
             <div>
               {leftAction && (
                 <div className="w-[88px] sm:w-28">

@@ -6,9 +6,13 @@ import { ModalSubView } from "./ModalSubView";
 import { StandardModal } from "./StandardModal";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
+import { MultiSelect, Select } from "@/components/select";
 import { Switch } from "@/components/switch";
 import { AnimatedHeight } from "@/components/animated-height";
 import { showActionToast } from "@/components/action-toast";
+import { Popover } from "@/components/popover";
+import { DatePicker } from "@/components/date-picker";
+import { Portal } from "@/lib/Portal";
 
 /**
  * 모달 — 데스크탑(sm+)에서는 중앙 카드, 모바일에서는 하단 바텀시트로 자동 분기.
@@ -124,7 +128,7 @@ export const Standard_단일액션: Story = {
           title="안내"
           primaryAction={{ label: "확인", onClick: () => setOpen(false) }}
         >
-          <span className="text-sm text-text-primary">
+          <span className="text-sm text-fg-default">
             처리가 완료되었습니다.
           </span>
         </StandardModal>
@@ -157,7 +161,7 @@ export const Standard_삭제_danger: Story = {
           }}
           secondaryAction={{ label: "취소", onClick: () => setOpen(false) }}
         >
-          <span className="text-sm text-text-primary">
+          <span className="text-sm text-fg-default">
             이 역할을 삭제하면 되돌릴 수 없어요.
           </span>
         </StandardModal>
@@ -185,7 +189,7 @@ export const Standard_긴본문_스크롤: Story = {
         >
           <div className="flex flex-col gap-3">
             {Array.from({ length: 20 }, (_, i) => (
-              <p key={i} className="text-sm text-text-secondary">
+              <p key={i} className="text-sm text-fg-muted">
                 {i + 1}. 약관 조항 텍스트가 길게 이어집니다. 바디만 스크롤되고
                 footer는 하단에 고정됩니다.
               </p>
@@ -227,7 +231,7 @@ export const 정책_AnimatedHeight_적용: Story = {
                 onCheckedChange={setExpanded}
               />
               {expanded && (
-                <div className="rounded-lg bg-bg-base-secondary p-3 text-sm text-text-secondary">
+                <div className="rounded-lg bg-bg-subtle p-3 text-sm text-fg-muted">
                   고급 옵션 영역. 너비는 widthPx로 고정돼 있어 토글 시 높이만
                   부드럽게 늘고 줄어요(가로 흔들림 없음).
                 </div>
@@ -267,7 +271,7 @@ export const 정책_AnimatedHeight_미적용: Story = {
               onCheckedChange={setExpanded}
             />
             {expanded && (
-              <div className="rounded-lg bg-bg-base-secondary p-3 text-sm text-text-secondary">
+              <div className="rounded-lg bg-bg-subtle p-3 text-sm text-fg-muted">
                 고급 옵션 영역. AnimatedHeight로 감싸지 않아 토글 시 높이가 툭
                 바뀝니다(너비는 widthPx로 고정).
               </div>
@@ -305,7 +309,7 @@ export const 레이어드_SubView: Story = {
               onBack={() => setSubOpen(false)}
               title="변경 이력"
             >
-              <div className="text-sm text-text-primary">
+              <div className="text-sm text-fg-default">
                 우측에서 슬라이드 인 한 서브뷰. 부모 모달의 높이를 그대로 채운다.
                 ESC/뒤로가기로 닫으면 모달은 유지됩니다.
               </div>
@@ -314,7 +318,7 @@ export const 레이어드_SubView: Story = {
         >
           {/* 서브뷰가 부모 높이를 채우는 걸 보여주려고 본문에 충분한 높이를 둠 */}
           <div className="flex min-h-72 flex-col gap-3 p-4">
-            <span className="text-sm text-text-primary">본문 영역입니다.</span>
+            <span className="text-sm text-fg-default">본문 영역입니다.</span>
             <Button
               variant="secondary"
               size="small"
@@ -368,7 +372,7 @@ export const 레이어드_ActionToast_재확인: Story = {
           }}
           secondaryAction={{ label: "닫기", onClick: () => setOpen(false) }}
         >
-          <span className="text-sm text-text-primary">
+          <span className="text-sm text-fg-default">
             삭제를 누르면 액션토스트로 한 번 더 확인해요. ESC로 토스트를 닫아도
             모달은 그대로입니다.
           </span>
@@ -399,7 +403,7 @@ export const 정책_너비고정: Story = {
           title="너비는 고정"
           widthPx={420}
           footer={
-            <div className="flex justify-end border-t border-neutral-200 px-5 py-4 dark:border-neutral-700">
+            <div className="flex justify-end border-t border-border-subtle px-5 py-4">
               <Button size="small" onClick={() => setOpen(false)}>
                 닫기
               </Button>
@@ -412,11 +416,11 @@ export const 정책_너비고정: Story = {
               checked={wide}
               onCheckedChange={setWide}
             />
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-fg-muted">
               widthPx=420 고정. 내용을 늘려도 시트 너비는 그대로 — 높이만 변한다.
             </p>
             {wide && (
-              <p className="text-sm text-text-secondary">
+              <p className="text-sm text-fg-muted">
                 추가된 내용. 너비가 흔들리지 않으니 시각적으로 안정적이다.
               </p>
             )}
@@ -453,7 +457,7 @@ export const 정책_서브뷰높이: Story = {
                 {["권한 A 부여", "권한 B 회수", "역할 변경"].map((t) => (
                   <div
                     key={t}
-                    className="rounded-lg bg-bg-base-secondary px-3 py-2 text-sm text-text-primary"
+                    className="rounded-lg bg-bg-subtle px-3 py-2 text-sm text-fg-default"
                   >
                     {t}
                   </div>
@@ -464,7 +468,7 @@ export const 정책_서브뷰높이: Story = {
         >
           {/* 본문에 충분한 높이를 둬, 서브뷰(변경 3건)가 부모 높이에 자연스럽게 들어맞는 걸 보여줌 */}
           <div className="flex min-h-72 flex-col gap-3 p-4">
-            <span className="text-sm text-text-primary">
+            <span className="text-sm text-fg-default">
               본문과 서브뷰의 내용 양이 비슷해 높이가 어긋나지 않는다.
             </span>
             <Button
@@ -499,14 +503,14 @@ export const Base_고정폭: Story = {
           title="자유 레이아웃"
           widthPx={480}
           footer={
-            <div className="flex justify-end gap-2 border-t border-neutral-200 px-5 py-4 dark:border-neutral-700">
+            <div className="flex justify-end gap-2 border-t border-border-subtle px-5 py-4">
               <Button variant="secondary" appearance="outlined" size="small" onClick={() => setOpen(false)}>
                 닫기
               </Button>
             </div>
           }
         >
-          <div className="p-4 text-sm text-text-primary">
+          <div className="p-4 text-sm text-fg-default">
             StandardModal의 액션 패턴이 안 맞을 때 footer를 직접 구성합니다.
           </div>
         </Modal>
@@ -551,6 +555,290 @@ export const 모바일_바텀시트: Story = {
             placeholder="역할 이름"
           />
         </StandardModal>
+      </>
+    );
+  },
+};
+
+export const 닫기_제한과_포커스: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "dismissible=false에서는 ESC·백드롭·닫기 버튼·드래그로 닫히지 않는다. 내부 버튼으로 닫으면 종료 모션 뒤 횟수가 늘어나고 열기 버튼에 포커스가 돌아간다. 서브뷰가 열린 동안 Tab은 서브뷰와 보이는 헤더·footer를 돌고 덮인 본문은 건너뛴다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    const [exits, setExits] = useState(0);
+    const close = () => {
+      setSubOpen(false);
+      setOpen(false);
+    };
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>닫기 제한 모달 열기</Button>
+        <p>종료 모션 완료: {exits}회</p>
+        <Modal
+          isOpen={open}
+          onClose={close}
+          dismissible={false}
+          onExitComplete={() => setExits((count) => count + 1)}
+          title="직접 닫는 모달"
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="서브뷰"
+            >
+              <label>
+                서브뷰 입력
+                <input className="border p-1" />
+              </label>
+            </ModalSubView>
+          }
+          footer={<Button onClick={close}>직접 닫기</Button>}
+        >
+          <div className="flex min-h-48 flex-col gap-3 p-4">
+            <label>
+              자동 포커스 입력
+              <input autoFocus className="border p-1" />
+            </label>
+            <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 모달_안_Select: Story = {
+  name: "모달 안 Select",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "모달에서 각 Select 패널을 연 뒤 Tab과 Shift+Tab으로 앞뒤 필드로 이동하고 모달 경계에서 순환한다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [country, setCountry] = useState("");
+    const [city, setCity] = useState("");
+    const [tags, setTags] = useState<string[]>([]);
+    const options = [
+      { value: "seoul", label: "서울" },
+      { value: "busan", label: "부산" },
+      { value: "jeju", label: "제주" },
+    ];
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Select 폼 열기</Button>
+        <Modal isOpen={open} onClose={() => setOpen(false)} title="Select 폼" widthPx={420}>
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" label="이름" placeholder="이름 입력" />
+            <Select variant="box" label="지역" options={options} value={country} onChange={setCountry} />
+            <Select variant="box" label="검색 지역" searchable options={options} value={city} onChange={setCity} />
+            <MultiSelect variant="box" label="관심 지역" options={options} value={tags} onChange={setTags} />
+            <Button onClick={() => setOpen(false)}>저장</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 모달_안_Popover_DatePicker: Story = {
+  name: "모달 안 Popover·DatePicker",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "팝오버와 날짜 선택기를 키보드로 열면 Tab과 Shift+Tab 모두 매 바퀴 패널을 지난다. 마지막 필드는 Select다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [date, setDate] = useState("");
+    const [value, setValue] = useState("");
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>부유 레이어 모달 열기</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="부유 레이어"
+          widthPx={420}
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" label="이름" placeholder="부유 레이어 입력" />
+            <Popover
+              trigger="팝오버 열기"
+              content={
+                <div className="flex gap-2">
+                  <Button>팝오버 첫 버튼</Button>
+                  <Button>팝오버 마지막 버튼</Button>
+                </div>
+              }
+            />
+            <DatePicker value={date} onApply={setDate}>
+              <Button variant="secondary">날짜 선택 {date}</Button>
+            </DatePicker>
+            <Select
+              variant="box"
+              label="마지막 선택"
+              options={[
+                { value: "seoul", label: "서울" },
+                { value: "busan", label: "부산" },
+              ]}
+              value={value}
+              onChange={setValue}
+            />
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 모달_위_모달: Story = {
+  name: "모달 위 모달",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "안쪽 모달의 Tab 순환과 각 모달을 닫은 뒤의 포커스 복원을 확인한다. 실제 화면에서는 모달 위 모달 대신 ModalSubView(푸시 네비)나 ActionToast(재확인)를 권장한다.",
+  ),
+  render: () => {
+    const [outerOpen, setOuterOpen] = useState(false);
+    const [innerOpen, setInnerOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOuterOpen(true)}>모달 A 열기</Button>
+        <Modal
+          isOpen={outerOpen}
+          onClose={() => setOuterOpen(false)}
+          title="모달 A"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Button onClick={() => setInnerOpen(true)}>모달 B 열기</Button>
+            <Modal
+              isOpen={innerOpen}
+              onClose={() => setInnerOpen(false)}
+              title="모달 B"
+            >
+              <div className="flex flex-col gap-3 p-4">
+                <Input variant="box" placeholder="모달 B 입력" />
+                <Button onClick={() => setInnerOpen(false)}>모달 B 닫기</Button>
+              </div>
+            </Modal>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 포커스_트랩_끄기: Story = {
+  name: "포커스 트랩 끄기",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "트랩을 꺼도 열릴 때 모달에 포커스하고 닫히면 여는 버튼으로 복원한다. Tab은 모달 밖으로 이동할 수 있다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>트랩 없는 모달 열기</Button>
+        <Button>배경 버튼</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="트랩 없는 모달"
+          trapFocus={false}
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Input variant="box" placeholder="트랩 없는 입력" />
+            <Button onClick={() => setOpen(false)}>모달 닫기</Button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 표식으로_편입한_포털: Story = {
+  name: "표식으로 편입한 포털",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "자체 포털 루트에 data-focus-trap-layer를 붙이면 모달과 팝업이 하나의 Tab 고리로 순환한다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const close = () => {
+      setOpen(false);
+      setPopupOpen(false);
+    };
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>포털 모달 열기</Button>
+        <Modal
+          isOpen={open}
+          onClose={close}
+          title="표식 포털"
+        >
+          <div className="flex flex-col gap-3 p-4">
+            <Button onClick={() => setPopupOpen((value) => !value)}>
+              자체 포털 열기
+            </Button>
+            <Button onClick={close}>모달 닫기</Button>
+          </div>
+          {popupOpen && (
+            <Portal>
+              <div
+                data-focus-trap-layer
+                className="fixed right-6 top-6 z-9999 flex gap-2 rounded-lg bg-white p-4 shadow-lg"
+              >
+                <Button>포털 첫 버튼</Button>
+                <Button>포털 마지막 버튼</Button>
+              </div>
+            </Portal>
+          )}
+        </Modal>
+      </>
+    );
+  },
+};
+
+export const 서브뷰가_열린_채_다시_열기: Story = {
+  name: "서브뷰가 열린 채 다시 열기",
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "서브뷰를 열고 모달을 닫았다가 다시 열면 서브뷰가 열린 상태로 뜬다. 포커스는 뒤로 가기에 놓이고, Tab은 서브뷰와 보이는 헤더·footer만 돈다. ESC를 한 번 누르면 서브뷰만 닫힌다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>유지 모달 열기</Button>
+        <Button>배경 버튼</Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="서브뷰 유지 모달"
+          widthPx={420}
+          footer={<Button>푸터 버튼</Button>}
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="유지 서브뷰"
+            >
+              <label>
+                서브뷰 입력
+                <input className="border p-1" placeholder="서브뷰 입력" />
+              </label>
+              <Button>서브뷰 버튼</Button>
+            </ModalSubView>
+          }
+        >
+          <div className="flex min-h-48 flex-col gap-3 p-4">
+            <input className="border p-1" placeholder="덮인 본문 입력" />
+            <Button onClick={() => setSubOpen(true)}>서브뷰 열기</Button>
+          </div>
+        </Modal>
       </>
     );
   },

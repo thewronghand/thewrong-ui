@@ -13,6 +13,8 @@ import {
   useState,
 } from "react";
 
+import { cn } from "@/lib/utils";
+
 /**
  * 페이지네이션 Props
  */
@@ -39,18 +41,18 @@ export interface PaginationProps extends Omit<
 const STEP_OPTIONS = [9, 7, 5, 3, 1];
 const ELLIPSIS_PX = 16;
 const COMPACT_ELLIPSIS =
-  "px-0.5 text-xs text-text-tertiary font-mono @min-[640px]/pagebar:px-1 @min-[640px]/pagebar:text-sm";
+  "px-0.5 text-xs text-fg-subtle font-mono @min-[640px]/pagebar:px-1 @min-[640px]/pagebar:text-sm";
 
 const PAGE_BUTTON_BASE =
-  "inline-flex h-7 min-w-6 items-center justify-center rounded-md px-1.5 font-mono text-xs tabular-nums transition-colors @min-[640px]/pagebar:h-8 @min-[640px]/pagebar:min-w-7 @min-[640px]/pagebar:px-2 @min-[640px]/pagebar:text-sm";
+  "inline-flex h-7 min-w-6 items-center justify-center rounded-control-mini px-1.5 font-mono text-xs tabular-nums transition-colors @min-[640px]/pagebar:h-8 @min-[640px]/pagebar:min-w-7 @min-[640px]/pagebar:px-2 @min-[640px]/pagebar:text-sm";
 const PAGE_BUTTON_INACTIVE =
-  "text-text-disabled hover:bg-bg-base-secondary hover:text-text-secondary";
+  "text-fg-disabled hover:bg-bg-subtle hover:text-fg-default";
 const PAGE_BUTTON_ACTIVE =
-  "font-bold text-text-secondary";
+  "font-bold text-fg-default";
 const PAGE_BUTTON_FOCUS =
-  "outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500";
+  "outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary";
 const PAGE_BUTTON_DISABLED =
-  "disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-text-tertiary";
+  "disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-fg-subtle";
 
 interface PageButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean;
@@ -68,7 +70,13 @@ function PageButton({
     <button
       type="button"
       aria-current={active ? "page" : undefined}
-      className={`${PAGE_BUTTON_BASE} ${active ? PAGE_BUTTON_ACTIVE : PAGE_BUTTON_INACTIVE} ${PAGE_BUTTON_FOCUS} ${PAGE_BUTTON_DISABLED} ${className}`}
+      className={cn(
+        PAGE_BUTTON_BASE,
+        active ? PAGE_BUTTON_ACTIVE : PAGE_BUTTON_INACTIVE,
+        PAGE_BUTTON_FOCUS,
+        PAGE_BUTTON_DISABLED,
+        className,
+      )}
       {...props}
     >
       {children}
@@ -268,7 +276,7 @@ export function Pagination({
     return (
       <div
         ref={containerRef}
-        className={`flex items-center justify-center gap-1 sm:gap-2 ${className}`}
+        className={cn("flex items-center justify-center gap-1 sm:gap-2", className)}
         data-testid={testId}
         {...restProps}
       >
@@ -288,7 +296,7 @@ export function Pagination({
   return (
     <div
       ref={containerRef}
-      className={`flex items-center justify-center gap-1 sm:gap-2 ${className}`}
+      className={cn("flex items-center justify-center gap-1 sm:gap-2", className)}
       data-testid={testId}
       {...restProps}
     >

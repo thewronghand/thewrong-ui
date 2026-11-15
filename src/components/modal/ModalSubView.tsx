@@ -1,8 +1,11 @@
 import { ArrowLeft } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { useEffect, useId, type ReactNode } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { useContext, useEffect, useId, useState, type ReactNode } from "react";
 
+import { useFocusTrap } from "@/hooks";
 import { overlayStack } from "@/lib/overlay-stack";
+import { cn } from "@/lib/utils";
+import { ModalFocusTrapContext } from "./ModalFocusTrapContext";
 
 export interface ModalSubViewProps {
   open: boolean;
@@ -49,8 +52,13 @@ export interface ModalSubViewProps {
  * 들어가면 서브뷰 안에서만 스크롤이 생겨 부모와 높이가 어긋나 보인다. 긴 목록은 부모 모달 자체를
  * 그만큼 키우거나(`widthPx`/콘텐츠 양 조정), 별도 페이지/Drawer로 분리할 것.
  *
+ * **포커스**: 열리면 뒤로 가기 버튼에 포커스하고 닫히면 연 요소로 돌아간다. 열린 동안 Tab은
+ * 서브뷰와, 서브뷰가 덮지 않은 부모 시트 영역(헤더·footer 등)을 DOM 순서로 돈다. 덮인 본문으로는
+ * 가지 않는다 — 화면에 보이고 마우스로 누를 수 있는 요소는 키보드로도 닿아야 하기 때문이다.
+ * 부모와 서브뷰가 같은 커밋에서 함께 열리는 경우도 지원한다.
+ *
  * **ESC 동작**: SubView가 열려있는 동안 ESC는 SubView의 `onBack`을 부르고 모달은 유지된다.
- * `overlayStack`을 push해 Modal보다 위 layer로 등록 — Modal의 ESC 핸들러는 자기가 top일 때만 실행.
+ * 부모가 열린 서브뷰에 양보하므로 부모와 동시에 열려도 서브뷰부터 닫힌다.
  *
  * @example
  * ```tsx
@@ -75,39 +83,54 @@ export function ModalSubView({
   children,
 }: ModalSubViewProps) {
   const overlayId = useId();
+  const prefersReducedMotion = useReducedMotion();
+  const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
+  const [drawerRoot, setDrawerRoot] = useState<HTMLDivElement | null>(null);
+  const { isOpen: parentOpen, trapFocus, registerSubView, isTopSubView } =
+    useContext(ModalFocusTrapContext);
+  const enabled = open && parentOpen;
 
   useEffect(() => {
-    if (!open) return;
+    if (!enabled) return;
+    const unregister = registerSubView(overlayId);
     overlayStack.push(overlayId);
     return () => {
       overlayStack.pop(overlayId);
+      unregister();
     };
-  }, [open, overlayId]);
+  }, [enabled, overlayId, registerSubView]);
+
+  useFocusTrap(sheet, {
+    enabled,
+    trapFocus,
+    canTrap: () => isTopSubView(overlayId),
+    // 덮지 않은 부모 시트 영역(헤더·footer)은 Tab 고리에 남긴다.
+    cover: variant === "drawer" ? drawerRoot : sheet,
+  });
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      // 자기가 top일 때만 onBack. 부모 Modal/Drawer도 같은 window listener에 등록돼 있지만
-      // 각자 isTop 가드로 자신이 top이 아니면 무시하기 때문에 별도 stopPropagation 불필요.
-      if (!overlayStack.isTop(overlayId)) return;
+      // 부모와 동시에 열려 부모가 스택 top이 된 경우에도 등록된 서브뷰가 우선한다.
+      if (!isTopSubView(overlayId)) return;
       onBack();
     };
-    if (open) window.addEventListener("keydown", handleEsc);
+    if (enabled) window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [open, onBack, overlayId]);
+  }, [enabled, onBack, overlayId, isTopSubView]);
 
   const header = (
-    <div className="flex items-center gap-2 border-b border-border-tertiary px-4 py-3 dark:border-neutral-700">
+    <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
       <button
         type="button"
         onClick={onBack}
-        className="rounded p-1 text-text-tertiary transition-colors hover:bg-bg-base-secondary hover:text-text-secondary dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-200"
+        className="rounded-control-medium p-1 text-fg-muted transition-colors hover:bg-bg-subtle hover:text-fg-default"
         aria-label="뒤로 가기"
       >
         <ArrowLeft className="h-4 w-4" />
       </button>
       {title && (
-        <div className="flex-1 text-sm font-semibold text-text-primary dark:text-white">
+        <div className="flex-1 text-sm font-semibold text-fg-default">
           {title}
         </div>
       )}
@@ -122,9 +145,10 @@ export function ModalSubView({
       // transform-[translateZ(0)] — 부모 Modal의 중앙정렬 translate transform 레이어 안에서
       // 그려지므로 본 Modal 바디와 같은 Chrome 합성 페인트 버그(긴 스크롤 콘텐츠 리렌더 시 백지)에
       // 노출된다. transform-gpu 유틸 대신 임의값을 쓰는 이유는 Modal.tsx 바디 주석 참고(v4 폴백 회피).
-      className={`transform-[translateZ(0)] flex-1 overflow-y-auto overflow-x-hidden${
-        bodyPadded ? " mx-1 sm:mx-4" : ""
-      }`}
+      className={cn(
+        "transform-[translateZ(0)] flex-1 overflow-y-auto overflow-x-hidden",
+        bodyPadded && "mx-1 sm:mx-4",
+      )}
     >
       {contentPadded ? (
         <div className="px-2 py-3 sm:px-4 sm:py-5">{children}</div>
@@ -139,26 +163,37 @@ export function ModalSubView({
     return (
       <AnimatePresence>
         {open && (
-          <div className="absolute inset-0 z-10">
+          <div ref={setDrawerRoot} className="absolute inset-0 z-10">
             <motion.div
               key="subview-drawer-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
               onClick={onBack}
+              // 시트 내부 로컬 백드롭 — 전역 bg-overlay(다크 60%)보다 약한 모드 불변 40%.
+              // 이미 스크림 위에 뜬 시트를 한 번 더 덮으므로 독자 축으로 둔다(avocado와 동일).
               className="absolute inset-0 bg-black/40"
             />
             <motion.div
               key="subview-drawer-sheet"
+              ref={setSheet}
+              tabIndex={-1}
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{
                 x: "100%",
-                transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+                transition: {
+                  duration: prefersReducedMotion ? 0 : 0.2,
+                  ease: [0.4, 0, 1, 1],
+                },
               }}
-              transition={{ type: "spring", damping: 30, stiffness: 320 }}
-              className="absolute right-0 top-0 bottom-0 flex w-[85%] max-w-md flex-col bg-bg-white shadow-xl dark:bg-neutral-800"
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: "spring", damping: 30, stiffness: 320 }
+              }
+              className="absolute right-0 top-0 bottom-0 flex w-[85%] max-w-md flex-col bg-bg-surface text-fg-default shadow-overlay outline-none"
             >
               {header}
               {body}
@@ -173,11 +208,16 @@ export function ModalSubView({
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={setSheet}
+          tabIndex={-1}
           initial={{ x: "100%" }}
           animate={{ x: 0 }}
           exit={{ x: "100%" }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className="absolute inset-0 z-10 flex flex-col bg-bg-white dark:bg-neutral-800"
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.25,
+            ease: "easeOut",
+          }}
+          className="absolute inset-0 z-10 flex flex-col bg-bg-surface text-fg-default outline-none"
         >
           {header}
           {body}
