@@ -29,7 +29,7 @@ import {
 } from "./column-group-utils";
 import { SortableHeaderCell } from "./components/SortableHeaderCell";
 import { SortHeader } from "./components/SortHeader";
-import { ariaSort, nextSort, sortDirectionFor } from "./hooks/sort-state";
+import { ariaSort, columnSortValue, nextSort, sortDirectionFor } from "./hooks/sort-state";
 import { useColumnResize } from "./hooks/useColumnResize";
 import { useFillEmptyRows } from "./hooks/useFillEmptyRows";
 import { useTableDragSelection } from "./hooks/useTableDragSelection";
@@ -106,6 +106,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<unknown>>(
       serverSideSorting = false,
       onSortChange,
       initialSort,
+      sort: controlledSort,
       variant = "default",
       size = "medium",
       stickyHeader = true,
@@ -123,6 +124,7 @@ export const Table = forwardRef<HTMLDivElement, TableProps<unknown>>(
 
     const { sort, sortedData, handleSort } = useTableSort({
       initialSort,
+      sort: controlledSort,
       cycle: sortCycle,
       serverSide: serverSideSorting,
       onSort: onSortChange || undefined,
@@ -152,20 +154,9 @@ export const Table = forwardRef<HTMLDivElement, TableProps<unknown>>(
         return data;
       }
       return sortedData(data, (row, key) => {
-        const column = columns.find((col) => col.key === key);
-        if (column?.accessor) {
-          const accessorResult = column.accessor(row);
-          if (
-            typeof accessorResult === "string" ||
-            typeof accessorResult === "number"
-          ) {
-            return accessorResult;
-          }
-          return (row as Record<string, unknown>)[key];
-        }
-        return (row as Record<string, unknown>)[key];
+        return columnSortValue(row, key, columns);
       });
-    }, [data, enableSorting, serverSideSorting, sort, sortedData, columns]);
+    }, [data, enableSorting, serverSideSorting, sortedData, columns]);
 
     const tableRef = useRef<HTMLTableElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);

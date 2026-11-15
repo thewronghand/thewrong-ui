@@ -12,13 +12,15 @@ export interface UseTableSortOptions {
    * 초기 정렬 상태
    */
   initialSort?: ColumnSort;
+  /** null을 포함해 지정하면 외부 정렬 상태를 사용하고 변경은 onSort에 알린다. */
+  sort?: ColumnSort | null;
   /**
    * 서버 사이드 정렬 사용 여부
    * @default false
    */
   serverSide?: boolean;
   /**
-   * 서버 사이드 정렬 콜백
+   * 서버 정렬 또는 controlled sort의 변경 콜백
    */
   onSort?: (sort: ColumnSort | null) => void;
   /** 정렬 순서. tri는 오름차순 → 내림차순 → 해제, toggle은 두 방향만 순환한다. */
@@ -45,6 +47,8 @@ export interface UseTableSortReturn {
 
 /**
  * 테이블 정렬 훅
+ * sort를 전달하면 null을 포함해 외부 상태를 사용하며 onSort로 변경을 요청한다.
+ * 생략하면 initialSort에서 시작한다. serverSide에서는 데이터 순서를 바꾸지 않는다.
  *
  * @example
  * ```tsx
@@ -55,24 +59,27 @@ export interface UseTableSortReturn {
  */
 export function useTableSort({
   initialSort,
+  sort: controlledSort,
   serverSide = false,
   onSort,
   cycle = "tri",
 }: UseTableSortOptions = {}): UseTableSortReturn {
-  const [sort, setSort] = useState<ColumnSort | null>(initialSort || null);
+  const [internalSort, setSort] = useState<ColumnSort | null>(initialSort || null);
+  const controlled = controlledSort !== undefined;
+  const sort = controlled ? controlledSort : internalSort;
 
   const handleSort = useCallback(
     (key: string) => {
       const finalSort = nextSort(sort, key, cycle);
 
-      setSort(finalSort);
+      if (!controlled) setSort(finalSort);
 
       // 서버 사이드 정렬 콜백 호출
-      if (serverSide && onSort) {
+      if ((serverSide || controlled) && onSort) {
         onSort(finalSort);
       }
     },
-    [sort, serverSide, onSort, cycle]
+    [sort, controlled, serverSide, onSort, cycle]
   );
 
   const sortedData = useCallback(
@@ -90,9 +97,11 @@ export function useTableSort({
         if (aValue == null) return 1;
         if (bValue == null) return -1;
 
-        // 숫자 비교
-        if (typeof aValue === "number" && typeof bValue === "number") {
-          return sort.direction === "asc" ? aValue - bValue : bValue - aValue;
+        // 숫자와 날짜는 수치로 비교한다.
+        const aNumber = aValue instanceof Date ? aValue.getTime() : aValue;
+        const bNumber = bValue instanceof Date ? bValue.getTime() : bValue;
+        if (typeof aNumber === "number" && typeof bNumber === "number") {
+          return sort.direction === "asc" ? aNumber - bNumber : bNumber - aNumber;
         }
 
         // 문자열 비교
