@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Trash2, ScrollText } from "lucide-react";
 import { Modal } from "./Modal";
 import { ModalSubView } from "./ModalSubView";
@@ -44,6 +44,81 @@ type Story = StoryObj<typeof meta>;
 const story = (text: string) => ({
   docs: { description: { story: text } },
 });
+
+export const InitialFocus: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  parameters: story(
+    "명시한 주 액션에 먼저 포커스하고, 본문은 모달의 설명으로 연결한다.",
+  ),
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [result, setResult] = useState("실행 전");
+    const actionRef = useRef<HTMLButtonElement>(null);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>확인 창 열기</Button>
+        <p>{result}</p>
+        <StandardModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="실행 확인"
+          initialFocus={actionRef}
+          primaryAction={{
+            label: "실행",
+            ref: actionRef,
+            onClick: () => {
+              setResult("실행됨");
+              setOpen(false);
+            },
+          }}
+          secondaryAction={{ label: "취소", onClick: () => setOpen(false) }}
+        >
+          선택한 작업을 실행합니다.
+        </StandardModal>
+      </>
+    );
+  },
+};
+
+export const InitialFocusWithSubview: Story = {
+  args: { isOpen: false, onClose: () => {}, children: null },
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(true);
+    const actionRef = useRef<HTMLButtonElement>(null);
+    return (
+      <>
+        <Button
+          onClick={() => {
+            setSubOpen(true);
+            setOpen(true);
+          }}
+        >
+          서브뷰와 함께 열기
+        </Button>
+        <Modal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="부모 모달"
+          initialFocus={actionRef}
+          subView={
+            <ModalSubView
+              open={subOpen}
+              onBack={() => setSubOpen(false)}
+              title="서브뷰"
+            >
+              서브뷰 내용
+            </ModalSubView>
+          }
+        >
+          <div className="min-h-40 p-4">
+            <button ref={actionRef}>부모 실행</button>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+};
 
 // ─────────────────────────────────────────────
 // StandardModal — 표준 폼 모달 (대부분의 케이스)

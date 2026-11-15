@@ -1,4 +1,10 @@
-import { useEffect, useId, useLayoutEffect, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useState,
+  type RefObject,
+} from "react";
 import {
   motion,
   AnimatePresence,
@@ -20,6 +26,8 @@ export interface DrawerProps {
   open: boolean;
   onClose: () => void;
   title?: string;
+  /** 열릴 때 우선 포커스할 드로어 내부 요소. 없거나 포커스할 수 없으면 기존 규칙을 따른다. */
+  initialFocus?: RefObject<HTMLElement | null>;
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
   /**
@@ -45,7 +53,7 @@ export interface DrawerProps {
 /**
  * 데스크탑(`sm`+)에서는 화면 우측에서 슬라이드 인 하는 사이드 드로어,
  * 모바일에서는 화면 하단에서 올라오는 bottom-sheet으로 동작.
- * 열리면 첫 tabbable(제목과 활성 닫기 버튼이 있으면 닫기 버튼)에 포커스하며, 다른 필드는 `autoFocus`를 준다.
+ * 열리면 `initialFocus`를 우선하며, 미지정 시 기존 autoFocus 또는 첫 tabbable에 포커스한다.
  *
  * 모바일 분기·드래그-다운 닫기·바텀시트 하단 틈 방지 패턴은 Modal과 동일.
  *
@@ -65,6 +73,7 @@ export function Drawer({
   open,
   onClose,
   title,
+  initialFocus,
   dismissible = true,
   trapFocus = true,
   onExitComplete,
@@ -110,6 +119,7 @@ export function Drawer({
     enabled: open,
     trapFocus,
     canTrap: isTop,
+    initialFocus,
   });
 
   useEffect(() => {

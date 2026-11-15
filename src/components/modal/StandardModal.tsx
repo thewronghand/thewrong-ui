@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { Children, type ReactNode, type RefObject } from "react";
 
 import { Button } from "@/components/button";
 import type { ButtonAppearance, ButtonVariant } from "@/components/button";
@@ -14,12 +14,18 @@ export interface StandardModalAction {
   leadingIcon?: ReactNode;
   loading?: boolean;
   disabled?: boolean;
+  /** 액션 버튼을 initialFocus 대상으로 지정할 때 사용한다. */
+  ref?: RefObject<HTMLButtonElement | null>;
 }
 
 export interface StandardModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  /** Modal의 첫 포커스 대상. 액션 버튼은 해당 action의 ref로 지정한다. */
+  initialFocus?: RefObject<HTMLElement | null>;
+  /** Modal 본문 설명 연결을 덮어쓰거나 false로 끈다. */
+  describedBy?: string | false;
   /** Modal의 `dismissible`로 전달한다. footer 액션 버튼의 표시는 바꾸지 않는다. @default true */
   dismissible?: boolean;
   /** Modal의 `trapFocus`로 전달한다(규칙은 Modal 참고). @default true */
@@ -73,6 +79,8 @@ export function StandardModal({
   isOpen,
   onClose,
   title,
+  initialFocus,
+  describedBy,
   dismissible,
   trapFocus,
   onExitComplete,
@@ -88,6 +96,9 @@ export function StandardModal({
   const isMobile = useIsMobile();
 
   const hasFooter = primaryAction || secondaryAction || leftAction;
+  const hasBody = Children.toArray(children).some(
+    (child) => typeof child !== "string" || child.trim().length > 0,
+  );
   const buttonSize = isMobile ? "mini" : "small";
 
   const renderActionButton = (
@@ -95,6 +106,7 @@ export function StandardModal({
     defaults: { variant: ButtonVariant; appearance?: ButtonAppearance },
   ) => (
     <Button
+      ref={action.ref}
       variant={action.variant ?? defaults.variant}
       appearance={action.appearance ?? defaults.appearance}
       size={buttonSize}
@@ -113,6 +125,8 @@ export function StandardModal({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
+      initialFocus={initialFocus}
+      describedBy={describedBy === undefined && !hasBody ? false : describedBy}
       dismissible={dismissible}
       trapFocus={trapFocus}
       onExitComplete={onExitComplete}
