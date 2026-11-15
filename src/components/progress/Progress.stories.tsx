@@ -36,3 +36,6 @@ export const States: Story = {
     </div>
   ),
 };
+export const Indeterminate: Story = {
+  args: { value: undefined, "aria-label": "데이터 불러오는 중" },
+};

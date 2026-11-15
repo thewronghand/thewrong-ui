@@ -34,6 +34,8 @@ import { KeyboardNavButton } from "./components/KeyboardNavButton";
 import { PageJumpInput } from "./components/PageJumpInput";
 import { Pagination } from "./components/Pagination";
 import { SortableHeaderCell } from "./components/SortableHeaderCell";
+import { SortHeader } from "./components/SortHeader";
+import { ariaSort, nextSort, sortDirectionFor } from "./hooks/sort-state";
 import { useColumnResize } from "./hooks/useColumnResize";
 import { useFillEmptyRows } from "./hooks/useFillEmptyRows";
 import { useTableSort } from "./hooks/useTableSort";
@@ -84,14 +86,13 @@ export interface AccordionTableProps<T> extends PaginatedTableProps<T> {
 }
 
 // PaginatedTable과 동일한 forwardRef + 제네릭 우회 패턴.
-// React forwardRef는 제네릭 타입을 보존하지 못해 본문에서는 any로 받고 외부 export 시
+// React forwardRef는 제네릭 타입을 보존하지 못해 본문에서는 unknown으로 받고 외부 export 시
 // 제네릭 시그니처(파일 끝 `as <T>(...)` cast)로 다시 잡는다.
  
 export const AccordionTable = forwardRef<
   HTMLDivElement,
-  AccordionTableProps<any>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
->((props: AccordionTableProps<any>, ref: React.ForwardedRef<HTMLDivElement>) => {
+  AccordionTableProps<unknown>
+>((props: AccordionTableProps<unknown>, ref: React.ForwardedRef<HTMLDivElement>) => {
   const {
     data,
     columns,
@@ -105,6 +106,8 @@ export const AccordionTable = forwardRef<
     enableSelectAll = false,
     rowCompare,
     enableSorting = false,
+    sortCycle = "tri",
+    formatSortLabel,
     serverSideSorting = false,
     onSortChange,
     initialSort,
@@ -133,11 +136,31 @@ export const AccordionTable = forwardRef<
   const expandableEnabled = Boolean(expandable);
   const stickyDetail = expandable?.stickyDetail ?? true;
 
-  const { sort, sortedData } = useTableSort({
+  const { sort, sortedData, handleSort } = useTableSort({
     initialSort,
+    cycle: sortCycle,
     serverSide: serverSideSorting,
     onSort: onSortChange || undefined,
   });
+
+  const canSort = (column: TableColumn<unknown>) =>
+    Boolean(column.sortable && (enableSorting || serverSideSorting));
+  const sortState = (column: TableColumn<unknown>) =>
+    canSort(column) ? ariaSort(sortDirectionFor(sort, column.key)) : undefined;
+  const renderSortHeader = (column: TableColumn<unknown>) => {
+    if (!canSort(column)) return <span>{column.header}</span>;
+    const current = sortDirectionFor(sort, column.key);
+    const next = nextSort(sort, column.key, sortCycle)?.direction ?? null;
+    return (
+      <SortHeader
+        current={current}
+        label={formatSortLabel?.(column, current, next)}
+        onSort={() => handleSort(column.key)}
+      >
+        {column.header}
+      </SortHeader>
+    );
+  };
 
   const displayData = useMemo(() => {
     if (!enableSorting || serverSideSorting) {
@@ -481,6 +504,8 @@ export const AccordionTable = forwardRef<
                             id={column.key}
                             disabled={dragDisabled}
                             as="th"
+                            aria-sort={sortState(column)}
+                            hasSortButton={canSort(column)}
                             className={cn(
                               getTableHeaderCellClasses(),
                               getColumnAlignClasses("center"),
@@ -494,7 +519,7 @@ export const AccordionTable = forwardRef<
                             }}
                           >
                             <div className="flex items-center justify-center w-full pr-1 select-none">
-                              <span>{column.header}</span>
+                              {renderSortHeader(column)}
                             </div>
                             {/* 시스템 컬럼은 위치 고정 + 프리셋 셀렉터 비노출 — 리사이즈도 막아 일관성 유지. */}
                             {column.excludeFromPreset !== true && (

@@ -66,12 +66,11 @@ export interface TableColumn<T> {
    */
   sortable?: boolean;
   /**
-   * 컬럼 정렬 방향
-   * @default null
+   * @deprecated 무시됨. 정렬은 Table의 enableSorting/serverSideSorting과 useTableSort로 설정한다.
    */
   sortDirection?: SortDirection;
   /**
-   * 컬럼 정렬 변경 콜백
+   * @deprecated 무시됨. 정렬은 Table의 enableSorting/serverSideSorting과 useTableSort로 설정한다.
    */
   onSort?: (direction: SortDirection) => void;
   /**
@@ -215,10 +214,22 @@ export interface TableCommonProps<T> {
    */
   getRowId?: (row: T) => string | number;
   /**
-   * 정렬 사용 여부 (클라이언트 사이드 정렬)
+   * 정렬 사용 여부 (클라이언트 사이드 정렬). 전달된 현재 페이지 데이터만 정렬한다.
+   * 서버 페이지네이션이면 serverSideSorting을 사용하고, 정렬 변경 시 페이지 초기화는 호출부에서 처리한다.
    * @default false
    */
   enableSorting?: boolean;
+  /** 정렬 순서. 기본 tri(오름차순 → 내림차순 → 해제), toggle은 두 방향만 순환한다. */
+  sortCycle?: "tri" | "toggle";
+  /**
+   * 정렬 버튼 이름을 지정한다. 기본값은 헤더 텍스트이며 정렬 상태는 헤더의 aria-sort로 전달한다.
+   * 보이는 헤더 텍스트가 있으면 반환하는 이름에 그 텍스트를 포함한다(WCAG 2.5.3).
+   */
+  formatSortLabel?: (
+    column: TableColumn<T>,
+    current: SortDirection,
+    next: SortDirection,
+  ) => string;
   /**
    * 서버 사이드 정렬 사용 여부
    * @default false
