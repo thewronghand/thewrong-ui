@@ -166,3 +166,56 @@
   .progress-indeterminate { animation: none; }
 }
 
+/* 네이티브 range 입력의 트랙과 thumb. 색은 테마별 시맨틱 토큰을 따른다. */
+.ui-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 24px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ui-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-primary) var(--slider-fill), var(--color-bg-disabled) var(--slider-fill));
+}
+
+.ui-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-primary) var(--slider-fill), var(--color-bg-disabled) var(--slider-fill));
+}
+
+.ui-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  background: var(--color-bg-surface);
+}
+
+.ui-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  background: var(--color-bg-surface);
+}
+
+.ui-slider:focus-visible { outline: none; }
+.ui-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px var(--color-bg-surface), 0 0 0 4px var(--color-focus-primary);
+}
+.ui-slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 2px var(--color-bg-surface), 0 0 0 4px var(--color-focus-primary);
+}
+.ui-slider:disabled { cursor: not-allowed; }
+.ui-slider:disabled::-webkit-slider-runnable-track { background: var(--color-bg-disabled); }
+.ui-slider:disabled::-moz-range-track { background: var(--color-bg-disabled); }
+.ui-slider:disabled::-webkit-slider-thumb { border-color: var(--color-fg-disabled); background: var(--color-bg-disabled); }
+.ui-slider:disabled::-moz-range-thumb { border-color: var(--color-fg-disabled); background: var(--color-bg-disabled); }
