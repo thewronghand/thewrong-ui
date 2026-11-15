@@ -35,6 +35,8 @@ export function Tabs<V extends string>({
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    // Alt+← (뒤로 가기)·Cmd/Ctrl+Home 등 브라우저 단축키는 가로채지 않는다
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
     const next = nextTabIndex(items.map((item) => Boolean(item.disabled)), index, event.key);
     if (next === null) return;
     event.preventDefault();
