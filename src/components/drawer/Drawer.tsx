@@ -1,4 +1,10 @@
-import { useEffect, useId, useLayoutEffect, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useState,
+  type RefObject,
+} from "react";
 import {
   motion,
   AnimatePresence,
@@ -20,6 +26,10 @@ export interface DrawerProps {
   open: boolean;
   onClose: () => void;
   title?: string;
+  /** 열릴 때 우선 포커스할 드로어 내부 요소. 없거나 포커스할 수 없으면 기존 규칙을 따른다. */
+  initialFocus?: RefObject<HTMLElement | null>;
+  /** 설명할 요소의 id. 기본은 연결하지 않으며 서브뷰가 열린 동안에는 해제한다. */
+  describedBy?: string;
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
   /**
@@ -45,7 +55,7 @@ export interface DrawerProps {
 /**
  * 데스크탑(`sm`+)에서는 화면 우측에서 슬라이드 인 하는 사이드 드로어,
  * 모바일에서는 화면 하단에서 올라오는 bottom-sheet으로 동작.
- * 열리면 첫 tabbable(제목과 활성 닫기 버튼이 있으면 닫기 버튼)에 포커스하며, 다른 필드는 `autoFocus`를 준다.
+ * 열리면 `initialFocus`를 우선하며, 미지정 시 기존 autoFocus 또는 첫 tabbable에 포커스한다.
  *
  * 모바일 분기·드래그-다운 닫기·바텀시트 하단 틈 방지 패턴은 Modal과 동일.
  *
@@ -65,6 +75,8 @@ export function Drawer({
   open,
   onClose,
   title,
+  initialFocus,
+  describedBy,
   dismissible = true,
   trapFocus = true,
   onExitComplete,
@@ -83,7 +95,11 @@ export function Drawer({
   const dragControls = useDragControls();
   const prefersReducedMotion = useReducedMotion();
   const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
-  const { context, isTop } = useModalSubViews(open, trapFocus, overlayId);
+  const { context, isTop, hasOpenSubView } = useModalSubViews(
+    open,
+    trapFocus,
+    overlayId,
+  );
 
   // 퇴장 모션으로 남은 시트가 브라우저의 기본 Tab 순서에 다시 들어가지 않게 한다.
   useLayoutEffect(() => {
@@ -110,6 +126,7 @@ export function Drawer({
     enabled: open,
     trapFocus,
     canTrap: isTop,
+    initialFocus,
   });
 
   useEffect(() => {
@@ -150,6 +167,7 @@ export function Drawer({
             role="dialog"
             aria-modal="true"
             aria-labelledby={title ? titleId : undefined}
+            aria-describedby={hasOpenSubView ? undefined : describedBy}
             tabIndex={-1}
             initial={isMobile ? { y: "100%" } : { x: "100%" }}
             animate={isMobile ? { y: 0 } : { x: 0 }}

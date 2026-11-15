@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 const TABBABLE_SELECTOR = [
   "a[href]",
@@ -158,6 +158,8 @@ export interface UseFocusTrapOptions {
   canTrap?: () => boolean;
   trapFocus?: boolean;
   cover?: HTMLElement | null;
+  /** 열 때 지정한 컨테이너 내부 요소에 우선 포커스한다. */
+  initialFocus?: RefObject<HTMLElement | null>;
 }
 
 /** 고리에서 `reference` 다음(backward면 이전) DOM 위치의 요소. 그 방향에 없으면 처음·끝으로 감는다. */
@@ -221,7 +223,7 @@ function stepFrom(
  */
 export function useFocusTrap(
   container: HTMLElement | null,
-  { enabled, canTrap, trapFocus = true, cover }: UseFocusTrapOptions,
+  { enabled, canTrap, trapFocus = true, cover, initialFocus }: UseFocusTrapOptions,
 ) {
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLElement | null>(null);
@@ -229,6 +231,8 @@ export function useFocusTrap(
   const wasEnabledRef = useRef(false);
   const canTrapRef = useRef(canTrap);
   canTrapRef.current = canTrap;
+  const initialFocusRef = useRef(initialFocus);
+  initialFocusRef.current = initialFocus;
 
   // 자식의 autoFocus가 커밋 중 실행되기 전에 열기 직전 포커스를 기억한다.
   if (enabled && !wasEnabledRef.current && typeof document !== "undefined") {
@@ -285,6 +289,19 @@ export function useFocusTrap(
 
   useEffect(() => {
     if (!enabled || !container) return;
+
+    const target = initialFocusRef.current?.current;
+    if (
+      target &&
+      container.contains(target) &&
+      !target.matches(":disabled") &&
+      !target.closest("[hidden], [inert], [aria-hidden='true']") &&
+      target.getClientRects().length > 0 &&
+      (!canTrapRef.current || canTrapRef.current())
+    ) {
+      target.focus({ preventScroll: true });
+      if (document.activeElement === target) return;
+    }
 
     if (!container.contains(document.activeElement)) {
       const first = getTabbableElements(container)[0];

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Drawer } from "./Drawer";
 import { Button } from "@/components/button";
 import { ModalSubView } from "@/components/modal";
@@ -31,6 +31,40 @@ type Story = StoryObj<typeof meta>;
 const story = (text: string) => ({
   docs: { description: { story: text } },
 });
+
+export const InitialFocus: Story = {
+  args: { open: false, onClose: () => {}, children: null },
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
+    const fieldRef = useRef<HTMLInputElement>(null);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>검색 드로어 열기</Button>
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          title="검색"
+          initialFocus={fieldRef}
+          describedBy="drawer-search-description"
+        >
+          <label className="block p-4">
+            검색어 <input ref={fieldRef} aria-label="검색어" />
+          </label>
+          <p id="drawer-search-description">검색 조건을 입력합니다.</p>
+          <button onClick={() => setSubOpen(true)}>검색 도움말</button>
+          <ModalSubView
+            open={subOpen}
+            onBack={() => setSubOpen(false)}
+            title="검색 도움말"
+          >
+            도움말 내용
+          </ModalSubView>
+        </Drawer>
+      </>
+    );
+  },
+};
 
 export const 기본: Story = {
   args: { open: false, onClose: () => {}, children: null },

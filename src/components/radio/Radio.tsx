@@ -112,6 +112,10 @@ export function RadioGroup({
  * Radio.Group은 선택 동작을 바꾸지 않고 항목 간 레이아웃만 조율합니다.
  * 라벨은 자연 너비 측정을 위해 기본적으로 줄바꿈하지 않습니다. 긴 문구는 폭과
  * `whitespace-normal`을 지정한 자식으로 전달해 줄바꿈할 수 있습니다.
+ * input이 카드 전체를 덮으므로 children 안의 인터랙티브 요소와 텍스트 선택은 동작하지 않습니다.
+ * 별도 조작이나 텍스트 선택이 필요하면 해당 요소를 Radio.Item 바깥에 배치하세요.
+ * Playwright에서 항목 텍스트 클릭은 투명 input에 가로채이므로
+ * `getByRole("radio", { name: "E-mail" }).check()`로 선택하세요.
  *
  * @example
  * ```tsx
@@ -173,7 +177,7 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
           element instanceof HTMLInputElement &&
           element.type === "radio" &&
           element.form === current.form &&
-          !element.disabled,
+          !element.matches(":disabled"),
       );
       const currentIndex = group.indexOf(current);
       if (currentIndex < 0 || group.length < 2) return;
@@ -188,15 +192,14 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
     return (
       <label
         className={cn(
-          "relative block",
-          disabled ? "cursor-not-allowed" : "cursor-pointer",
+          "relative isolate block cursor-pointer has-[:disabled]:cursor-not-allowed",
           className,
         )}
       >
         <input
           ref={ref}
           type="radio"
-          className="peer sr-only"
+          className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
           disabled={disabled}
           onKeyDown={handleKeyDown}
           {...inputProps}
@@ -207,9 +210,9 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
             contentAlignment === "center"
               ? "grid grid-cols-[auto_minmax(0,1fr)_auto]"
               : "flex",
-            !disabled && "hover:border-border-default hover:bg-bg-subtle",
+            "peer-enabled:peer-hover:border-border-default peer-enabled:peer-hover:bg-bg-subtle",
             "peer-checked:border-primary peer-checked:bg-primary-subtle",
-            "peer-checked:hover:bg-primary-subtle",
+            "peer-enabled:peer-checked:peer-hover:bg-primary-subtle",
             "peer-focus:ring-control peer-focus:ring-focus-primary peer-focus:ring-offset-2 peer-focus:ring-offset-bg-surface",
             "peer-disabled:border-border-subtle peer-disabled:bg-bg-disabled peer-disabled:text-fg-disabled",
             "peer-disabled:[&_[data-radio-indicator]]:border-border-default peer-disabled:[&_[data-radio-indicator]]:bg-bg-radio-disabled-indicator",

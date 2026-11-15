@@ -1,6 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { useContext, useEffect, useId, useState, type ReactNode } from "react";
+import {
+  useContext,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { useFocusTrap } from "@/hooks";
 import { overlayStack } from "@/lib/overlay-stack";
@@ -90,15 +97,17 @@ export function ModalSubView({
     useContext(ModalFocusTrapContext);
   const enabled = open && parentOpen;
 
+  // 표시 전에 부모 설명 연결을 해제하고 포커스 소유권도 서브뷰에 넘긴다.
+  useLayoutEffect(() => {
+    if (!enabled) return;
+    return registerSubView(overlayId);
+  }, [enabled, overlayId, registerSubView]);
+
   useEffect(() => {
     if (!enabled) return;
-    const unregister = registerSubView(overlayId);
     overlayStack.push(overlayId);
-    return () => {
-      overlayStack.pop(overlayId);
-      unregister();
-    };
-  }, [enabled, overlayId, registerSubView]);
+    return () => overlayStack.pop(overlayId);
+  }, [enabled, overlayId]);
 
   useFocusTrap(sheet, {
     enabled,
