@@ -7,6 +7,11 @@ import { Slider } from "@/components/slider";
 import { MultiSelect, Select } from "@/components/select";
 import { Input } from "@/components/input";
 import { Button } from "@/components/button";
+import { Stepper } from "@/components/stepper";
+import { SegmentedCodeInput } from "@/components/segmented-code-input";
+import { KeyboardNavButton } from "@/components/table/components/KeyboardNavButton";
+import { PageJumpInput } from "@/components/table/components/PageJumpInput";
+import { ColumnSettingsTable } from "@/components/table/components/ColumnSettingsTable";
 import "@/styles/index.css";
 
 const items = [
@@ -51,6 +56,12 @@ function App() {
       <section aria-label="포커스 띠">
         <Button>기본 띠</Button>
         <Button style={{ "--tw-ring-offset-color": "var(--color-bg-page)" } as CSSProperties}>페이지색 띠</Button>
+        <Stepper steps={[{ id: "one", label: "첫 단계" }, { id: "two", label: "다음 단계", skipped: true }]} currentStep={0} allowNonLinear onStepChange={() => {}} />
+        <SegmentedCodeInput id="focus-code" aria-label="포커스 코드" value="" onChange={() => {}} />
+        <PageJumpInput currentPage={1} totalPages={3} onPageChange={() => {}} />
+        <KeyboardNavButton onKeyDown={() => {}} />
+        <ColumnSettingsTable columns={columns} columnOrder={["name", "time"]} hiddenColumns={[]} columnWidths={{}} num="1" onOrderChange={() => {}} onHiddenChange={() => {}} onSetColumnWidth={() => {}} onSave={() => {}} onReset={() => {}} />
+        <Table columns={columns} data={rows} enableRowSelection enableSelectAll selectedRows={[rows[0]]} fillEmptyRows={false} />
       </section>
     </>
   );

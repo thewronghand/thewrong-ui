@@ -54,6 +54,90 @@ async function open() {
 }
 
 describe("실제 컴포넌트 상태 전이", () => {
+  it("테이블 체크박스와 현재 단계의 포커스 띠는 실제 배경과 색이 맞는다", async () => {
+    const page = await open();
+    try {
+      await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important }" });
+      await page.keyboard.press("Shift");
+      const section = page.getByRole("region", { name: "포커스 띠" });
+      const table = section.getByRole("table").last();
+      for (const mode of ["light", "dark"]) {
+        await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
+        for (const selector of ["thead input[type=checkbox]", "tbody tr:nth-child(1) input[type=checkbox]", "tbody tr:nth-child(2) input[type=checkbox]"]) {
+          const input = table.locator(selector);
+          for (const hover of [false, true]) {
+            await page.mouse.move(0, 0);
+            await input.focus();
+            if (hover) await input.locator("..").hover();
+            const colors = await input.evaluate((element) => {
+              const marker = getComputedStyle(element.nextElementSibling);
+              const row = getComputedStyle(element.closest("th, tr"));
+              const canvas = document.createElement("canvas");
+              const context = canvas.getContext("2d");
+              const normalize = (color) => { context.fillStyle = color; return context.fillStyle; };
+              return [normalize(marker.getPropertyValue("--tw-ring-offset-color")), normalize(row.backgroundColor), marker.boxShadow, element.matches(":focus-visible")];
+            });
+            expect(colors[0]).toBe(colors[1]);
+            expect(colors[2]).toContain("4px");
+            expect(colors[3]).toBe(true);
+          }
+        }
+        for (const name of [/첫 단계/, /다음 단계/]) {
+          const step = section.getByRole("button", { name });
+          await step.focus();
+          const ring = await step.evaluate((element) => {
+            const marker = getComputedStyle(element.firstElementChild);
+            return [marker.getPropertyValue("--tw-ring-color").trim(), marker.getPropertyValue("--color-focus-primary").trim(), marker.boxShadow];
+          });
+          expect(ring[0]).toBe(ring[1]);
+          expect(ring[2]).toContain("4px");
+        }
+        await section.getByLabel("포커스 코드").focus();
+        const slot = section.locator("[data-code-slot][data-active]");
+        const codeRing = await slot.evaluate((element) => {
+          const style = getComputedStyle(element);
+          return [style.getPropertyValue("--tw-ring-offset-color").trim(), style.getPropertyValue("--color-bg-surface").trim(), style.boxShadow];
+        });
+        expect(codeRing[0]).toBe(codeRing[1]);
+        expect(codeRing[2]).toContain("4px");
+        for (const target of [section.getByLabel(/페이지 번호 입력/), section.getByRole("button", { name: "키보드로 페이지 이동 활성화" })]) {
+          await target.focus();
+          const outline = await target.evaluate((element) => {
+            const style = getComputedStyle(element);
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            context.fillStyle = style.getPropertyValue("--color-focus-primary").trim();
+            const expected = context.fillStyle;
+            context.fillStyle = style.outlineColor;
+            return [context.fillStyle, expected, style.outlineWidth, style.outlineOffset];
+          });
+          expect(outline[0]).toBe(outline[1]);
+          expect(outline[2]).toBe("2px");
+          expect(outline[3]).toBe("2px");
+        }
+        const widthInput = section.getByRole("textbox", { name: "name 컬럼 너비 (px)" });
+        await widthInput.focus();
+        const widthRing = await widthInput.evaluate((element) => {
+          const style = getComputedStyle(element);
+          const box = element.getBoundingClientRect();
+          let clipped = false;
+          for (let parent = element.parentElement; parent && parent !== document.documentElement; parent = parent.parentElement) {
+            const ancestor = getComputedStyle(parent);
+            if (ancestor.overflowX === "visible" && ancestor.overflowY === "visible" && !ancestor.contain.includes("paint")) continue;
+            const area = parent.getBoundingClientRect();
+            const left = area.left + parent.clientLeft;
+            const top = area.top + parent.clientTop;
+            if (box.left - 4 < left - 0.5 || box.right + 4 > left + parent.clientWidth + 0.5 || box.top - 4 < top - 0.5 || box.bottom + 4 > top + parent.clientHeight + 0.5) clipped = true;
+          }
+          return [style.getPropertyValue("--tw-ring-offset-color").trim(), style.getPropertyValue("--color-bg-surface").trim(), style.boxShadow, clipped];
+        });
+        expect(widthRing[0]).toBe(widthRing[1]);
+        expect(widthRing[2]).toContain("4px");
+        expect(widthRing[3]).toBe(false);
+      }
+    } finally { await page.close(); }
+  });
+
   it("primary 채움 버튼의 포커스 띠는 배경색에 맞게 바꿀 수 있다", async () => {
     const page = await open();
     try {

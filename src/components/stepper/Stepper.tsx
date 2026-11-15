@@ -144,6 +144,7 @@ export function Stepper({
           <span
             className={cn(
               "flex h-7 w-7 shrink-0 items-center justify-center rounded-chip border text-xs font-semibold transition-colors",
+              "group-focus-visible/step:relative group-focus-visible/step:z-10 group-focus-visible/step:ring-2 group-focus-visible/step:ring-focus-primary group-focus-visible/step:ring-offset-2 group-focus-visible/step:ring-offset-bg-surface",
               status === "current" &&
                 "border-primary bg-primary text-fg-inverse",
               status === "completed" &&
@@ -177,11 +178,10 @@ export function Stepper({
               <button
                 type="button"
                 className={cn(
-                  "flex min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  "group/step flex min-w-0 text-left focus-visible:outline-none",
                   orientation === "horizontal"
                     ? "w-full flex-col items-center gap-1.5"
                     : "col-span-2 grid grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-x-3",
-                  (status === "skipped" || status === "skipped-pending") && "focus-visible:ring-fg-default",
                 )}
                 onClick={() => onStepChange?.(index)}
                 aria-label={`${index + 1}단계: ${step.label}${status === "skipped" ? " (건너뜀)" : status === "skipped-pending" ? " (건너뜀 예정)" : ""}`}

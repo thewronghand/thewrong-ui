@@ -84,7 +84,7 @@ export function PageJumpInput({
         data-testid={testId}
         className={cn(
           widthClass,
-          "rounded-control-mini border border-border-subtle bg-bg-surface px-2 py-0.5 text-center tabular-nums text-fg-default transition-colors hover:border-primary-border focus:border-primary focus:outline-hidden focus-visible:ring-control focus-visible:ring-focus-primary",
+          "rounded-control-mini border border-border-subtle bg-bg-surface px-2 py-0.5 text-center tabular-nums text-fg-default transition-colors hover:border-primary-border focus:border-primary focus:outline-hidden focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-focus-primary focus-visible:outline-offset-2",
         )}
       />
       <span className="text-fg-muted tabular-nums">/ {totalPages.toLocaleString()}</span>
