@@ -69,7 +69,7 @@ export function Tabs<V extends string>({
             onClick={() => select(item.value)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             className={cn(
-              "-mb-px border-b-2 px-3 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-control focus-visible:ring-inset focus-visible:ring-focus-primary disabled:cursor-not-allowed disabled:text-fg-disabled",
+              "-mb-px border-b-2 px-3 py-2 text-sm font-medium outline-none transition-colors focus-visible:ring-control focus-visible:ring-inset focus-visible:ring-focus-primary disabled:cursor-not-allowed disabled:text-fg-disabled disabled:opacity-60",
               item.value === selected
                 ? "border-primary text-primary-fg"
                 : "border-transparent text-fg-muted hover:text-fg-default",

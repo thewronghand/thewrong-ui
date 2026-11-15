@@ -77,9 +77,9 @@ export function SortableHeaderCell({
           descriptionId,
           onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
             if (isDragging) return;
-            event.stopPropagation();
-            if (event.shiftKey && event.code === "Space") {
-              listeners?.onKeyDown?.(event);
+            // 일반 정렬 키만 셀의 dnd-kit 활성화에서 제외한다. Shift+Space는 셀로 전달한다.
+            if (!event.shiftKey && (event.code === "Space" || event.code === "Enter")) {
+              event.stopPropagation();
             }
           },
         }
@@ -121,6 +121,13 @@ export function SortableHeaderCell({
               }
             : attributes)}
         {...(disabled ? {} : listeners)}
+        onKeyDown={
+          disabled ? undefined
+            : (event) => {
+                // 정렬 버튼에서 전달된 Space만 이동을 시작한다. Shift+Enter는 통과시킨다.
+                if (!hasSortButton || event.code === "Space") listeners?.onKeyDown?.(event);
+              }
+        }
         role={as === "th" ? "columnheader" : disabled ? undefined : attributes.role}
         aria-sort={ariaSort}
       >

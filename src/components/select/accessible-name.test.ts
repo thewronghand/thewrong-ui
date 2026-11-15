@@ -31,4 +31,10 @@ describe("Select 트리거 이름", () => {
     }));
     expect(markup).toMatch(/role="combobox"[^>]*aria-labelledby="external-label"|aria-labelledby="external-label"[^>]*role="combobox"/);
   });
+  it("다중 선택 트리거에 aria-label을 전달한다", () => {
+    const markup = renderToStaticMarkup(createElement(MultiSelect, {
+      variant: "box", options, value: [], onChange: () => {}, "aria-label": "국가 선택",
+    }));
+    expect(markup).toMatch(/role="combobox"[^>]*aria-label="국가 선택"|aria-label="국가 선택"[^>]*role="combobox"/);
+  });
 });

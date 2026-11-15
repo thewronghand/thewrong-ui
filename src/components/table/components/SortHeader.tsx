@@ -22,7 +22,7 @@ export function SortHeader({ children, current, label, onSort }: SortHeaderProps
       aria-label={label}
       aria-describedby={keyboardDrag?.descriptionId}
       aria-keyshortcuts={keyboardDrag ? "Shift+Space" : undefined}
-      onKeyDown={keyboardDrag?.onKeyDown ?? ((event) => event.stopPropagation())}
+      onKeyDown={keyboardDrag?.onKeyDown}
       onClick={(event) => {
         event.stopPropagation();
         onSort();

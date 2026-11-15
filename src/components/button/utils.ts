@@ -71,7 +71,7 @@ export const getButtonDisplayClasses = (
 };
 
 export const getButtonBaseClasses = (appearance: ButtonAppearance = "filled"): string =>
-  `items-center justify-center ${appearance === "link" ? "" : "font-control-action "}border-button transition-colors duration-button ease-button outline-none focus-visible:ring-button focus-visible:ring-inset disabled:cursor-not-allowed disabled:pointer-events-none`;
+  `items-center justify-center ${appearance === "link" ? "" : "font-control-action "}border-button transition-colors duration-button ease-button outline-none focus-visible:ring-button ${appearance === "link" ? "box-decoration-clone focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" : "focus-visible:ring-inset"} disabled:cursor-not-allowed disabled:pointer-events-none`;
 
 export const getButtonFocusRing = (
   variant: ButtonVariant = "primary",

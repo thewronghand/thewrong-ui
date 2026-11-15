@@ -91,6 +91,20 @@ describe("Button className 덮어쓰기", () => {
 });
 
 describe("Button link 모양", () => {
+  it("링크 모양은 바깥쪽 포커스 링을 쓰고 비활성 anchor에 불투명도를 더하지 않는다", () => {
+    const anchor = classesFromMarkup(renderToStaticMarkup(createElement(Button, {
+      as: "a", href: "/", appearance: "link", disabled: true,
+    }, "안내")));
+    expect(anchor).toEqual(expect.arrayContaining([
+      "box-decoration-clone", "focus-visible:ring-offset-2", "focus-visible:ring-offset-transparent",
+    ]));
+    expect(anchor).not.toContain("focus-visible:ring-inset");
+    expect(anchor).not.toContain("opacity-button-disabled");
+    const filled = classesFromMarkup(renderToStaticMarkup(createElement(Button, { as: "a", href: "/", disabled: true })));
+    expect(filled).toContain("opacity-button-disabled");
+    expect(filled).toContain("focus-visible:ring-inset");
+  });
+
   it("크기와 block 대신 부모 글꼴과 문장 안 배치를 사용하고 비활성화한다", () => {
     const markup = renderToStaticMarkup(createElement(Button, {
       appearance: "link", variant: "danger", size: "large", display: "block", disabled: true,

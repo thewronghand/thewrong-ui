@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { useMemo, useState } from "react";
+import { expect, fireEvent, waitFor, within } from "storybook/test";
+import { useEffect, useMemo, useState } from "react";
 import { Table } from "./table";
 import { AccordionTable } from "./accordion-table";
 import { PaginatedTable } from "./paginated-table";
 import { MiniTable } from "./mini-table";
 import { TableCheckbox } from "@/components/table-checkbox";
+import { Modal } from "@/components/modal";
+import { Drawer } from "@/components/drawer";
 import type { TableColumn } from "./types";
 
 /**
@@ -206,5 +209,69 @@ export const DragSorting: Story = {
         }}
       />
     );
+  },
+};
+
+export const TableInModal: Story = {
+  name: "모달 안 정렬 테이블",
+  parameters: story("정렬 버튼에서 Escape와 Tab을 사용하고 Shift+Space로 컬럼을 이동한다. 같은 구성을 드로어에서도 확인할 수 있다."),
+  render: () => {
+    const [overlay, setOverlay] = useState<"modal" | "drawer" | null>("modal");
+    const [order, setOrder] = useState(["name", "rate"]);
+    const columns: TableColumn<Tenant>[] = [
+      { key: "name", header: "이름", accessor: (row) => row.name, sortable: true, width: 200 },
+      { key: "rate", header: "사용률", accessor: (row) => row.usageRate, sortable: true, width: 200 },
+    ];
+    const tables = (
+      <div className="grid gap-4">
+        <Table data={SAMPLE.slice(0, 2)} columns={columns} enableSorting fillEmptyRows={false}
+          columnState={{ columnOrder: order, hiddenColumns: [], columnWidths: {}, onColumnOrderChange: setOrder, onColumnWidthsChange: () => {} }} />
+        <Table data={SAMPLE.slice(0, 2)} columns={[{ key: "name", header: "평면", accessor: (row: Tenant) => row.name, sortable: true }]}
+          enableSorting fillEmptyRows={false} />
+      </div>
+    );
+    return (
+      <div>
+        <button type="button" onClick={() => setOverlay("modal")}>모달 열기</button>{" "}
+        <button type="button" onClick={() => setOverlay("drawer")}>드로어 열기</button>
+        <output aria-label="오버레이 상태">{overlay ?? "닫힘"}</output>
+        <Modal isOpen={overlay === "modal"} onClose={() => setOverlay(null)} title="표 모달" widthPx={560}>{tables}</Modal>
+        <Drawer open={overlay === "drawer"} onClose={() => setOverlay(null)} title="표 드로어" widthPx={560}>{tables}</Drawer>
+      </div>
+    );
+  },
+};
+
+export const SortingKeyPropagation: Story = {
+  name: "정렬 버튼 키 전파",
+  render: () => {
+    const [keys, setKeys] = useState<string[]>([]);
+    const [order, setOrder] = useState(["name"]);
+    useEffect(() => {
+      const record = (event: KeyboardEvent) => setKeys((previous) => [...previous, event.key]);
+      window.addEventListener("keydown", record);
+      return () => window.removeEventListener("keydown", record);
+    }, []);
+    const columns: TableColumn<Tenant>[] = [
+      { key: "name", header: "이름", accessor: (row) => row.name, sortable: true },
+    ];
+    return (
+      <div>
+        <section aria-label="드래그 열"><Table data={SAMPLE.slice(0, 1)} columns={columns} enableSorting fillEmptyRows={false}
+          columnState={{ columnOrder: order, hiddenColumns: [], columnWidths: {}, onColumnOrderChange: setOrder, onColumnWidthsChange: () => {} }} /></section>
+        <section aria-label="일반 열"><Table data={SAMPLE.slice(0, 1)} columns={columns} enableSorting fillEmptyRows={false} /></section>
+        <output aria-label="상위 키 이벤트">{keys.join(",")}</output>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const output = canvas.getByLabelText("상위 키 이벤트");
+    for (const section of ["드래그 열", "일반 열"]) {
+      const button = within(canvas.getByRole("region", { name: section })).getByRole("button", { name: "이름" });
+      fireEvent.keyDown(button, { key: "Escape", code: "Escape" });
+      fireEvent.keyDown(button, { key: "Tab", code: "Tab" });
+    }
+    await waitFor(() => expect(output.textContent).toBe("Escape,Tab,Escape,Tab"));
   },
 };

@@ -144,6 +144,7 @@ export const LinkDetails: Story = {
     <div className="grid w-72 gap-4 text-base leading-7 text-fg-default">
       <p>활성: <Button appearance="link" variant="tertiary">자세한 안내</Button>{" "}
         비활성: <Button appearance="link" variant="tertiary" disabled>자세한 안내</Button></p>
+      <p>앵커 비활성: <Button as="a" href="#details" appearance="link" variant="tertiary" disabled>자세한 안내</Button></p>
       <p>글꼴: <Button appearance="link" className="text-lg leading-tight font-bold">크고 굵은 안내</Button></p>
       <p>문장 속 <Button as="a" href="#details" appearance="link"
         leadingIcon={<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="currentColor" /></svg>}

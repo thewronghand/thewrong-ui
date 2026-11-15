@@ -8,7 +8,7 @@ export type ButtonDisplay = "inline" | "block";
 export interface ButtonCommonProps {
   variant?: ButtonVariant;
   appearance?: ButtonAppearance;
-  /** link 모양에서는 크기 대신 부모의 글자 크기와 줄높이를 상속한다. */
+  /** link 모양에서는 크기 대신 부모의 글자 크기·줄높이·글꼴을 상속한다. 굵기는 기본 CSS의 폼 컨트롤 상속 규칙을 따른다. */
   size?: ButtonSize;
   /** link 모양에서는 block도 무시하고 문장 안에 배치한다. */
   display?: ButtonDisplay;
