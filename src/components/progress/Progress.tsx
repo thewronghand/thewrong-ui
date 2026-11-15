@@ -43,7 +43,7 @@ export function Progress({
     >
       <div
         className={cn(
-          "h-full rounded-full bg-primary",
+          "h-full rounded-full bg-primary-fg",
           clamped === undefined
             ? "progress-indeterminate"
             : "transition-[width] duration-200 ease-out motion-reduce:transition-none",

@@ -166,7 +166,7 @@
   .progress-indeterminate {
     animation: none;
     width: 100%;
-    background-image: repeating-linear-gradient(135deg, var(--color-primary) 0 6px, var(--color-bg-subtle) 6px 12px);
+    background-image: repeating-linear-gradient(135deg, var(--color-primary-fg) 0 6px, var(--color-bg-subtle) 6px 12px);
   }
 }
 

@@ -7,6 +7,16 @@ import { describe, expect, it } from "vitest";
 import { Progress } from "./Progress";
 
 describe("Progress 접근성", () => {
+  it.each([50, undefined])("값 %s에서 트랙과 채움에 대비 토큰을 연결한다", (value) => {
+    const markup = renderToStaticMarkup(createElement(Progress, { value, "aria-label": "전송" }));
+    const classes = [...markup.matchAll(/\bclass="([^"]+)"/g)]
+      .map((match) => match[1]!.split(/\s+/));
+    expect(classes).toHaveLength(2);
+    expect(classes[0]).toContain("bg-bg-subtle");
+    expect(classes[1]).toContain("bg-primary-fg");
+    expect(classes[1]).not.toContain("bg-primary");
+  });
+
   it("결정형은 보정된 값과 범위를 전달한다", () => {
     const markup = renderToStaticMarkup(createElement(Progress, { value: 120, "aria-label": "전송" }));
     expect(markup).toContain('role="progressbar"');
@@ -26,6 +36,6 @@ describe("Progress 접근성", () => {
     const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.progress-indeterminate\s*\{([^}]*)\}/)?.[1];
     expect(reduced).toMatch(/animation:\s*none/);
     expect(reduced).toMatch(/width:\s*100%/);
-    expect(reduced).toMatch(/repeating-linear-gradient\([^;]*var\(--color-primary\)[^;]*var\(--color-bg-subtle\)/);
+    expect(reduced).toMatch(/repeating-linear-gradient\([^;]*var\(--color-primary-fg\)[^;]*var\(--color-bg-subtle\)/);
   });
 });

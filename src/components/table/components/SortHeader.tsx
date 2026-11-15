@@ -27,7 +27,7 @@ export function SortHeader({ children, current, label, onSort }: SortHeaderProps
         event.stopPropagation();
         onSort();
       }}
-      className="inline-flex items-center gap-1 cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-control focus-visible:ring-focus-primary"
+      className="inline-flex items-center gap-1 cursor-pointer rounded-control-mini focus-visible:outline-none focus-visible:ring-control focus-visible:ring-focus-primary"
     >
       {children}
       <Icon aria-hidden="true" className="size-3.5 shrink-0" />

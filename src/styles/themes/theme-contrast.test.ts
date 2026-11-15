@@ -140,9 +140,11 @@ const pairs = [
   ["fg-default", "bg-surface", 4.5],
   ["fg-subtle", "bg-surface", 4.5],
   ["fg-subtle", "bg-page", 4.5],
-  // Slider 채움·thumb, Tabs 선택 표시줄과 링크 포커스 링은 같은 색을 쓴다.
+  // Slider 채움·thumb, Progress 채움, Tabs 선택 표시줄과 링크 포커스 링은 같은 색을 쓴다.
   ["primary-fg", "bg-surface", 4.5],
   ["primary-fg", "bg-page", 4.5],
+  // Progress 채움과 트랙. 배경 둘은 위의 더 엄격한 4.5:1 계약으로 검증한다.
+  ["primary-fg", "bg-subtle", 3],
   // Slider의 채워지지 않은 트랙도 두 배경에서 식별되어야 한다.
   ["icon-secondary", "bg-surface", 3],
   ["icon-secondary", "bg-page", 3],

@@ -26,16 +26,16 @@
   --color-primary: var(--p-color-violet-600); /* 버튼·링크 메인 색 */
   --color-primary-hover: var(--p-color-violet-700);
   --color-primary-active: var(--p-color-violet-800);
-  --color-primary-fg: var(
-    --p-color-violet-600
-  ); /* 틴트 배경 위 primary 텍스트 */
+  /* 틴트 위 텍스트와 Slider 채움·thumb, Progress 채움, Tabs 선택 표시줄,
+     링크 포커스 링에 기존 값을 함께 사용해 인접 배경과 3:1 대비를 확보한다. */
+  --color-primary-fg: var(--p-color-violet-600);
   --color-primary-subtle: var(
     --p-color-violet-50
   ); /* 배경 틴트 (선택 상태 등) */
   --color-primary-border: var(--p-color-violet-300);
-  /* 키보드 포커스 링 — filled primary와 surface 양쪽에서 3:1 이상. */
+  /* 키보드 포커스 링 — 기본 라이트는 primary·surface와의 대비가 3:1 미달(대비 테스트의 existingFailures 참조). */
   --color-focus-primary: var(--p-color-violet-400);
-  /* 약한 포커스 역할. 기본값은 full 링과 같다(AA 포커스 대비). */
+  /* 약한 포커스 역할. 기본값은 full 링과 같다. */
   --color-focus-primary-soft: var(--color-focus-primary);
   --color-button-secondary-hover: color-mix(
     in srgb,
