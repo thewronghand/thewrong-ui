@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 
-import type { ColumnSort } from "../types";
+import type { ColumnSort } from "@/components/table/types";
+
+import { nextSort, type SortCycle } from "./sort-state";
 
 /**
  * 테이블 정렬 훅 옵션
@@ -18,7 +20,9 @@ export interface UseTableSortOptions {
   /**
    * 서버 사이드 정렬 콜백
    */
-  onSort?: (sort: ColumnSort) => void;
+  onSort?: (sort: ColumnSort | null) => void;
+  /** 정렬 순서. tri는 오름차순 → 내림차순 → 해제, toggle은 두 방향만 순환한다. */
+  cycle?: SortCycle;
 }
 
 /**
@@ -36,7 +40,7 @@ export interface UseTableSortReturn {
   /**
    * 정렬된 데이터 (클라이언트 사이드 정렬 시)
    */
-  sortedData: <T>(data: T[], getValue: (row: T, key: string) => any) => T[];
+  sortedData: <T>(data: T[], getValue: (row: T, key: string) => unknown) => T[];
 }
 
 /**
@@ -53,38 +57,26 @@ export function useTableSort({
   initialSort,
   serverSide = false,
   onSort,
+  cycle = "tri",
 }: UseTableSortOptions = {}): UseTableSortReturn {
   const [sort, setSort] = useState<ColumnSort | null>(initialSort || null);
 
   const handleSort = useCallback(
     (key: string) => {
-      const newSort: ColumnSort = {
-        key,
-        direction:
-          sort?.key === key
-            ? sort.direction === "asc"
-              ? "desc"
-              : sort.direction === "desc"
-                ? null
-                : "asc"
-            : "asc",
-      };
-
-      // null이면 정렬 해제
-      const finalSort = newSort.direction === null ? null : newSort;
+      const finalSort = nextSort(sort, key, cycle);
 
       setSort(finalSort);
 
       // 서버 사이드 정렬 콜백 호출
-      if (serverSide && onSort && finalSort) {
+      if (serverSide && onSort) {
         onSort(finalSort);
       }
     },
-    [sort, serverSide, onSort]
+    [sort, serverSide, onSort, cycle]
   );
 
   const sortedData = useCallback(
-    <T>(data: T[], getValue: (row: T, key: string) => any): T[] => {
+    <T>(data: T[], getValue: (row: T, key: string) => unknown): T[] => {
       if (!sort || !sort.direction || serverSide) {
         return data;
       }

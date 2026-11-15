@@ -42,3 +42,5 @@ export * from "./components/typewriter-text";
 export * from "./components/stepper";
 export * from "./components/segmented-code-input";
 export * from "./components/copyable-text";
+export * from "./components/tabs";
+export * from "./components/slider";

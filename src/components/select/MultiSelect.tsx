@@ -147,6 +147,8 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
       variant,
       selectSize = "medium",
       label,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
       labelOption = "appear",
       help,
       placeholder = "선택해주세요",
@@ -452,6 +454,8 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
           aria-activedescendant={activeOptionId}
           data-testid={testId}
           {...getReferenceProps({ onKeyDown: handleTriggerKeyDown })}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
           className={cn(
             variantClasses,
             "flex w-full min-w-0 items-center",

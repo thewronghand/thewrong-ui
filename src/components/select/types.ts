@@ -37,6 +37,13 @@ export interface SelectCommonProps {
    */
   label?: string;
   /**
+   * 트리거의 접근성 이름. 명시된 aria 속성은 시각 label보다 우선한다.
+   * 보이는 라벨이 있으면 그 텍스트를 포함한다(WCAG 2.5.3).
+   */
+  "aria-label"?: string;
+  /** 참조한 요소로 접근성 이름을 지정한다. aria-label보다 우선하며 보이는 라벨 텍스트를 포함해야 한다. */
+  "aria-labelledby"?: string;
+  /**
    * label 표시 방식
    * 'appear': value가 있을 때만 label이 보여요
    * 'sustain': 항상 label이 보여요
