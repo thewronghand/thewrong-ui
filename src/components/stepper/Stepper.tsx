@@ -8,10 +8,16 @@ export interface StepperStep {
   id: string;
   label: string;
   description?: string;
+  /** 현재 단계보다 앞선 항목을 완료 대신 건너뜀으로 표시한다. */
+  skipped?: boolean;
 }
 
 export type StepperOrientation = "horizontal" | "vertical";
-export type StepperStepStatus = "completed" | "current" | "pending";
+export type StepperStepStatus =
+  | "completed"
+  | "current"
+  | "pending"
+  | "skipped";
 export type StepperStepContentTransition = "height" | "none";
 export type StepperTransition = "none" | "fade" | "scale" | "slide";
 export type StepperSlideDirection = "left" | "right" | "up" | "down";
@@ -33,6 +39,9 @@ export interface StepperProps {
   /** 세로형 단계 콘텐츠의 펼침·접힘 전환. 기본 height. */
   stepContentTransition?: StepperStepContentTransition;
   className?: string;
+  /** 단계 목록의 이름. aria-labelledby가 있으면 그 이름이 우선한다. */
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }
 
 export interface StepperContentProps {
@@ -100,6 +109,8 @@ export function Stepper({
   renderStepContent,
   stepContentTransition = "height",
   className,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
 }: StepperProps) {
   return (
     <ol
@@ -108,12 +119,15 @@ export function Stepper({
         orientation === "horizontal" ? "w-full items-start" : "flex-col gap-5",
         className,
       )}
-      aria-label="진행 단계"
+      aria-label={ariaLabel ?? (ariaLabelledBy ? undefined : "진행 단계")}
+      aria-labelledby={ariaLabelledBy}
     >
       {steps.map((step, index) => {
         const status: StepperStepStatus =
           index < currentStep
-            ? "completed"
+            ? step.skipped
+              ? "skipped"
+              : "completed"
             : index === currentStep
               ? "current"
               : "pending";
@@ -132,6 +146,8 @@ export function Stepper({
                 "border-primary bg-primary-subtle text-primary-fg",
               status === "pending" &&
                 "border-border-subtle bg-bg-surface text-fg-subtle",
+              status === "skipped" &&
+                "border-dashed border-fg-default bg-bg-surface text-fg-default line-through",
             )}
             aria-hidden="true"
           >
@@ -159,9 +175,10 @@ export function Stepper({
                   orientation === "horizontal"
                     ? "w-full flex-col items-center gap-1.5"
                     : "col-span-2 grid grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-x-3",
+                  status === "skipped" && "focus-visible:ring-fg-default",
                 )}
                 onClick={() => onStepChange?.(index)}
-                aria-label={`${index + 1}단계: ${step.label}`}
+                aria-label={`${index + 1}단계: ${step.label}${status === "skipped" ? " (건너뜀)" : ""}`}
               >
                 {marker}
                 <StepText
@@ -237,10 +254,14 @@ function StepText({
           status === "current" && "text-fg-default",
           status === "completed" && "text-fg-muted",
           status === "pending" && "text-fg-subtle",
+          status === "skipped" && "text-fg-default line-through",
         )}
       >
         {step.label}
       </span>
+      {status === "skipped" && (
+        <span className="block text-xs text-fg-default">건너뜀</span>
+      )}
       {step.description && (
         <span className="mt-0.5 hidden text-xs text-fg-muted sm:block">
           {step.description}

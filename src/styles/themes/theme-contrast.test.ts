@@ -138,6 +138,10 @@ const pairs = [
   ["fg-muted", "bg-surface", 4.5],
   ["fg-muted", "bg-page", 4.5],
   ["fg-default", "bg-surface", 4.5],
+  // fieldset 비활성 표식·텍스트와 건너뛴 단계의 테두리·포커스 링.
+  ["fg-default", "bg-disabled", 4.5],
+  ["fg-default", "bg-radio-disabled-indicator", 3],
+  ["fg-default", "bg-subtle", 4.5],
   ["fg-subtle", "bg-surface", 4.5],
   ["fg-subtle", "bg-page", 4.5],
   // Slider 채움·thumb, Progress 채움, Tabs 선택 표시줄과 링크 포커스 링은 같은 색을 쓴다.

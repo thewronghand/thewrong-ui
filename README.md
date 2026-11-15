@@ -40,6 +40,8 @@ TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodene
 | 레이아웃 | TablePageLayout · TableCard · Toolbar · PageTitle · Tabs |
 | 모션/유틸 | AnimatedHeight · Collapsible · LoadingSpinner · cn |
 
+Modal과 Drawer는 `initialFocus` ref로 열릴 때 포커스할 내부 요소를 지정할 수 있으며, 설명은 `describedBy`에 요소 id를 전달한 경우에만 연결한다. Stepper는 목록의 `aria-label`/`aria-labelledby`와 이전 단계의 `skipped` 표시를 지원한다.
+
 ## 테마 · 토큰
 
 - **층**: 프리미티브(`--p-*`, 원료 — 직접 쓰지 않는다) → 시맨틱(`--color-bg-surface`, `--radius-control-medium` 같은 역할). 변수명이 곧 Tailwind 유틸 이름이다(`bg-bg-surface`, `rounded-control-medium`).

@@ -20,9 +20,12 @@ const stepper = useStepper({ stepCount: steps.length });
 
 `useStepper`는 0 기반 `currentStep`, 이동 `direction`, 경계 상태와 `next`, `previous`, `goTo`, `reset`을 제공한다. 기본 `goTo`는 현재 단계에서 한 단계만 이동하며, 임의 점프가 필요할 때만 hook과 표시 양쪽에 `allowNonLinear`를 명시한다. `stepCount`가 줄면 현재 단계를 즉시 유효 범위로 보정한다.
 
+`steps`의 항목에 `skipped: true`를 지정하면 현재 단계보다 앞에 있을 때 완료 대신 건너뜀으로 표시한다. 현재·대기 단계는 그 위치의 상태가 우선한다. 건너뛰기 기록과 이동은 호출부가 관리한다.
+
 ## 표시와 전환
 
 - `orientation`: `horizontal`(기본) 또는 `vertical`
+- `aria-label` 또는 `aria-labelledby`: 단계 목록 이름. 둘 다 없으면 `진행 단계`다. 보이는 제목을 연결할 때는 `aria-labelledby`를 사용한다.
 - `StepperContent transition`: `none | fade | scale | slide`
 - `slideDirection`: `left | right | up | down`
 - `direction`: 진행 `1`, 역행 `-1`; slide 방향에 결합된다.
@@ -43,4 +46,4 @@ const stepper = useStepper({ stepCount: steps.length });
 />
 ```
 
-세로 콘텐츠는 완료 단계와 현재 단계가 열리고 대기 단계는 숨겨지며 `stepContentTransition="height"`가 기본이다. 애니메이션이 불필요하면 `none`을 사용한다.
+세로 콘텐츠는 완료·건너뛴 단계와 현재 단계가 열리고 대기 단계는 숨겨지며 `stepContentTransition="height"`가 기본이다. 애니메이션이 불필요하면 `none`을 사용한다.

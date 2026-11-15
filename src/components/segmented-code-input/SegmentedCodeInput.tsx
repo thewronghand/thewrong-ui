@@ -88,7 +88,7 @@ export function SegmentedCodeInput({
 
   return (
     <div className="relative flex w-full items-center justify-center">
-      <div className={cn("relative w-full max-w-[320px]", masked && "mx-12")}>
+      <div className={cn("relative isolate w-full max-w-[320px]", masked && "mx-12")}>
         <input
           ref={inputRef}
           id={id}

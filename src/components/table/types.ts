@@ -210,7 +210,9 @@ export interface TableCommonProps<T> {
   rowCompare?: (row1: T, row2: T) => boolean;
   /**
    * 행의 안정 식별자. 드래그 다중 선택에서 ID 추적에 사용된다.
-   * 미지정 시 드래그 선택은 row index 기반으로 동작하며, 데이터 변경 시 어긋날 수 있다.
+   * 미지정 시 드래그 선택은 비활성화되고 클릭으로만 선택한다.
+   * 드래그 선택이 켜진 행 체크박스는 pointer-events:none이므로 Playwright `check()`는
+   * force 없이 작동하지 않는다. 행의 체크박스 셀을 클릭해 선택한다.
    */
   getRowId?: (row: T) => string | number;
   /**
