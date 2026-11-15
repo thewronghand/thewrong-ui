@@ -39,16 +39,20 @@ const CheckboxInternal = forwardRef<
     const sizeStyle = getCheckboxSizeStyle(size);
 
     const checkboxElement = (
-      <div className="inline-flex items-center relative">
+      <span className="relative inline-flex items-center has-[:disabled]:cursor-not-allowed">
         <input
           ref={ref}
           type={inputType}
-          className="sr-only peer"
+          className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
           onChange={handleChange}
           {...restProps}
         />
-        <div
-          className={cn(variantClasses, "peer-checked:[&_path]:scale-100", className)}
+        <span
+          className={cn(
+            variantClasses,
+            "peer-checked:[&_path]:scale-100 peer-disabled:cursor-not-allowed peer-disabled:border-dashed peer-disabled:border-fg-default peer-disabled:peer-checked:border-fg-default peer-focus-visible:ring-2 peer-focus-visible:ring-fg-default peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-surface",
+            className,
+          )}
           style={sizeStyle}
         >
           <svg
@@ -66,13 +70,15 @@ const CheckboxInternal = forwardRef<
               className="origin-center scale-0 transition-transform duration-200 ease-out"
             />
           </svg>
-        </div>
-      </div>
+        </span>
+      </span>
     );
 
     if (label) {
       return (
-        <label className={getLabelClasses()}>
+        <label
+          className={cn(getLabelClasses(), "has-[:disabled]:cursor-not-allowed")}
+        >
           {checkboxElement}
           <span className="text-base text-fg-default">
             {label}

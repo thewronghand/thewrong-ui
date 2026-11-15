@@ -44,7 +44,7 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
       <label
         className={cn(
           "relative inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center",
-          disabled ? "cursor-not-allowed" : "cursor-pointer",
+          "cursor-pointer has-[:disabled]:cursor-not-allowed",
           pointerEventsNone && "pointer-events-none",
         )}
         style={{ flex: "0 0 18px" }}
@@ -57,16 +57,17 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
             else if (ref) ref.current = el;
           }}
           type="checkbox"
-          className="peer sr-only"
+          className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
           checked={checked}
           disabled={disabled}
           onChange={(e) => onChange?.(e.target.checked)}
         />
         <span
           className={cn(
-            "flex h-full w-full items-center justify-center rounded-checkbox border-[1.5px] transition-colors",
+            "flex h-full w-full items-center justify-center rounded-checkbox border-[1.5px] transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-fg-default peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-surface",
             isOn ? "border-primary bg-primary" : "border-border-default bg-bg-surface",
             disabled && "opacity-40",
+            !disabled && "peer-disabled:border-dashed peer-disabled:border-fg-default peer-disabled:peer-checked:border-fg-default",
           )}
         >
           {showIndeterminate ? (

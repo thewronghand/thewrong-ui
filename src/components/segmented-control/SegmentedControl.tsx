@@ -123,7 +123,7 @@ export function SegmentedControl<V extends string>({
         element instanceof HTMLInputElement &&
         element.type === "radio" &&
         element.form === current.form &&
-        !element.disabled,
+        !element.matches(":disabled"),
     );
     const currentIndex = group.indexOf(current);
     if (currentIndex < 0 || group.length < 2) return;
@@ -167,8 +167,7 @@ export function SegmentedControl<V extends string>({
             key={option.value}
             ref={setLabelRef(option.value)}
             className={cn(
-              "relative flex flex-1 items-center justify-center",
-              itemDisabled ? "cursor-not-allowed" : "cursor-pointer",
+              "relative flex flex-1 items-center justify-center cursor-pointer has-[:disabled]:cursor-not-allowed",
             )}
           >
             <input
@@ -192,7 +191,8 @@ export function SegmentedControl<V extends string>({
                 !itemDisabled && "hover:text-fg-default",
                 "peer-checked:font-semibold peer-checked:text-fg-default",
                 "peer-focus:ring-control peer-focus:ring-focus-primary peer-focus:ring-offset-2 peer-focus:ring-offset-bg-surface",
-                "peer-disabled:text-fg-disabled peer-disabled:hover:bg-transparent",
+                "peer-disabled:text-fg-disabled peer-disabled:hover:bg-transparent peer-disabled:hover:text-fg-disabled",
+                !itemDisabled && "peer-disabled:text-fg-default peer-disabled:hover:text-fg-default peer-disabled:line-through",
               )}
             >
               {option.icon ? (

@@ -116,7 +116,7 @@ describe("폼 필드 className 덮어쓰기", () => {
     const checkboxMarkup = renderToStaticMarkup(
       createElement(Checkbox.Line, { className: "border-4 text-error peer-checked:bg-error" }),
     );
-    const match = checkboxMarkup.match(/<div class="([^"]*border-4[^"]*)"/);
+    const match = checkboxMarkup.match(/<span class="([^"]*border-4[^"]*)"/);
     expect(match).not.toBeNull();
     const classes = match![1].split(" ");
     expect(classes).toEqual(expect.arrayContaining(["border-4", "text-error", "peer-checked:bg-error"]));

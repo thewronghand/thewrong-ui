@@ -2,6 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Bell, Mail } from "lucide-react";
 import { useState } from "react";
 import { Radio, RadioItem } from "./Radio";
+import { Checkbox } from "@/components/checkbox";
+import { TableCheckbox } from "@/components/table-checkbox";
+import { Switch } from "@/components/switch";
+import { SegmentedControl } from "@/components/segmented-control";
 
 const meta = {
   title: "Components/Radio",
@@ -69,4 +73,30 @@ export const Centered: Story = {
       </fieldset>
     );
   },
+};
+
+export const FieldsetDisabled: Story = {
+  render: () => (
+    <fieldset disabled className="grid w-80 gap-3 bg-bg-surface p-4">
+      <legend className="text-fg-default">비활성 폼</legend>
+      <Radio.Group className="grid gap-2">
+        <Radio.Item name="disabled-group" defaultChecked>
+          선택됨
+        </Radio.Item>
+        <Radio.Item name="disabled-group">선택 안 됨</Radio.Item>
+      </Radio.Group>
+      <Checkbox.Line label="체크박스" />
+      <TableCheckbox checked={false} ariaLabel="테이블 체크박스" />
+      <Switch label="스위치" defaultChecked />
+      <SegmentedControl
+        aria-label="기간"
+        value="month"
+        onChange={() => {}}
+        options={[
+          { value: "month", label: "월간" },
+          { value: "year", label: "연간" },
+        ]}
+      />
+    </fieldset>
+  ),
 };

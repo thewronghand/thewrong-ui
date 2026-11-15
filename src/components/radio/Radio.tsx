@@ -173,7 +173,7 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
           element instanceof HTMLInputElement &&
           element.type === "radio" &&
           element.form === current.form &&
-          !element.disabled,
+          !element.matches(":disabled"),
       );
       const currentIndex = group.indexOf(current);
       if (currentIndex < 0 || group.length < 2) return;
@@ -188,15 +188,14 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
     return (
       <label
         className={cn(
-          "relative block",
-          disabled ? "cursor-not-allowed" : "cursor-pointer",
+          "relative block cursor-pointer has-[:disabled]:cursor-not-allowed",
           className,
         )}
       >
         <input
           ref={ref}
           type="radio"
-          className="peer sr-only"
+          className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
           disabled={disabled}
           onKeyDown={handleKeyDown}
           {...inputProps}
@@ -207,14 +206,15 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
             contentAlignment === "center"
               ? "grid grid-cols-[auto_minmax(0,1fr)_auto]"
               : "flex",
-            !disabled && "hover:border-border-default hover:bg-bg-subtle",
+            "peer-enabled:peer-hover:border-border-default peer-enabled:peer-hover:bg-bg-subtle",
             "peer-checked:border-primary peer-checked:bg-primary-subtle",
-            "peer-checked:hover:bg-primary-subtle",
+            "peer-enabled:peer-checked:peer-hover:bg-primary-subtle",
             "peer-focus:ring-control peer-focus:ring-focus-primary peer-focus:ring-offset-2 peer-focus:ring-offset-bg-surface",
             "peer-disabled:border-border-subtle peer-disabled:bg-bg-disabled peer-disabled:text-fg-disabled",
             "peer-disabled:[&_[data-radio-indicator]]:border-border-default peer-disabled:[&_[data-radio-indicator]]:bg-bg-radio-disabled-indicator",
             "peer-disabled:[&_[data-radio-dot]]:bg-icon-disabled peer-disabled:[&_[data-radio-leading]]:text-icon-disabled",
             "peer-checked:[&_[data-radio-dot]]:scale-50 peer-checked:[&_[data-radio-indicator]]:border-primary",
+            !disabled && "peer-disabled:border-dashed peer-disabled:border-fg-default peer-disabled:text-fg-default peer-disabled:[&_[data-radio-indicator]]:border-fg-default peer-disabled:[&_[data-radio-dot]]:bg-fg-default peer-disabled:[&_[data-radio-leading]]:text-fg-default peer-disabled:peer-checked:[&_[data-radio-indicator]]:border-fg-default",
           )}
         >
           <span

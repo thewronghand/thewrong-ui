@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
+import { TableCheckbox } from "@/components/table-checkbox";
 import {
   CheckboxCircle,
   CheckboxLine,
@@ -69,4 +70,22 @@ export const Colors: Story = {
       <CheckboxCircle baseColor="neutral" defaultChecked label="neutral" />
     </div>
   ),
+};
+
+export const IndeterminateInteractive: Story = {
+  render: () => {
+    const [checked, setChecked] = useState(false);
+    const [partial, setPartial] = useState(true);
+    return (
+      <TableCheckbox
+        checked={checked}
+        indeterminate={partial}
+        ariaLabel="부분 선택 가능"
+        onChange={(next) => {
+          setChecked(next);
+          setPartial(false);
+        }}
+      />
+    );
+  },
 };

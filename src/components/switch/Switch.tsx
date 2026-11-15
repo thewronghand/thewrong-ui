@@ -42,7 +42,8 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       <label
         className={cn(
           "inline-flex items-center gap-2",
-          disabled ? "cursor-not-allowed" : "cursor-pointer",
+          "cursor-pointer has-[:disabled]:cursor-not-allowed",
+          !disabled && "has-[:disabled]:[&_[data-switch-label]]:text-fg-default has-[:disabled]:[&_[data-switch-label]]:line-through",
           className,
         )}
       >
@@ -63,6 +64,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
         </span>
         {label && (
           <span
+            data-switch-label
             className={
               disabled
                 ? "text-sm text-fg-disabled"
