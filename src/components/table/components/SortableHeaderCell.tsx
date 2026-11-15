@@ -118,6 +118,7 @@ export function SortableHeaderCell({
                 "aria-roledescription": undefined,
                 "aria-describedby": undefined,
                 "aria-disabled": undefined,
+                "aria-pressed": undefined,
               }
             : attributes)}
         {...(disabled ? {} : listeners)}

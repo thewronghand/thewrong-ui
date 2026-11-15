@@ -19,9 +19,9 @@ describe("Select 트리거 이름", () => {
     for (const searchable of [false, true] as const) {
       const markup = renderToStaticMarkup(createElement(Select, {
         variant: "box", options, value: "", onChange: () => {}, searchable,
-        label: "시각 라벨", labelOption: "sustain", "aria-label": "명시 이름",
+        label: "시각 라벨", labelOption: "sustain", "aria-label": "시각 라벨 명시 이름",
       }));
-      expect(markup).toMatch(/role="combobox"[^>]*aria-label="명시 이름"|aria-label="명시 이름"[^>]*role="combobox"/);
+      expect(markup).toMatch(/role="combobox"[^>]*aria-label="시각 라벨 명시 이름"|aria-label="시각 라벨 명시 이름"[^>]*role="combobox"/);
       expect(markup).toContain("시각 라벨");
     }
   });

@@ -10,6 +10,7 @@ export interface SliderProps extends Omit<
   max?: number;
   /** 양수 간격. 기본 1. */
   step?: number;
+  /** 범위 밖 값은 화면에서만 보정하며 그 자체로 콜백을 호출하지 않는다. */
   value?: number;
   defaultValue?: number;
   onValueChange?: (value: number) => void;

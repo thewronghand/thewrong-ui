@@ -7,15 +7,15 @@ import type { PaginatedTableProps } from "./types";
 /**
  * PaginatedTable — Table 코어를 래핑해 페이지네이션 footer를 추가한 변형.
  * Table 본체 로직(헤더 정렬·리사이즈·grip, 본문 스트라이프·선택·sticky, 컬럼 프리셋)은 Table에 그대로 위임한다.
+ * 클라이언트 정렬은 전달된 현재 페이지 데이터만 정렬한다. 서버 페이지네이션이면 serverSideSorting을 사용하고,
+ * 정렬 변경 시 페이지 초기화는 호출부에서 처리한다.
  */
-// forwardRef가 제네릭 인자를 그대로 보존하지 못해서 `any`로 우회 후 아래에서 제네릭 시그니처로 cast.
+// forwardRef 내부는 unknown으로 받고 외부에는 제네릭 시그니처를 노출한다.
 export const PaginatedTable = forwardRef<
   HTMLDivElement,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  PaginatedTableProps<any>
+  PaginatedTableProps<unknown>
 >(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (props: PaginatedTableProps<any>, ref: React.ForwardedRef<HTMLDivElement>) => {
+  (props: PaginatedTableProps<unknown>, ref: React.ForwardedRef<HTMLDivElement>) => {
     const {
       currentPage,
       totalPages,

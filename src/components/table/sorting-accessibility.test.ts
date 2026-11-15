@@ -42,10 +42,10 @@ describe("Table 정렬 헤더", () => {
 
   it("복잡한 헤더의 사용자 지정 버튼 이름을 유지한다", () => {
     const markup = renderToStaticMarkup(createElement(Table<Row>, {
-      ...shared, formatSortLabel: (column, current, next) => `${column.key}:${current ?? "none"}:${next ?? "none"}`,
+      ...shared, formatSortLabel: (column, current, next) => `${column.header}: ${current ?? "none"}:${next ?? "none"}`,
     }));
-    expect(header(markup, "이름")).toContain('aria-label="name:desc:none"');
-    expect(header(markup, "사용률")).toContain('aria-label="rate:none:asc"');
+    expect(header(markup, "이름")).toContain('aria-label="이름: desc:none"');
+    expect(header(markup, "사용률")).toContain('aria-label="사용률: none:asc"');
   });
 
   it("정렬과 컬럼 이동이 가능한 헤더는 버튼 하나만 Tab에 노출한다", () => {
@@ -59,6 +59,7 @@ describe("Table 정렬 헤더", () => {
     const name = header(markup, "이름");
     expect(name).not.toMatch(/<th\b[^>]*tabindex=/);
     expect(name).not.toMatch(/<th\b[^>]*aria-roledescription=/);
+    expect(name).not.toMatch(/<th\b[^>]*aria-pressed=/);
     expect(name).toMatch(/<button\b[^>]*aria-keyshortcuts="Shift\+Space"/);
     const descriptionId = name.match(/<button\b[^>]*aria-describedby="([^"]+)"/)?.[1];
     expect(descriptionId).toBeDefined();

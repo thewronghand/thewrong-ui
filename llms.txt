@@ -57,8 +57,8 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - `SegmentedCodeInput` — 단일 입력으로 OTP·PIN 슬롯을 표시하며 숫자만 허용한다. OTP는 `masked={false}`.
 - `CopyableText` — clipboard 복사 및 토스트. 보안 컨텍스트와 `ToastProvider`가 필요하다.
 - `Textarea` — `showCount`+`maxLength`로 글자 수. resize는 기본 고정.
-- `Select` — 단일 선택. `searchable`로 필터(클라이언트). `aria-label` 또는 `aria-labelledby`로 트리거 이름을 지정한다. 둘 다 지정하면 `aria-labelledby`가 우선하며, 명시 이름이 없을 때 시각 `label`을 사용한다. 서버 검색 시 호출부가 selected snapshot 보존. `open`과 `onOpenChange`로 패널을 제어할 수 있다. searchable에서 `openOnFocus`는 포커스로 패널을 열고, `validateSearchQuery`가 false를 반환한 입력은 검색어에 반영하지 않는다.
-- `MultiSelect` — 다중 선택. 값은 `string[]`. `aria-label` 또는 `aria-labelledby`로 트리거 이름을 지정한다. 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
+- `Select` — 단일 선택. `searchable`로 필터(클라이언트). `aria-label` 또는 `aria-labelledby`로 트리거 이름을 지정한다. 둘 다 지정하면 `aria-labelledby`가 우선하며, 명시 이름이 없을 때 시각 `label`을 사용한다. 보이는 라벨이 있으면 접근성 이름에 그 텍스트를 포함한다(WCAG 2.5.3). 서버 검색 시 호출부가 selected snapshot 보존. `open`과 `onOpenChange`로 패널을 제어할 수 있다. searchable에서 `openOnFocus`는 포커스로 패널을 열고, `validateSearchQuery`가 false를 반환한 입력은 검색어에 반영하지 않는다.
+- `MultiSelect` — 다중 선택. 값은 `string[]`. `aria-label` 또는 `aria-labelledby`로 트리거 이름을 지정한다. 보이는 라벨이 있으면 접근성 이름에 그 텍스트를 포함한다(WCAG 2.5.3). 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
 - `Switch`, `Checkbox`, `Badge`.
 - `Radio.Group`, `Radio.Item` — 네이티브 라디오 행. 같은 name과 fieldset/legend를 사용한다.
 - `SegmentedControl` — controlled 라디오 선택지. 그룹에 aria-label 또는 aria-labelledby를 전달한다.
@@ -81,8 +81,8 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - 피커는 모바일 Modal·Drawer 안에서 기본적으로 popover를 사용한다. `disableMobileSheet={false}`를 명시하면 자체 시트를 유지한다.
 
 ### 데이터
-- `PaginatedTable` — 페이지네이션+페이지 사이즈 셀렉터 내장. 대부분의 목록 페이지 기본형.
-- `Table` — 페이지네이션 없이 전부 표시. `totalElements`로 '총 N건' 표기. 정렬은 `enableSorting`(또는 `serverSideSorting`)과 컬럼의 `sortable`을 함께 켠다. 헤더 정렬 버튼은 Space 또는 Enter로 정렬을 변경하고, 컬럼 이동이 가능하면 Shift+Space로 이동을 시작해 화살표로 이동하고 Space 또는 Enter로 놓는다. 기본 이름은 헤더 텍스트이며 정렬된 열에 `aria-sort`를 전달한다. `formatSortLabel(column, current, next)`로 버튼 이름을 지정할 수 있다. `sortCycle="tri"`(기본)는 오름차순 → 내림차순 → 해제, `"toggle"`은 두 방향만 순환한다. 서버 정렬에서 해제하면 `onSortChange(null)`이 호출된다.
+- `PaginatedTable` — 페이지네이션+페이지 사이즈 셀렉터 내장. 대부분의 목록 페이지 기본형. 클라이언트 정렬은 전달된 현재 페이지 데이터만 정렬한다. 서버 페이지네이션이면 `serverSideSorting`을 사용하고 정렬 변경 시 페이지 초기화는 호출부에서 처리한다.
+- `Table` — 페이지네이션 없이 전부 표시. `totalElements`로 '총 N건' 표기. 정렬은 `enableSorting`(또는 `serverSideSorting`)과 컬럼의 `sortable`을 함께 켠다. 클라이언트 정렬은 전달된 현재 페이지 데이터만 정렬하므로 서버 페이지네이션이면 `serverSideSorting`을 사용하고 정렬 변경 시 페이지 초기화는 호출부에서 처리한다. 헤더 정렬 버튼은 Space 또는 Enter로 정렬을 변경하고, 컬럼 이동이 가능하면 Shift+Space로 이동을 시작해 화살표로 이동하고 Space 또는 Enter로 놓는다. 기본 이름은 헤더 텍스트이며 정렬된 열에 `aria-sort`를 전달한다. `formatSortLabel(column, current, next)`로 버튼 이름을 지정할 때 보이는 헤더 텍스트를 포함한다(WCAG 2.5.3). `sortCycle="tri"`(기본)는 오름차순 → 내림차순 → 해제, `"toggle"`은 두 방향만 순환한다. 서버 정렬에서 해제하면 `onSortChange(null)`이 호출된다.
   키보드 컬럼 드래그 중 Escape는 드래그 취소와 함께 상위 Modal·Drawer도 닫는다(기존 동작).
 - `AccordionTable` — 행 펼침(single/multiple, 비동기 fetch 가능).
 - `MiniTable`, `Pagination`, `TableCheckbox`(indeterminate), `SearchBox`(선언적 필드 배열: text/select/multiSelect/dateRange).
@@ -91,8 +91,8 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - `TablePageLayout`, `TableCard`, `Toolbar`, `PageTitle`.
 - `AnimatedHeight`(높이 트랜지션), `Collapsible`, `LoadingSpinner`.
 - `Stepper`, `StepperContent`, `useStepper` — 단계 표시와 상태·콘텐츠 전환. 단계 검증은 호출부에서 처리한다.
-- `Tabs` — items 배열로 가로 탭과 패널을 구성. value/defaultValue 및 onValueChange, activation="auto"/"manual"을 지원한다. 선택된 패널만 마운트하므로 탭 전환 시 이전 패널의 상태가 소멸한다.
-- `Slider` — 단일 range 입력. min/max/step, value/defaultValue, onValueChange, formatValue를 지원한다.
+- `Tabs` — items 배열로 가로 탭과 패널을 구성. value/defaultValue 및 onValueChange, activation="auto"/"manual"을 지원한다. value가 활성 항목에 없으면 첫 활성 탭을 표시하지만 onValueChange는 호출하지 않으므로 부모에서 값을 맞춘다. 선택된 패널만 마운트하므로 탭 전환 시 이전 패널의 상태가 소멸한다.
+- `Slider` — 단일 range 입력. min/max/step, value/defaultValue, onValueChange, formatValue를 지원한다. 범위 밖 controlled 값은 화면에서만 범위 내로 보정하며 그 자체로 콜백을 호출하지 않는다.
 - `Progress` — 0~100 결정형 진행률, value 생략 시 불확정 진행률. `Skeleton` — 크기를 className으로 지정하는 장식용 로딩 블록.
 - `TypingDots` — 상위 글자 크기·색을 따르는 로딩 표시. `TypewriterText` — 글자/단어 단위 텍스트 표시.
 - `ErrorBoundary` — 렌더 오류 폴백과 재시도. 청크 자동 복구에는 영속 저장·보고·reload를 담은 `chunkReloadPort`가 필요하다.

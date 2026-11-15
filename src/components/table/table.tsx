@@ -78,6 +78,8 @@ const restrictHeaderDrag: Modifier = ({
  *
  * 페이지네이션이 없는 조회 API 또는 페이지네이션 영역을 별도로 렌더하는 경우 사용.
  * PaginatedTable은 이 컴포넌트를 wrap해서 footer(Pagination/PageJump/PageSize)를 추가.
+ * 클라이언트 정렬은 전달된 현재 페이지 데이터만 정렬한다. 서버 페이지네이션이면 serverSideSorting을 사용하고,
+ * 정렬 변경 시 페이지 초기화는 호출부에서 처리한다.
  * 컬럼 너비 합이 컨테이너보다 작아 열이 늘어나면 브라우저가 남는 폭을 재분배하므로 드래그 이동량과 화면 변화량이 비례하지 않는다. 컬럼 합을 컨테이너 이상으로 지정한다(여백 컬럼이 필요하면 AccordionTable을 쓴다 — Table에는 여백 컬럼 옵션이 없다).
  */
 // forwardRef 내부는 unknown으로 받고 외부에는 제네릭 시그니처를 노출한다.

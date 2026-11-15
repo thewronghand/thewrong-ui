@@ -3,7 +3,10 @@ import { cn } from "@/lib/utils";
 import type { SliderProps } from "./types";
 import { normalizeSliderValue, sliderPercent } from "./utils";
 
-/** 단일 thumb 네이티브 범위 입력. aria-label 또는 연결된 label을 제공한다. */
+/**
+ * 단일 thumb 네이티브 범위 입력. aria-label 또는 연결된 label을 제공한다.
+ * 범위 밖 controlled 값은 화면에서만 범위 내로 보정하며 그 자체로 onValueChange를 호출하지 않는다.
+ */
 export const Slider = forwardRef<HTMLInputElement, SliderProps>(function Slider(
   {
     min = 0,

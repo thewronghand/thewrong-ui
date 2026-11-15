@@ -170,7 +170,7 @@
   }
 }
 
-/* 네이티브 range 입력의 트랙과 thumb. 색은 테마별 시맨틱 토큰을 따른다. */
+/* 네이티브 range 입력. 채움과 나머지 트랙은 색상 차이로 구분하며 값 위치는 배경 대비 3:1 이상인 thumb가 전달한다. */
 .ui-slider {
   -webkit-appearance: none;
   appearance: none;

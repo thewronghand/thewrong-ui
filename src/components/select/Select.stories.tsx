@@ -192,7 +192,7 @@ export const 좁은_컨테이너: Story = {
 export const AccessibilityName: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("combobox", { name: "배송 국가" })).toBeTruthy();
+    await expect(canvas.getByRole("combobox", { name: "시각 라벨 배송 국가" })).toBeTruthy();
     await expect(canvas.getByRole("combobox", { name: "검색 국가" })).toBeTruthy();
     await expect(canvas.queryByRole("combobox", { name: "무시되는 이름" })).toBeNull();
   },
@@ -200,7 +200,7 @@ export const AccessibilityName: Story = {
     const [value, setValue] = useState("");
     return (
       <div className="flex flex-col gap-3">
-        <Select variant="box" options={COUNTRIES} value={value} onChange={setValue} label="시각 라벨" labelOption="sustain" aria-label="배송 국가" />
+        <Select variant="box" options={COUNTRIES} value={value} onChange={setValue} label="시각 라벨" labelOption="sustain" aria-label="시각 라벨 배송 국가" />
         <span id="search-country-label">검색 국가</span>
         <Select variant="box" options={COUNTRIES} value={value} onChange={setValue} searchable aria-label="무시되는 이름" aria-labelledby="search-country-label" />
       </div>

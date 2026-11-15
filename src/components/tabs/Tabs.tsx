@@ -7,6 +7,7 @@ import type { TabsProps } from "./types";
  * 가로 탭. SegmentedControl처럼 항목 배열을 받으며 패널 내용은 선택된 경우에만 마운트한다.
  * 자동 활성화는 패널 내용이 즉시 준비될 때 적합하다. 지연이 있으면 manual을 사용한다.
  * 탭 목록의 접근성 이름은 aria-label 또는 aria-labelledby로 지정한다.
+ * value가 활성 항목에 없으면 첫 활성 탭을 표시하며 onValueChange는 호출하지 않는다. 부모에서 값을 맞춘다.
  */
 export function Tabs<V extends string>({
   items,
@@ -38,6 +39,7 @@ export function Tabs<V extends string>({
     if (next === null) return;
     event.preventDefault();
     refs.current[next]?.focus();
+    if (activation === "auto" && next !== index) select(items[next]!.value);
   };
 
   return (
@@ -62,10 +64,7 @@ export function Tabs<V extends string>({
             aria-selected={item.value === selected}
             tabIndex={item.value === focusedValue ? 0 : -1}
             disabled={item.disabled}
-            onFocus={() => {
-              setFocused(item.value);
-              if (activation === "auto") select(item.value);
-            }}
+            onFocus={() => setFocused(item.value)}
             onClick={() => select(item.value)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             className={cn(

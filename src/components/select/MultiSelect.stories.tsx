@@ -189,10 +189,10 @@ export const 전체선택: Story = {
 export const AccessibilityName: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("combobox", { name: "좋아하는 과일" })).toBeTruthy();
+    await expect(canvas.getByRole("combobox", { name: "시각 라벨 좋아하는 과일" })).toBeTruthy();
   },
   render: () => {
     const [value, setValue] = useState<string[]>([]);
-    return <MultiSelect variant="box" options={FRUITS} value={value} onChange={setValue} label="시각 라벨" labelOption="sustain" aria-label="좋아하는 과일" />;
+    return <MultiSelect variant="box" options={FRUITS} value={value} onChange={setValue} label="시각 라벨" labelOption="sustain" aria-label="시각 라벨 좋아하는 과일" />;
   },
 };
