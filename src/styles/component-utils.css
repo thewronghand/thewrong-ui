@@ -151,7 +151,7 @@
   --table-cell-font-weight: var(--font-weight-table-emphasis);
 }
 
-/* 불확정 진행률은 움직임 감소 설정에서 정적인 막대로 표시한다. */
+/* 불확정 진행률은 움직임 감소 설정에서 전체 트랙의 정적인 줄무늬로 표시한다. */
 .progress-indeterminate {
   width: 40%;
   animation: progress-indeterminate 1.4s ease-in-out infinite;
@@ -163,7 +163,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .progress-indeterminate { animation: none; }
+  .progress-indeterminate {
+    animation: none;
+    width: 100%;
+    background-image: repeating-linear-gradient(135deg, var(--color-primary) 0 6px, var(--color-bg-subtle) 6px 12px);
+  }
 }
 
 /* 네이티브 range 입력의 트랙과 thumb. 색은 테마별 시맨틱 토큰을 따른다. */

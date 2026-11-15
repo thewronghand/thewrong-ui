@@ -90,6 +90,32 @@ describe("Button className 덮어쓰기", () => {
   });
 });
 
+describe("Button link 모양", () => {
+  it("크기와 block 대신 부모 글꼴과 문장 안 배치를 사용하고 비활성화한다", () => {
+    const markup = renderToStaticMarkup(createElement(Button, {
+      appearance: "link", variant: "danger", size: "large", display: "block", disabled: true,
+    }, "삭제"));
+    const classes = classesFromMarkup(markup);
+    expect(markup).toContain("disabled");
+    expect(classes).toEqual(expect.arrayContaining([
+      "inline-flex", "[font-size:inherit]", "[line-height:inherit]", "underline",
+      "text-error-fg", "hover:decoration-2", "active:decoration-[3px]",
+    ]));
+    expect(classes).not.toContain("w-full");
+    expect(classes).not.toContain("h-control-large");
+    expect(classes).not.toContain("hover:text-error-hover");
+  });
+
+  it("primary와 danger의 대화형 상태에 배경 전용 색을 글자색으로 쓰지 않는다", () => {
+    for (const variant of ["primary", "danger"] as const) {
+      const markup = renderToStaticMarkup(createElement(Button, { appearance: "link", variant }, "안내"));
+      const classes = classesFromMarkup(markup);
+      expect(classes).not.toContain(`hover:text-${variant === "danger" ? "error" : variant}-hover`);
+      expect(classes).not.toContain(`active:text-${variant === "danger" ? "error" : variant}-active`);
+    }
+  });
+});
+
 describe("Badge className 덮어쓰기", () => {
   it.each([undefined, "div"] as const)("%s에서 크기를 병합한다", (as) => {
     const markup = renderToStaticMarkup(

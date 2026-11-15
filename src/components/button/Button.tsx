@@ -41,7 +41,7 @@ const Spinner = () => (
  * - 저장·정산·전송 같은 **비가역 async 액션**에는 `clickThrottleMs`로 더블클릭을 막는다.
  * - 모달 푸터·모바일 등 부모 폭을 채워야 하면 `display="block"`.
  * - 시각은 버튼이지만 실제 이동이 필요하면 `as="a"` + `href`(링크로 렌더, loading/disabled 동일 동작).
- * - `appearance="link"`는 문장 안에 배치하며 size를 무시하고 부모 글자 크기와 줄높이를 상속한다.
+ * - `appearance="link"`는 문장 안에 배치하며 size와 display를 무시하고 부모 글자 크기와 줄높이를 상속한다.
  * - 크기와 색상은 `className`으로 덮어쓸 수 있다.
  *
  * @example
@@ -98,7 +98,7 @@ export const Button = forwardRef<
     getButtonBaseClasses(),
     getButtonColorClasses(variant, appearance),
     appearance === "link"
-      ? "h-auto min-w-0 border-0 p-0 align-baseline underline [font-size:inherit] [line-height:inherit] [font-weight:inherit]"
+      ? "h-auto min-w-0 border-0 p-0 align-baseline underline hover:decoration-2 hover:underline-offset-2 active:decoration-[3px] active:underline-offset-4 [font-size:inherit] [line-height:inherit] [font-weight:inherit]"
       : getButtonSizeClasses(size),
     appearance === "link" ? "inline-flex" : getButtonDisplayClasses(display),
     getButtonFocusRing(variant),

@@ -11,7 +11,7 @@ export const getButtonColorClasses = (
 ): string => {
   const map: Record<ButtonVariant, Record<ButtonAppearance, string>> = {
     primary: {
-      link: "border-transparent bg-transparent text-primary-fg hover:text-primary-hover active:text-primary-active disabled:text-fg-disabled aria-disabled:text-fg-disabled",
+      link: "border-transparent bg-transparent text-primary-fg disabled:text-fg-disabled aria-disabled:text-fg-disabled",
       filled:
         "border-transparent bg-primary text-fg-inverse hover:bg-primary-hover active:bg-primary-active disabled:bg-bg-disabled disabled:text-fg-disabled",
       outlined:
@@ -38,7 +38,7 @@ export const getButtonColorClasses = (
         "border-transparent bg-transparent text-fg-subtle hover:bg-bg-page active:bg-bg-subtle disabled:text-fg-disabled",
     },
     danger: {
-      link: "border-transparent bg-transparent text-error-fg hover:text-error-hover active:text-error-active disabled:text-fg-disabled aria-disabled:text-fg-disabled",
+      link: "border-transparent bg-transparent text-error-fg disabled:text-fg-disabled aria-disabled:text-fg-disabled",
       filled:
         "border-transparent bg-error text-fg-inverse hover:bg-error-hover active:bg-error-active disabled:bg-bg-disabled disabled:text-fg-disabled",
       outlined:

@@ -113,3 +113,28 @@ export const InlineLink: Story = {
     </div>
   ),
 };
+
+export const LinkContrast: Story = {
+  render: () => (
+    <div className="grid gap-4">
+      {(["bg-surface", "bg-page"] as const).map((background) => (
+        <div
+          key={background}
+          data-background={background}
+          className={background === "bg-surface" ? "bg-bg-surface p-4" : "bg-bg-page p-4"}
+        >
+          {(["primary", "secondary", "tertiary", "danger"] as const).map((variant) => (
+            <span key={variant} className="mr-4">
+              <Button appearance="link" variant={variant} data-variant={variant}>
+                {variant}
+              </Button>{" "}
+              <Button appearance="link" variant={variant} data-variant={variant} disabled>
+                {variant} disabled
+              </Button>
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  ),
+};

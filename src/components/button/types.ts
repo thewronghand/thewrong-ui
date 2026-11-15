@@ -10,6 +10,7 @@ export interface ButtonCommonProps {
   appearance?: ButtonAppearance;
   /** link 모양에서는 크기 대신 부모의 글자 크기와 줄높이를 상속한다. */
   size?: ButtonSize;
+  /** link 모양에서는 block도 무시하고 문장 안에 배치한다. */
   display?: ButtonDisplay;
   loading?: boolean;
   /** 클릭 후 N ms 동안 추가 클릭 무시 — 더블클릭 방지 */
