@@ -35,4 +35,17 @@ describe("Stepper 접근성", () => {
     expect(fallback).toContain('aria-label="진행 단계"');
     expect(fallback).not.toContain('data-status="skipped"');
   });
+
+  it("예정 건너뜀은 이름과 텍스트로 알리고 현재 단계는 우선한다", () => {
+    const html = renderToStaticMarkup(createElement(Stepper, {
+      steps, currentStep: 0, orientation: "vertical", allowNonLinear: true,
+      onStepChange: () => {}, renderStepContent: ({ status }) => status,
+      stepContentTransition: "none",
+    }));
+    expect(html).toContain('aria-label="1단계: 정보"');
+    expect(html).toContain('aria-label="2단계: 확인 (건너뜀 예정)"');
+    expect(html).toContain('data-status="skipped-pending"');
+    expect(html).toContain(">건너뜀 예정</span>");
+    expect(html).toMatch(/hidden="" class="px-3 pt-3">skipped-pending/);
+  });
 });

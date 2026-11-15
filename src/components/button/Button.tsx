@@ -44,6 +44,7 @@ const Spinner = () => (
  * - `appearance="link"`는 문장 안에 배치하며 size와 display를 무시하고 부모 글자 크기·줄높이·글꼴을 상속한다.
  *   `font-[inherit]`는 font-family만 상속하며, 글자 굵기는 기본 CSS(preflight)의 폼 컨트롤 상속 규칙을 따른다.
  *   `as="a"`는 문장 사이에서 줄바꿈되며, 기본 button은 브라우저의 인라인 블록으로 배치된다.
+ * - link의 `color="inherit"`는 부모 글자색을 쓴다. 부모가 배경 대비를 확보해야 하며 그렇지 않으면 기본 variant 색을 쓴다.
  * - 크기와 색상은 `className`으로 덮어쓸 수 있다.
  *
  * @example
@@ -61,6 +62,7 @@ export const Button = forwardRef<
   const {
     variant = "primary",
     appearance = "filled",
+    color,
     size = "medium",
     display = "inline",
     loading = false,
@@ -98,7 +100,9 @@ export const Button = forwardRef<
 
   const classes = cn(
     getButtonBaseClasses(appearance),
-    getButtonColorClasses(variant, appearance),
+    appearance === "link" && color === "inherit"
+      ? "border-transparent bg-transparent text-inherit"
+      : getButtonColorClasses(variant, appearance),
     appearance === "link"
       ? "h-auto min-w-0 border-0 p-0 align-baseline text-start underline hover:decoration-2 hover:underline-offset-2 active:decoration-[3px] active:underline-offset-4 text-[length:inherit] leading-[inherit] font-[inherit]"
       : getButtonSizeClasses(size),

@@ -8,7 +8,7 @@ export interface StepperStep {
   id: string;
   label: string;
   description?: string;
-  /** 현재 단계보다 앞선 항목을 완료 대신 건너뜀으로 표시한다. */
+  /** 지난 단계는 건너뜀, 앞으로 올 단계는 건너뜀 예정으로 표시한다. 현재 단계가 우선한다. */
   skipped?: boolean;
 }
 
@@ -17,7 +17,8 @@ export type StepperStepStatus =
   | "completed"
   | "current"
   | "pending"
-  | "skipped";
+  | "skipped"
+  | "skipped-pending";
 export type StepperStepContentTransition = "height" | "none";
 export type StepperTransition = "none" | "fade" | "scale" | "slide";
 export type StepperSlideDirection = "left" | "right" | "up" | "down";
@@ -34,7 +35,7 @@ export interface StepperProps {
   orientation?: StepperOrientation;
   allowNonLinear?: boolean;
   onStepChange?: (step: number) => void;
-  /** 세로형에서 각 단계 헤더와 다음 marker 사이에 콘텐츠를 렌더링합니다. */
+  /** 세로형 단계 콘텐츠. 대기와 건너뜀 예정(skipped-pending)은 숨긴다. */
   renderStepContent?: (context: StepperStepContentContext) => ReactNode;
   /** 세로형 단계 콘텐츠의 펼침·접힘 전환. 기본 height. */
   stepContentTransition?: StepperStepContentTransition;
@@ -130,7 +131,9 @@ export function Stepper({
               : "completed"
             : index === currentStep
               ? "current"
-              : "pending";
+              : step.skipped
+                ? "skipped-pending"
+                : "pending";
         const canSelect = allowNonLinear && Boolean(onStepChange);
         const content =
           orientation === "vertical"
@@ -148,6 +151,8 @@ export function Stepper({
                 "border-border-subtle bg-bg-surface text-fg-subtle",
               status === "skipped" &&
                 "border-dashed border-fg-default bg-bg-surface text-fg-default line-through",
+              status === "skipped-pending" &&
+                "border-dashed border-fg-default bg-bg-surface text-fg-default",
             )}
             aria-hidden="true"
           >
@@ -175,10 +180,10 @@ export function Stepper({
                   orientation === "horizontal"
                     ? "w-full flex-col items-center gap-1.5"
                     : "col-span-2 grid grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-x-3",
-                  status === "skipped" && "focus-visible:ring-fg-default",
+                  (status === "skipped" || status === "skipped-pending") && "focus-visible:ring-fg-default",
                 )}
                 onClick={() => onStepChange?.(index)}
-                aria-label={`${index + 1}단계: ${step.label}${status === "skipped" ? " (건너뜀)" : ""}`}
+                aria-label={`${index + 1}단계: ${step.label}${status === "skipped" ? " (건너뜀)" : status === "skipped-pending" ? " (건너뜀 예정)" : ""}`}
               >
                 {marker}
                 <StepText
@@ -209,7 +214,7 @@ export function Stepper({
                 <AnimatedHeight
                   durationMs={stepContentTransition === "height" ? 220 : 0}
                 >
-                  <div hidden={status === "pending"} className="px-3 pt-3">
+                  <div hidden={status === "pending" || status === "skipped-pending"} className="px-3 pt-3">
                     {content}
                   </div>
                 </AnimatedHeight>
@@ -255,12 +260,16 @@ function StepText({
           status === "completed" && "text-fg-muted",
           status === "pending" && "text-fg-subtle",
           status === "skipped" && "text-fg-default line-through",
+          status === "skipped-pending" && "text-fg-default",
         )}
       >
         {step.label}
       </span>
       {status === "skipped" && (
         <span className="block text-xs text-fg-default">건너뜀</span>
+      )}
+      {status === "skipped-pending" && (
+        <span className="block text-xs text-fg-default">건너뜀 예정</span>
       )}
       {step.description && (
         <span className="mt-0.5 hidden text-xs text-fg-muted sm:block">
