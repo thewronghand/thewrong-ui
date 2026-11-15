@@ -52,6 +52,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 
 ### 폼
 - `Button` — variant×appearance×size. `appearance="link"`는 부모의 글자 크기·줄높이·글꼴을 상속하고 size와 display를 무시한다. `color="inherit"`를 더하면 부모 글자색도 상속한다. 부모 색이 배경과 충분히 대비되도록 소비자가 지정해야 하며, 그럴 수 없으면 기본 variant 색을 사용한다. 기본 `<button>`은 문장 속에서 한 덩어리로 배치되어 줄 끝에 걸치면 통째로 넘어가므로 짧게 쓰거나, 이동 링크에는 `as="a"`+`href`를 사용한다. `clickThrottleMs`로 더블클릭 방지(비가역 액션). 다른 모양은 `display="block"`으로 풀폭.
+  포커스 링이 가려지지 않도록 버튼 사이에 최소 4px 간격을 둔다. primary 채움 버튼의 링 안쪽 띠는 bg-surface 색이므로 다른 배경에서는 띠가 보일 수 있다. 필요하면 style의 `--tw-ring-offset-color`를 배경색으로 지정한다.
 - `Input`, `PasswordInput`, `DecimalInput` — size 토큰 4단계. `prefix`/`suffix`/`clearable` 지원. `format`은 `InputFormat` 객체를 받으며, `inputFormats.phoneNumber`/`inputFormats.businessNumber`/`inputFormats.price` 프리셋을 넘긴다(`format={inputFormats.price}`).
 - `DecimalInput`은 소수 초안과 범위를 관리하며 onChange에 문자열을 전달한다. 범위에 도달 가능한 접두사는 임시로 유지하고 blur 시 마지막 유효 값으로 복원한다. 빈 값 전달은 `emitEmpty`.
 - `SegmentedCodeInput` — 단일 입력으로 OTP·PIN 슬롯을 표시하며 숫자만 허용한다. OTP는 `masked={false}`.
@@ -84,7 +85,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 ### 데이터
 - `PaginatedTable` — 페이지네이션+페이지 사이즈 셀렉터 내장. 대부분의 목록 페이지 기본형. 클라이언트 정렬은 전달된 현재 페이지 데이터만 정렬한다. 서버 페이지네이션이면 `serverSideSorting`을 사용하고 정렬 변경 시 페이지 초기화는 호출부에서 처리한다.
 - `Table` — 페이지네이션 없이 전부 표시. `totalElements`로 '총 N건' 표기. 정렬은 `enableSorting`(또는 `serverSideSorting`)과 컬럼의 `sortable`을 함께 켠다. 클라이언트 정렬은 전달된 현재 페이지 데이터만 정렬하므로 서버 페이지네이션이면 `serverSideSorting`을 사용하고 정렬 변경 시 페이지 초기화는 호출부에서 처리한다. 헤더 정렬 버튼은 Space 또는 Enter로 정렬을 변경하고, 컬럼 이동이 가능하면 Shift+Space로 이동을 시작해 화살표로 이동하고 Space 또는 Enter로 놓는다. 기본 이름은 헤더 텍스트이며 정렬된 열에 `aria-sort`를 전달한다. `formatSortLabel(column, current, next)`로 버튼 이름을 지정할 때 보이는 헤더 텍스트를 포함한다(WCAG 2.5.3). `sortCycle="tri"`(기본)는 오름차순 → 내림차순 → 해제, `"toggle"`은 두 방향만 순환한다. 서버 정렬에서 해제하면 `onSortChange(null)`이 호출된다.
-  컬럼의 `sortValue(row)`는 표시와 다른 문자열·숫자·Date·null/undefined 정렬값을 지정한다. 숫자·날짜는 수치 비교하며 null/undefined는 양방향에서 마지막이다. `sort={sort}`와 `onSortChange`로 정렬을 제어하며 `sort={null}`은 정렬 해제다. 생략하면 `initialSort`로 시작하는 비제어 방식이다. `serverSideSorting`은 행 순서를 그대로 두고 정렬 표시만 반영한다. 이 옵션들은 PaginatedTable과 AccordionTable에도 적용된다. `useTableSort`도 `sort`와 `onSort`로 제어한다.
+  컬럼의 `sortValue(row)`는 표시와 다른 문자열·숫자·Date·null/undefined 정렬값을 지정한다. 한 컬럼에서 한 가지 타입을 반환한다. 숫자·날짜는 수치 비교하며 null/undefined, NaN과 유효하지 않은 Date는 양방향에서 마지막이다. `sort={sort}`와 `onSortChange`로 정렬을 제어하며 `sort={null}`은 정렬 해제다. `sort`만 전달하면 헤더 클릭으로 정렬이 바뀌지 않는다. 생략하면 `initialSort`로 시작하는 비제어 방식이다. `serverSideSorting`은 행 순서를 그대로 두고 정렬 표시만 반영한다. 이 옵션들은 PaginatedTable과 AccordionTable에도 적용된다. `useTableSort`도 `sort`와 `onSort`로 제어한다.
   `getRowId`를 전달한 드래그 선택 테이블의 행 체크박스는 `pointer-events:none`이어서 Playwright `check()`가 force 없이 동작하지 않는다. 행의 체크박스 셀을 클릭해 선택한다.
   키보드 컬럼 드래그 중 Escape는 드래그 취소와 함께 상위 Modal·Drawer도 닫는다(기존 동작).
 - `AccordionTable` — 행 펼침(single/multiple, 비동기 fetch 가능).

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { createRoot } from "react-dom/client";
 
 import { Table, type ColumnSort, type TableColumn } from "@/components/table";
 import { Tabs } from "@/components/tabs";
 import { Slider } from "@/components/slider";
 import { MultiSelect, Select } from "@/components/select";
+import { Input } from "@/components/input";
+import { Button } from "@/components/button";
 import "@/styles/index.css";
 
 const items = [
@@ -32,8 +34,10 @@ function App() {
       <section aria-label="기본"><Tabs items={items} aria-label="기본 탭" /></section>
       <section aria-label="폭">
         <Slider aria-label="슬라이더" className="w-32" />
-        <Select variant="box" options={[]} aria-label="단일" containerProps={{ id: "single-width", className: "w-40" }} />
+        <Select variant="box" options={[]} value="" onChange={() => {}} aria-label="단일" containerProps={{ id: "single-width", className: "w-40" }} />
         <MultiSelect variant="box" options={[]} value={[]} onChange={() => {}} aria-label="다중" containerProps={{ id: "multi-width", className: "w-40" }} />
+        <Input variant="box" aria-label="입력" containerProps={{ id: "input-width", className: "w-40 marker" }} />
+        <Input variant="box" aria-label="기본 폭 입력" containerProps={{ id: "input-default", className: "marker" }} />
       </section>
       <section aria-label="제어 정렬">
         <output>{requested?.direction ?? "없음"}</output>
@@ -43,6 +47,10 @@ function App() {
       </section>
       <section aria-label="서버 정렬">
         <Table columns={columns} data={rows} sort={{ key: "time", direction: "desc" }} serverSideSorting fillEmptyRows={false} />
+      </section>
+      <section aria-label="포커스 띠">
+        <Button>기본 띠</Button>
+        <Button style={{ "--tw-ring-offset-color": "var(--color-bg-page)" } as CSSProperties}>페이지색 띠</Button>
       </section>
     </>
   );

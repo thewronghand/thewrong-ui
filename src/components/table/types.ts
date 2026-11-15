@@ -60,7 +60,10 @@ export interface TableColumn<T> {
    * @returns 렌더링할 ReactNode
    */
   accessor?: (row: T) => ReactNode;
-  /** 클라이언트 정렬에 사용할 값. 숫자·유효한 Date는 수치로 비교하고 null/undefined는 항상 마지막에 둔다. */
+  /**
+   * 클라이언트 정렬에 사용할 값. 숫자·유효한 Date는 수치로 비교하고 null/undefined, NaN, 유효하지 않은 Date는 항상 마지막에 둔다.
+   * 한 컬럼에서는 한 가지 타입을 반환한다. Date와 문자열을 섞으면 의미 있는 순서를 보장하지 않는다.
+   */
   sortValue?: (row: T) => string | number | Date | null | undefined;
   /**
    * 정렬 가능 여부
@@ -243,7 +246,7 @@ export interface TableCommonProps<T> {
    * 정렬 변경 핸들러. 서버 정렬 또는 controlled sort에서 호출한다.
    */
   onSortChange?: (sort: ColumnSort | null) => void;
-  /** 현재 정렬을 외부에서 관리한다. null은 정렬 해제이며 undefined면 initialSort를 사용한다. */
+  /** 현재 정렬을 외부에서 관리한다. null은 정렬 해제이며 undefined면 initialSort를 사용한다. onSortChange가 없으면 헤더 클릭으로 정렬이 바뀌지 않는다. */
   sort?: ColumnSort | null;
   /**
    * 비제어 모드의 초기 정렬 상태. sort를 지정하면 무시한다.

@@ -92,16 +92,18 @@ export function useTableSort({
         const aValue = getValue(a, sort.key);
         const bValue = getValue(b, sort.key);
 
-        // null/undefined 처리
-        if (aValue == null && bValue == null) return 0;
-        if (aValue == null) return 1;
-        if (bValue == null) return -1;
-
-        // 숫자와 날짜는 수치로 비교한다.
+        // 숫자와 날짜는 수치로 비교하고 NaN은 값이 없는 것으로 취급한다.
         const aNumber = aValue instanceof Date ? aValue.getTime() : aValue;
         const bNumber = bValue instanceof Date ? bValue.getTime() : bValue;
+        const aMissing = aNumber == null || (typeof aNumber === "number" && Number.isNaN(aNumber));
+        const bMissing = bNumber == null || (typeof bNumber === "number" && Number.isNaN(bNumber));
+        if (aMissing && bMissing) return 0;
+        if (aMissing) return 1;
+        if (bMissing) return -1;
+
         if (typeof aNumber === "number" && typeof bNumber === "number") {
-          return sort.direction === "asc" ? aNumber - bNumber : bNumber - aNumber;
+          const comparison = aNumber < bNumber ? -1 : aNumber > bNumber ? 1 : 0;
+          return sort.direction === "asc" ? comparison : -comparison;
         }
 
         // 문자열 비교

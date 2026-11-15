@@ -9,7 +9,7 @@ import { Tabs } from "@/components/tabs";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { Stepper } from "./Stepper";
 
-const meta = { title: "검증/소비자 요청" } satisfies Meta;
+const meta = { title: "검증/소비자 요청", tags: ["!autodocs"] } satisfies Meta;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

@@ -100,7 +100,8 @@ const motionVariants = {
 };
 
 /** 단계 표시는 상태와 검증을 소유하지 않는다. 유효한 단계와 이동 검증은 호출부에서 관리하고,
- * 여러 단계를 건너뛰려면 훅과 표시 양쪽에 allowNonLinear를 지정한다. */
+ * 여러 단계를 건너뛰려면 훅과 표시 양쪽에 allowNonLinear를 지정한다.
+ * 예정 라벨은 일반 대기와 같은 색이다. 기본 라이트의 bg-bg-subtle에서는 대비가 4.5:1 미만이므로 bg-bg-page 또는 bg-bg-surface 등 대비가 확보된 배경을 사용한다. */
 export function Stepper({
   steps,
   currentStep,
@@ -258,9 +259,8 @@ function StepText({
           orientation === "horizontal" ? "text-xs" : "text-sm",
           status === "current" && "text-fg-default",
           status === "completed" && "text-fg-muted",
-          status === "pending" && "text-fg-subtle",
+          (status === "pending" || status === "skipped-pending") && "text-fg-subtle",
           status === "skipped" && "text-fg-default line-through",
-          status === "skipped-pending" && "text-fg-default",
         )}
       >
         {step.label}
@@ -269,7 +269,7 @@ function StepText({
         <span className="block text-xs text-fg-default">건너뜀</span>
       )}
       {status === "skipped-pending" && (
-        <span className="block text-xs text-fg-default">건너뜀 예정</span>
+        <span className="block text-xs text-fg-subtle">건너뜀 예정</span>
       )}
       {step.description && (
         <span className="mt-0.5 hidden text-xs text-fg-muted sm:block">

@@ -34,7 +34,7 @@
     "dev": "storybook dev -p 6006",
     "build": "vite build",
     "build:storybook": "storybook build",
-    "lint": "eslint src/",
+    "lint": "eslint src/ tests/fixtures/consumer-interaction.tsx",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run --project unit",
     "check:tokens": "node scripts/check-tokens.mjs",

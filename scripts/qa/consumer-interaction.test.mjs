@@ -13,6 +13,8 @@ let base;
 
 function executablePath() {
   if (existsSync(chromium.executablePath())) return chromium.executablePath();
+  // macOS에서는 Chromium 본체 없이 설치된 Playwright headless shell도 사용한다.
+  // 둘 다 없으면 기본 경로로 실행해 README의 Chromium 설치 안내에 맞게 오류를 노출한다.
   const cache = join(homedir(), "Library/Caches/ms-playwright");
   const dirs = existsSync(cache) ? readdirSync(cache)
     .filter((name) => name.startsWith("chromium_headless_shell-"))
@@ -52,6 +54,24 @@ async function open() {
 }
 
 describe("실제 컴포넌트 상태 전이", () => {
+  it("primary 채움 버튼의 포커스 띠는 배경색에 맞게 바꿀 수 있다", async () => {
+    const page = await open();
+    try {
+      await page.evaluate(() => document.documentElement.classList.add("dark"));
+      const section = page.getByRole("region", { name: "포커스 띠" });
+      for (const [name, token] of [["기본 띠", "--color-bg-surface"], ["페이지색 띠", "--color-bg-page"]]) {
+        const button = section.getByRole("button", { name });
+        await page.keyboard.press("Shift");
+        await button.focus();
+        const colors = await button.evaluate((element, background) => {
+          const style = getComputedStyle(element);
+          return [style.getPropertyValue("--tw-ring-offset-color").trim(), style.getPropertyValue(background).trim()];
+        }, token);
+        expect(colors[0]).toBe(colors[1]);
+      }
+    } finally { await page.close(); }
+  });
+
   it("스타일 계층에서 폭 유틸이 슬라이더와 선택 컨테이너에 적용된다", async () => {
     const page = await open();
     try {
@@ -61,6 +81,9 @@ describe("실제 컴포넌트 상태 전이", () => {
         expect(await width(`#${id}`)).toBe(160);
         expect(await width(`#${id} button`)).toBe(160);
       }
+      expect(await width("#input-width")).toBe(160);
+      expect(await page.locator("#input-width").getAttribute("class")).toBe("w-40 marker");
+      expect(await page.locator("#input-default").getAttribute("class")).toBe("w-full marker");
     } finally { await page.close(); }
   });
   it("유지 탭은 입력을 보존하고 기본 탭은 전환 시 입력을 초기화한다", async () => {

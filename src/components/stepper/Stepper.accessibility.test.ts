@@ -46,6 +46,9 @@ describe("Stepper 접근성", () => {
     expect(html).toContain('aria-label="2단계: 확인 (건너뜀 예정)"');
     expect(html).toContain('data-status="skipped-pending"');
     expect(html).toContain(">건너뜀 예정</span>");
+    expect(html).toMatch(/class="block truncate font-medium text-sm text-fg-subtle">확인<\/span>/);
+    expect(html).toMatch(/class="block text-xs text-fg-subtle">건너뜀 예정<\/span>/);
+    expect(html).toMatch(/data-status="skipped-pending"[\s\S]*?border-dashed/);
     expect(html).toMatch(/hidden="" class="px-3 pt-3">skipped-pending/);
   });
 });
