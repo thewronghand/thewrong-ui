@@ -39,7 +39,7 @@ const CheckboxInternal = forwardRef<
     const sizeStyle = getCheckboxSizeStyle(size);
 
     const checkboxElement = (
-      <span className="relative inline-flex items-center has-[:disabled]:cursor-not-allowed">
+      <span className="relative isolate inline-flex items-center has-[:disabled]:cursor-not-allowed">
         <input
           ref={ref}
           type={inputType}

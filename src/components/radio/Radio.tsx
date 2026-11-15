@@ -114,6 +114,8 @@ export function RadioGroup({
  * `whitespace-normal`을 지정한 자식으로 전달해 줄바꿈할 수 있습니다.
  * input이 카드 전체를 덮으므로 children 안의 인터랙티브 요소와 텍스트 선택은 동작하지 않습니다.
  * 별도 조작이나 텍스트 선택이 필요하면 해당 요소를 Radio.Item 바깥에 배치하세요.
+ * Playwright에서 항목 텍스트 클릭은 투명 input에 가로채이므로
+ * `getByRole("radio", { name: "E-mail" }).check()`로 선택하세요.
  *
  * @example
  * ```tsx
@@ -190,7 +192,7 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
     return (
       <label
         className={cn(
-          "relative block cursor-pointer has-[:disabled]:cursor-not-allowed",
+          "relative isolate block cursor-pointer has-[:disabled]:cursor-not-allowed",
           className,
         )}
       >

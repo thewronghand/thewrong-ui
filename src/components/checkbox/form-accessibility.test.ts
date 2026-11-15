@@ -5,6 +5,7 @@ import { Checkbox } from "./Checkbox";
 import { TableCheckbox } from "@/components/table-checkbox";
 import { Radio } from "@/components/radio";
 import { Switch } from "@/components/switch";
+import { SegmentedCodeInput } from "@/components/segmented-code-input";
 import { SegmentedControl } from "@/components/segmented-control";
 
 describe("폼 컨트롤 입력과 fieldset 비활성 상태", () => {
@@ -20,6 +21,23 @@ describe("폼 컨트롤 입력과 fieldset 비활성 상태", () => {
       expect(input).toContain("opacity-0");
       expect(input).not.toContain("sr-only");
       expect(html).not.toContain("<div");
+    }
+  });
+
+  it("투명 입력을 감싼 요소가 독립 쌓임 맥락을 만든다", () => {
+    for (const element of [
+      createElement(Checkbox.Circle),
+      createElement(Checkbox.Line, { label: "동의" }),
+      createElement(Checkbox.LineTransparent),
+      createElement(TableCheckbox, { checked: false }),
+      createElement(Radio.Item, { name: "test", children: "선택" }),
+      createElement(SegmentedCodeInput, {
+        id: "code", "aria-label": "인증번호", value: "", onChange: () => {},
+      }),
+    ]) {
+      const html = renderToStaticMarkup(element);
+      const wrapper = html.match(/<(?:span|label|div)\b[^>]*class="([^"]*)"[^>]*>\s*<input\b/)?.[1] ?? "";
+      expect(wrapper.split(" ")).toContain("isolate");
     }
   });
 

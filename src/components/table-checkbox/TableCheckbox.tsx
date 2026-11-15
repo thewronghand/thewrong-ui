@@ -43,7 +43,7 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
     return (
       <label
         className={cn(
-          "relative inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center",
+          "relative isolate inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center",
           "cursor-pointer has-[:disabled]:cursor-not-allowed",
           pointerEventsNone && "pointer-events-none",
         )}
@@ -64,7 +64,7 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
         />
         <span
           className={cn(
-            "flex h-full w-full items-center justify-center rounded-checkbox border-[1.5px] transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-focus-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-surface",
+            "flex h-full w-full items-center justify-center rounded-checkbox border-[1.5px] transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-focus-primary peer-focus-visible:ring-offset-0",
             isOn ? "border-primary bg-primary" : "border-border-default bg-bg-surface",
             "peer-disabled:opacity-40",
           )}
