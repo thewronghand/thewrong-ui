@@ -16,5 +16,7 @@ describe("Slider 범위 계산", () => {
     expect(normalizeSliderValue(2, 0.1, 1, 0.3)).toBe(1);
     expect(normalizeSliderValue(-50, -30, 6, 0.5)).toBe(-30);
     expect(normalizeSliderValue(1, 0, 1, 0.3)).toBe(0.9);
+    expect(normalizeSliderValue(1, 0, 1, 0.4)).toBe(0.8);
+    expect(normalizeSliderValue(5, 0, 1, 0.4)).toBe(0.8);
   });
 });

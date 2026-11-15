@@ -57,7 +57,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 - `SegmentedCodeInput` — 단일 입력으로 OTP·PIN 슬롯을 표시하며 숫자만 허용한다. OTP는 `masked={false}`.
 - `CopyableText` — clipboard 복사 및 토스트. 보안 컨텍스트와 `ToastProvider`가 필요하다.
 - `Textarea` — `showCount`+`maxLength`로 글자 수. resize는 기본 고정.
-- `Select` — 단일 선택. `searchable`로 필터(클라이언트). 서버 검색 시 호출부가 selected snapshot 보존. `open`과 `onOpenChange`로 패널을 제어할 수 있다. searchable에서 `openOnFocus`는 포커스로 패널을 열고, `validateSearchQuery`가 false를 반환한 입력은 검색어에 반영하지 않는다.
+- `Select` — 단일 선택. `searchable`로 필터(클라이언트). `aria-label` 또는 `aria-labelledby`로 트리거 이름을 지정한다. 둘 다 지정하면 `aria-labelledby`가 우선하며, 명시 이름이 없을 때 시각 `label`을 사용한다. 서버 검색 시 호출부가 selected snapshot 보존. `open`과 `onOpenChange`로 패널을 제어할 수 있다. searchable에서 `openOnFocus`는 포커스로 패널을 열고, `validateSearchQuery`가 false를 반환한 입력은 검색어에 반영하지 않는다.
 - `MultiSelect` — 다중 선택. 값은 `string[]`. 트리거 폭 넘으면 'N개 선택'으로 자동 폴백.
 - `Switch`, `Checkbox`, `Badge`.
 - `Radio.Group`, `Radio.Item` — 네이티브 라디오 행. 같은 name과 fieldset/legend를 사용한다.
@@ -82,7 +82,7 @@ import { useIsMobile } from "@thewrong/ui/hooks";
 
 ### 데이터
 - `PaginatedTable` — 페이지네이션+페이지 사이즈 셀렉터 내장. 대부분의 목록 페이지 기본형.
-- `Table` — 페이지네이션 없이 전부 표시. `totalElements`로 '총 N건' 표기.
+- `Table` — 페이지네이션 없이 전부 표시. `totalElements`로 '총 N건' 표기. 정렬은 `enableSorting`(또는 `serverSideSorting`)과 컬럼의 `sortable`을 함께 켠다. 헤더 정렬 버튼의 기본 이름은 헤더 텍스트이고 상태는 `aria-sort`로 전달한다. `formatSortLabel(column, current, next)`로 버튼 이름을 지정할 수 있다. `sortCycle="tri"`(기본)는 오름차순 → 내림차순 → 해제, `"toggle"`은 두 방향만 순환한다. 서버 정렬에서 해제하면 `onSortChange(null)`이 호출된다.
 - `AccordionTable` — 행 펼침(single/multiple, 비동기 fetch 가능).
 - `MiniTable`, `Pagination`, `TableCheckbox`(indeterminate), `SearchBox`(선언적 필드 배열: text/select/multiSelect/dateRange).
 
