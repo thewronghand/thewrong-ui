@@ -192,7 +192,6 @@ export function SegmentedControl<V extends string>({
                 "peer-checked:font-semibold peer-checked:text-fg-default",
                 "peer-focus:ring-control peer-focus:ring-focus-primary peer-focus:ring-offset-2 peer-focus:ring-offset-bg-surface",
                 "peer-disabled:text-fg-disabled peer-disabled:hover:bg-transparent peer-disabled:hover:text-fg-disabled",
-                !itemDisabled && "peer-disabled:text-fg-default peer-disabled:hover:text-fg-default peer-disabled:line-through",
               )}
             >
               {option.icon ? (

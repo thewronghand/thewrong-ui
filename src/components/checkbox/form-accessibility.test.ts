@@ -35,8 +35,11 @@ describe("폼 컨트롤 입력과 fieldset 비활성 상태", () => {
       expect(html).toContain("has-[:disabled]:cursor-not-allowed");
     }
     expect(radio).toContain("peer-enabled:peer-hover:bg-bg-subtle");
-    expect(checkbox).toContain("peer-disabled:border-dashed");
+    expect(checkbox).not.toContain("peer-disabled:border-dashed");
+    expect(table).toContain("peer-disabled:opacity-40");
+    expect(checkbox).toContain("peer-focus-visible:ring-focus-primary");
+    expect(table).toContain("peer-focus-visible:ring-focus-primary");
     expect(toggle).toContain("peer-disabled:peer-checked:bg-bg-disabled");
-    expect(segments).toContain("peer-disabled:hover:text-fg-default");
+    expect(segments).toContain("peer-disabled:hover:text-fg-disabled");
   });
 });

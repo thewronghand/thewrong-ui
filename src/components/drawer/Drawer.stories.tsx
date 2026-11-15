@@ -36,6 +36,7 @@ export const InitialFocus: Story = {
   args: { open: false, onClose: () => {}, children: null },
   render: () => {
     const [open, setOpen] = useState(false);
+    const [subOpen, setSubOpen] = useState(false);
     const fieldRef = useRef<HTMLInputElement>(null);
     return (
       <>
@@ -45,10 +46,20 @@ export const InitialFocus: Story = {
           onClose={() => setOpen(false)}
           title="검색"
           initialFocus={fieldRef}
+          describedBy="drawer-search-description"
         >
           <label className="block p-4">
             검색어 <input ref={fieldRef} aria-label="검색어" />
           </label>
+          <p id="drawer-search-description">검색 조건을 입력합니다.</p>
+          <button onClick={() => setSubOpen(true)}>검색 도움말</button>
+          <ModalSubView
+            open={subOpen}
+            onBack={() => setSubOpen(false)}
+            title="검색 도움말"
+          >
+            도움말 내용
+          </ModalSubView>
         </Drawer>
       </>
     );

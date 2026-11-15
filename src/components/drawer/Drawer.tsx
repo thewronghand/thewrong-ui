@@ -28,6 +28,8 @@ export interface DrawerProps {
   title?: string;
   /** 열릴 때 우선 포커스할 드로어 내부 요소. 없거나 포커스할 수 없으면 기존 규칙을 따른다. */
   initialFocus?: RefObject<HTMLElement | null>;
+  /** 설명할 요소의 id. 기본은 연결하지 않으며 서브뷰가 열린 동안에는 해제한다. */
+  describedBy?: string;
   /** false면 ESC, 백드롭, 닫기 버튼과 바텀시트 드래그로 닫히지 않는다. @default true */
   dismissible?: boolean;
   /**
@@ -74,6 +76,7 @@ export function Drawer({
   onClose,
   title,
   initialFocus,
+  describedBy,
   dismissible = true,
   trapFocus = true,
   onExitComplete,
@@ -92,7 +95,11 @@ export function Drawer({
   const dragControls = useDragControls();
   const prefersReducedMotion = useReducedMotion();
   const [sheet, setSheet] = useState<HTMLDivElement | null>(null);
-  const { context, isTop } = useModalSubViews(open, trapFocus, overlayId);
+  const { context, isTop, hasOpenSubView } = useModalSubViews(
+    open,
+    trapFocus,
+    overlayId,
+  );
 
   // 퇴장 모션으로 남은 시트가 브라우저의 기본 Tab 순서에 다시 들어가지 않게 한다.
   useLayoutEffect(() => {
@@ -160,6 +167,7 @@ export function Drawer({
             role="dialog"
             aria-modal="true"
             aria-labelledby={title ? titleId : undefined}
+            aria-describedby={hasOpenSubView ? undefined : describedBy}
             tabIndex={-1}
             initial={isMobile ? { y: "100%" } : { x: "100%" }}
             animate={isMobile ? { y: 0 } : { x: 0 }}

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useRef } from "react";
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
 
 import { overlayStack } from "@/lib/overlay-stack";
 
@@ -24,11 +24,14 @@ export function useModalSubViews(
   overlayId: string,
 ) {
   const subViews = useRef(new Set<string>());
+  const [hasOpenSubView, setHasOpenSubView] = useState(false);
   const registerSubView = useCallback((id: string) => {
     const registered = subViews.current;
     registered.add(id);
+    setHasOpenSubView(true);
     return () => {
       registered.delete(id);
+      setHasOpenSubView(registered.size > 0);
     };
   }, []);
   const isTopSubView = useCallback(
@@ -51,5 +54,5 @@ export function useModalSubViews(
     [isOpen, overlayId],
   );
 
-  return { context, isTop };
+  return { context, isTop, hasOpenSubView };
 }

@@ -1,4 +1,4 @@
-import { Children, type ReactNode, type RefObject } from "react";
+import { type ReactNode, type RefObject } from "react";
 
 import { Button } from "@/components/button";
 import type { ButtonAppearance, ButtonVariant } from "@/components/button";
@@ -24,8 +24,8 @@ export interface StandardModalProps {
   title?: string;
   /** Modal의 첫 포커스 대상. 액션 버튼은 해당 action의 ref로 지정한다. */
   initialFocus?: RefObject<HTMLElement | null>;
-  /** Modal 본문 설명 연결을 덮어쓰거나 false로 끈다. */
-  describedBy?: string | false;
+  /** 설명할 요소의 id. 기본은 연결하지 않으며 서브뷰가 열린 동안에는 해제한다. */
+  describedBy?: string;
   /** Modal의 `dismissible`로 전달한다. footer 액션 버튼의 표시는 바꾸지 않는다. @default true */
   dismissible?: boolean;
   /** Modal의 `trapFocus`로 전달한다(규칙은 Modal 참고). @default true */
@@ -96,9 +96,6 @@ export function StandardModal({
   const isMobile = useIsMobile();
 
   const hasFooter = primaryAction || secondaryAction || leftAction;
-  const hasBody = Children.toArray(children).some(
-    (child) => typeof child !== "string" || child.trim().length > 0,
-  );
   const buttonSize = isMobile ? "mini" : "small";
 
   const renderActionButton = (
@@ -126,7 +123,7 @@ export function StandardModal({
       onClose={onClose}
       title={title}
       initialFocus={initialFocus}
-      describedBy={describedBy === undefined && !hasBody ? false : describedBy}
+      describedBy={describedBy}
       dismissible={dismissible}
       trapFocus={trapFocus}
       onExitComplete={onExitComplete}

@@ -13,12 +13,13 @@ class FocusElement {
   tabIndex = 0;
   disabled = false;
   hidden = false;
+  noRect = false;
   children: FocusElement[] = [];
   parentElement: FocusElement | null = null;
   contains(element: FocusElement) { return this === element || this.children.includes(element); }
   matches(selector: string) { return selector === ":disabled" && this.disabled; }
   closest() { return this.hidden ? this : null; }
-  getClientRects() { return this.hidden ? [] : [{}]; }
+  getClientRects() { return this.hidden || this.noRect ? [] : [{}]; }
   hasAttribute() { return false; }
   querySelectorAll() { return this.children; }
   focus() { Object.assign(document, { activeElement: this }); }
@@ -81,5 +82,24 @@ describe("포커스 트랩 초기 포커스", () => {
     });
     runInitialEffects();
     expect(document.activeElement === (close as unknown as Element)).toBe(true);
+  });
+
+  it("레이아웃 상자가 없는 initialFocus는 건너뛴다", () => {
+    const { container, close, action } = setup();
+    action.noRect = true;
+    useFocusTrap(container as unknown as HTMLElement, {
+      enabled: true,
+      initialFocus: { current: action as unknown as HTMLElement },
+    });
+    runInitialEffects();
+    expect(document.activeElement === (close as unknown as Element)).toBe(true);
+  });
+
+  it("첫 tabbable도 레이아웃 상자가 없으면 건너뛴다", () => {
+    const { container, close, action } = setup();
+    close.noRect = true;
+    useFocusTrap(container as unknown as HTMLElement, { enabled: true });
+    runInitialEffects();
+    expect(document.activeElement === (action as unknown as Element)).toBe(true);
   });
 });

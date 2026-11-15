@@ -10,6 +10,7 @@ import { getSwitchThumbClasses, getSwitchTrackClasses } from "./utils";
  *
  * `<input type="checkbox">`를 시각적으로 가리고(`sr-only peer`) 트랙·노브를 그린다.
  * 키보드(스페이스), 클릭, label 클릭 모두 native 동작 그대로 작동.
+ * 구조는 변경되지 않아 Playwright의 input `check()`에는 force가 필요하다.
  *
  * @example
  * ```tsx
@@ -43,7 +44,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
         className={cn(
           "inline-flex items-center gap-2",
           "cursor-pointer has-[:disabled]:cursor-not-allowed",
-          !disabled && "has-[:disabled]:[&_[data-switch-label]]:text-fg-default has-[:disabled]:[&_[data-switch-label]]:line-through",
+          "has-[:disabled]:[&_[data-switch-label]]:text-fg-disabled",
           className,
         )}
       >

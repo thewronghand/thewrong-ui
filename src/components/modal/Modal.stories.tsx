@@ -48,7 +48,7 @@ const story = (text: string) => ({
 export const InitialFocus: Story = {
   args: { isOpen: false, onClose: () => {}, children: null },
   parameters: story(
-    "명시한 주 액션에 먼저 포커스하고, 본문은 모달의 설명으로 연결한다.",
+    "명시한 주 액션에 먼저 포커스하고, 설명 요소의 id를 지정해 모달에 연결한다.",
   ),
   render: () => {
     const [open, setOpen] = useState(false);
@@ -63,6 +63,7 @@ export const InitialFocus: Story = {
           onClose={() => setOpen(false)}
           title="실행 확인"
           initialFocus={actionRef}
+          describedBy="initial-focus-description"
           primaryAction={{
             label: "실행",
             ref: actionRef,
@@ -73,7 +74,7 @@ export const InitialFocus: Story = {
           }}
           secondaryAction={{ label: "취소", onClick: () => setOpen(false) }}
         >
-          선택한 작업을 실행합니다.
+          <span id="initial-focus-description">선택한 작업을 실행합니다.</span>
         </StandardModal>
       </>
     );
@@ -101,6 +102,7 @@ export const InitialFocusWithSubview: Story = {
           onClose={() => setOpen(false)}
           title="부모 모달"
           initialFocus={actionRef}
+          describedBy="subview-parent-description"
           subView={
             <ModalSubView
               open={subOpen}
@@ -112,6 +114,7 @@ export const InitialFocusWithSubview: Story = {
           }
         >
           <div className="min-h-40 p-4">
+            <p id="subview-parent-description">부모 설명</p>
             <button ref={actionRef}>부모 실행</button>
           </div>
         </Modal>

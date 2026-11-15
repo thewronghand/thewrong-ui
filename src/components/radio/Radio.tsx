@@ -112,6 +112,8 @@ export function RadioGroup({
  * Radio.Group은 선택 동작을 바꾸지 않고 항목 간 레이아웃만 조율합니다.
  * 라벨은 자연 너비 측정을 위해 기본적으로 줄바꿈하지 않습니다. 긴 문구는 폭과
  * `whitespace-normal`을 지정한 자식으로 전달해 줄바꿈할 수 있습니다.
+ * input이 카드 전체를 덮으므로 children 안의 인터랙티브 요소와 텍스트 선택은 동작하지 않습니다.
+ * 별도 조작이나 텍스트 선택이 필요하면 해당 요소를 Radio.Item 바깥에 배치하세요.
  *
  * @example
  * ```tsx
@@ -214,7 +216,6 @@ export const RadioItem = forwardRef<HTMLInputElement, RadioItemProps>(
             "peer-disabled:[&_[data-radio-indicator]]:border-border-default peer-disabled:[&_[data-radio-indicator]]:bg-bg-radio-disabled-indicator",
             "peer-disabled:[&_[data-radio-dot]]:bg-icon-disabled peer-disabled:[&_[data-radio-leading]]:text-icon-disabled",
             "peer-checked:[&_[data-radio-dot]]:scale-50 peer-checked:[&_[data-radio-indicator]]:border-primary",
-            !disabled && "peer-disabled:border-dashed peer-disabled:border-fg-default peer-disabled:text-fg-default peer-disabled:[&_[data-radio-indicator]]:border-fg-default peer-disabled:[&_[data-radio-dot]]:bg-fg-default peer-disabled:[&_[data-radio-leading]]:text-fg-default peer-disabled:peer-checked:[&_[data-radio-indicator]]:border-fg-default",
           )}
         >
           <span

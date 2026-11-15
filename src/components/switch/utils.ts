@@ -39,7 +39,7 @@ export function getSwitchTrackClasses(size: SwitchSize, disabled: boolean) {
     track,
     "bg-bg-muted",
     "peer-checked:bg-primary",
-    "peer-disabled:cursor-not-allowed peer-disabled:bg-bg-disabled peer-disabled:ring-1 peer-disabled:ring-inset peer-disabled:ring-border-default peer-disabled:peer-checked:bg-bg-disabled peer-disabled:outline-2 peer-disabled:outline-dashed peer-disabled:outline-fg-default",
+    "peer-disabled:cursor-not-allowed peer-disabled:bg-bg-disabled peer-disabled:ring-1 peer-disabled:ring-inset peer-disabled:ring-border-default peer-disabled:peer-checked:bg-bg-disabled",
     "peer-focus-visible:ring-control peer-focus-visible:ring-focus-primary peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-bg-surface",
     "transition-colors duration-200 ease-out",
   ].join(" ");
@@ -52,7 +52,7 @@ export function getSwitchThumbClasses(size: SwitchSize, disabled = false) {
     "pointer-events-none absolute left-[3px] top-[3px] inline-block rounded-full",
     disabled
       ? "bg-fg-disabled shadow-none"
-      : "bg-fg-inverse shadow-control peer-disabled:bg-fg-default peer-disabled:shadow-none",
+      : "bg-fg-inverse shadow-control peer-disabled:bg-fg-disabled peer-disabled:shadow-none",
     thumb,
     translate,
     "transition-transform duration-200 ease-out",

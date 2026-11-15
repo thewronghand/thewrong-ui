@@ -35,13 +35,12 @@ TypeScript 선언은 ESM용이다. `moduleResolution: "bundler"` 또는 `"nodene
 |------|----------|
 | 폼 | Button · Input(+PasswordInput) · Textarea · Select · MultiSelect · Slider · Switch · Checkbox · Badge |
 | 오버레이 | Modal(+SubView/Standard) · Drawer · Popover · Tooltip · InfoTooltip · Toast · ActionToast |
-
 | 날짜 | DatePicker · DateRangePicker · MonthPicker · DateInput |
 | 데이터 | Table · PaginatedTable · AccordionTable · MiniTable · Pagination · SearchBox |
 | 레이아웃 | TablePageLayout · TableCard · Toolbar · PageTitle · Tabs |
 | 모션/유틸 | AnimatedHeight · Collapsible · LoadingSpinner · cn |
 
-Modal과 Drawer는 `initialFocus` ref로 열릴 때 포커스할 내부 요소를 지정할 수 있다. Modal은 본문을 기본 설명으로 연결하며 `describedBy`에 다른 설명 id 또는 `false`를 전달할 수 있다. Stepper는 목록의 `aria-label`/`aria-labelledby`와 이전 단계의 `skipped` 표시를 지원한다.
+Modal과 Drawer는 `initialFocus` ref로 열릴 때 포커스할 내부 요소를 지정할 수 있으며, 설명은 `describedBy`에 요소 id를 전달한 경우에만 연결한다. Stepper는 목록의 `aria-label`/`aria-labelledby`와 이전 단계의 `skipped` 표시를 지원한다.
 
 ## 테마 · 토큰
 
