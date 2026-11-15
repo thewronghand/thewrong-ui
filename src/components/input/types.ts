@@ -115,7 +115,8 @@ export interface InputCommonProps {
    */
   format?: InputFormat;
   /**
-   * 컨테이너의 추가 props
+   * 컨테이너의 추가 props. className이 있으면 기본 w-full을 유지하며 병합하고 충돌하는 폭 유틸은 전달한 값으로 바꾼다.
+   * 이전에는 className을 전달하면 기본 컨테이너 클래스가 모두 대체됐다.
    */
   containerProps?: ComponentPropsWithoutRef<"div">;
   /**

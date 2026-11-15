@@ -38,4 +38,19 @@ describe("Tabs 컴포넌트", () => {
       }
     }
   });
+
+  it("keepMounted는 비선택 패널도 렌더하고 숨긴다", () => {
+    const items = [
+      { value: "first", label: "첫째", content: createElement("input", { defaultValue: "보존", "aria-label": "입력" }) },
+      { value: "second", label: "둘째", content: "둘째 내용" },
+    ];
+    for (const value of ["first", "second"]) {
+      const markup = renderToStaticMarkup(createElement(Tabs, { items, value, keepMounted: true }));
+      expect(markup).toContain('aria-label="입력"');
+      const firstPanel = markup.match(/<div role="tabpanel"([^>]*)>(.*?)<\/div>/);
+      expect(firstPanel?.[1]?.includes("hidden")).toBe(value === "second");
+    }
+    const defaultMarkup = renderToStaticMarkup(createElement(Tabs, { items, value: "second" }));
+    expect(defaultMarkup).not.toContain('aria-label="입력"');
+  });
 });

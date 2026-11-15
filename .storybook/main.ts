@@ -1,9 +1,19 @@
 import type { StorybookConfig } from '@storybook/react-vite';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const storiesDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src');
 
 const config: StorybookConfig = {
-  "stories": [
-    "../src/**/*.mdx",
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
+  // 소비자 검증 갤러리는 개발·테스트에서 유지하되 공개 정적 빌드에는 포함하지 않는다.
+  stories: (_stories, { configType }) => [
+    { directory: storiesDirectory, files: '**/*.mdx' },
+    {
+      directory: storiesDirectory,
+      files: configType === 'PRODUCTION'
+        ? '**/!(ConsumerRequests).stories.@(js|jsx|mjs|ts|tsx)'
+        : '**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    },
   ],
   "addons": [
     "@chromatic-com/storybook",

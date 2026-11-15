@@ -817,8 +817,10 @@ export const 포커스_트랩_끄기: Story = {
     const [open, setOpen] = useState(false);
     return (
       <>
-        <Button onClick={() => setOpen(true)}>트랩 없는 모달 열기</Button>
-        <Button>배경 버튼</Button>
+        <div className="flex gap-1">
+          <Button onClick={() => setOpen(true)}>트랩 없는 모달 열기</Button>
+          <Button>배경 버튼</Button>
+        </div>
         <Modal
           isOpen={open}
           onClose={() => setOpen(false)}
@@ -890,8 +892,10 @@ export const 서브뷰가_열린_채_다시_열기: Story = {
     const [subOpen, setSubOpen] = useState(false);
     return (
       <>
-        <Button onClick={() => setOpen(true)}>유지 모달 열기</Button>
-        <Button>배경 버튼</Button>
+        <div className="flex gap-1">
+          <Button onClick={() => setOpen(true)}>유지 모달 열기</Button>
+          <Button>배경 버튼</Button>
+        </div>
         <Modal
           isOpen={open}
           onClose={() => setOpen(false)}

@@ -12,11 +12,14 @@ interface Props {
   /** 드래그 선택 등 부모가 클릭을 가로챌 때 hit-test를 비활성화한다. */
   pointerEventsNone?: boolean;
   ariaLabel?: string;
+  /** 포커스 띠가 놓이는 배경에 맞는 ring-offset 색 클래스. */
+  focusOffsetClassName?: string;
 }
 
 /**
  * 테이블 전용 체크박스. 시각용 box를 label로 감싸 클릭/접근성을 확보하고, 드래그 선택 모드에선
  * pointerEventsNone로 부모가 마우스를 가로챌 수 있게 한다.
+ * 표면이 기본 배경과 다르면 focusOffsetClassName으로 띠 색을 지정한다.
  */
 export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
   function TableCheckbox(
@@ -27,6 +30,7 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
       onChange,
       pointerEventsNone = false,
       ariaLabel,
+      focusOffsetClassName,
     },
     ref,
   ) {
@@ -64,7 +68,8 @@ export const TableCheckbox = forwardRef<HTMLInputElement, Props>(
         />
         <span
           className={cn(
-            "flex h-full w-full items-center justify-center rounded-checkbox border-[1.5px] transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-focus-primary peer-focus-visible:ring-offset-0",
+            "flex h-full w-full items-center justify-center rounded-checkbox border-[1.5px] transition-colors ring-offset-bg-surface peer-focus-visible:ring-2 peer-focus-visible:ring-focus-primary peer-focus-visible:ring-offset-2",
+            focusOffsetClassName,
             isOn ? "border-primary bg-primary" : "border-border-default bg-bg-surface",
             "peer-disabled:opacity-40",
           )}

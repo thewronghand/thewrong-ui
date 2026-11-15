@@ -152,7 +152,7 @@ export function SegmentedCodeInput({
                     : isActive
                       ? variant === "line"
                         ? "border-primary"
-                        : "border-primary ring-control ring-inset ring-focus-primary"
+                        : "border-primary ring-control ring-focus-primary ring-offset-2 ring-offset-bg-surface"
                       : "border-border-subtle",
                 )}
               >

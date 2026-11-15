@@ -18,6 +18,6 @@
   },
   // stories도 타입체크 대상 — props 오타가 빌드까지 새는 걸 막는다.
   // (dts 산출물에서의 제외는 vite.config dts exclude가 담당)
-  "include": ["src", "vite.config.ts"],
+  "include": ["src", "tests/fixtures/consumer-interaction.tsx", "vite.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

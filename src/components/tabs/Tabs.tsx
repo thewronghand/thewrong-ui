@@ -4,7 +4,7 @@ import { nextTabIndex } from "./navigation";
 import type { TabsProps } from "./types";
 
 /**
- * 가로 탭. SegmentedControl처럼 항목 배열을 받으며 패널 내용은 선택된 경우에만 마운트한다.
+ * 가로 탭. 기본적으로 선택된 패널 내용만 마운트하며 keepMounted를 켜면 숨긴 패널의 상태를 유지한다.
  * 자동 활성화는 패널 내용이 즉시 준비될 때 적합하다. 지연이 있으면 manual을 사용한다.
  * 탭 목록의 접근성 이름은 aria-label 또는 aria-labelledby로 지정한다.
  * value가 활성 항목에 없으면 첫 활성 탭을 표시하며 onValueChange는 호출하지 않는다. 부모에서 값을 맞춘다.
@@ -14,6 +14,7 @@ export function Tabs<V extends string>({
   value,
   defaultValue,
   onValueChange,
+  keepMounted = false,
   activation = "auto",
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -90,7 +91,7 @@ export function Tabs<V extends string>({
           tabIndex={0}
           className="pt-4 outline-none focus-visible:ring-control focus-visible:ring-focus-primary"
         >
-          {item.value === selected ? item.content : null}
+          {keepMounted || item.value === selected ? item.content : null}
         </div>
       ))}
     </div>

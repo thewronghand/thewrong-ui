@@ -107,7 +107,7 @@ export interface SelectCommonProps {
    */
   isSearchLoading?: boolean;
   /**
-   * 컨테이너의 추가 props
+   * 컨테이너의 추가 props. className은 기본 클래스와 병합한다(예: { className: "w-40" }).
    */
   containerProps?: ComponentPropsWithoutRef<"div">;
   /**

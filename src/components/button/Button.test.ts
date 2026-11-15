@@ -91,6 +91,23 @@ describe("Button className 덮어쓰기", () => {
 });
 
 describe("Button link 모양", () => {
+  it("상속 색 링크는 비활성화에도 부모 색을 유지하고 밑줄로 상태를 구분한다", () => {
+    for (const disabled of [false, true]) {
+      const markup = renderToStaticMarkup(createElement(Button, {
+        appearance: "link", color: "inherit", disabled,
+      }, "안내"));
+      const classes = classesFromMarkup(markup);
+      expect(classes).toContain("text-inherit");
+      expect(classes).not.toContain("text-primary-fg");
+      expect(classes).toContain("focus-visible:ring-primary-fg");
+      expect(classes).toContain(disabled ? "no-underline" : "underline");
+      expect(classes).toContain("hover:decoration-2");
+      expect(classes).toContain("active:decoration-[3px]");
+    }
+    const filled = classesFromMarkup(renderToStaticMarkup(createElement(Button, { color: "inherit" })));
+    expect(filled).toContain("bg-primary");
+    expect(filled).not.toContain("text-inherit");
+  });
   it.each(["primary", "secondary", "tertiary", "danger"] as const)("%s 링크의 포커스 링은 배경과 대비되는 색을 쓴다", (variant) => {
     const classes = classesFromMarkup(renderToStaticMarkup(createElement(Button, {
       appearance: "link", variant,
@@ -110,7 +127,27 @@ describe("Button link 모양", () => {
     expect(anchor).not.toContain("opacity-button-disabled");
     const filled = classesFromMarkup(renderToStaticMarkup(createElement(Button, { as: "a", href: "/", disabled: true })));
     expect(filled).toContain("opacity-button-disabled");
-    expect(filled).toContain("focus-visible:ring-inset");
+    expect(filled).not.toContain("focus-visible:ring-inset");
+    expect(filled).toEqual(expect.arrayContaining([
+      "focus-visible:ring-offset-2", "focus-visible:ring-offset-bg-surface",
+    ]));
+  });
+
+  it("primary 채움 버튼에만 표면색 포커스 오프셋을 둔다", () => {
+    for (const variant of ["primary", "secondary", "tertiary", "danger"] as const) {
+      for (const appearance of ["filled", "outlined", "transparent"] as const) {
+        const classes = classesFromMarkup(renderToStaticMarkup(createElement(Button, { variant, appearance })));
+        if (variant === "primary" && appearance === "filled") {
+          expect(classes).toEqual(expect.arrayContaining([
+            "focus-visible:ring-offset-2", "focus-visible:ring-offset-bg-surface",
+          ]));
+          expect(classes).not.toContain("focus-visible:ring-inset");
+        } else {
+          expect(classes).toContain("focus-visible:ring-inset");
+          expect(classes).not.toContain("focus-visible:ring-offset-bg-surface");
+        }
+      }
+    }
   });
 
   it("크기와 block 대신 부모 글꼴과 문장 안 배치를 사용하고 비활성화한다", () => {
