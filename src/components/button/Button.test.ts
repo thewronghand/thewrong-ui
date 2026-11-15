@@ -127,7 +127,27 @@ describe("Button link 모양", () => {
     expect(anchor).not.toContain("opacity-button-disabled");
     const filled = classesFromMarkup(renderToStaticMarkup(createElement(Button, { as: "a", href: "/", disabled: true })));
     expect(filled).toContain("opacity-button-disabled");
-    expect(filled).toContain("focus-visible:ring-inset");
+    expect(filled).not.toContain("focus-visible:ring-inset");
+    expect(filled).toEqual(expect.arrayContaining([
+      "focus-visible:ring-offset-2", "focus-visible:ring-offset-bg-surface",
+    ]));
+  });
+
+  it("primary 채움 버튼에만 표면색 포커스 오프셋을 둔다", () => {
+    for (const variant of ["primary", "secondary", "tertiary", "danger"] as const) {
+      for (const appearance of ["filled", "outlined", "transparent"] as const) {
+        const classes = classesFromMarkup(renderToStaticMarkup(createElement(Button, { variant, appearance })));
+        if (variant === "primary" && appearance === "filled") {
+          expect(classes).toEqual(expect.arrayContaining([
+            "focus-visible:ring-offset-2", "focus-visible:ring-offset-bg-surface",
+          ]));
+          expect(classes).not.toContain("focus-visible:ring-inset");
+        } else {
+          expect(classes).toContain("focus-visible:ring-inset");
+          expect(classes).not.toContain("focus-visible:ring-offset-bg-surface");
+        }
+      }
+    }
   });
 
   it("크기와 block 대신 부모 글꼴과 문장 안 배치를 사용하고 비활성화한다", () => {

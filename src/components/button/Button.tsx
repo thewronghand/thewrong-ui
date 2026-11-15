@@ -99,7 +99,7 @@ export const Button = forwardRef<
   const isDisabled = disabled || loading || isThrottled;
 
   const classes = cn(
-    getButtonBaseClasses(appearance),
+    getButtonBaseClasses(appearance, variant),
     appearance === "link" && color === "inherit"
       ? "border-transparent bg-transparent text-inherit"
       : getButtonColorClasses(variant, appearance),

@@ -15,7 +15,7 @@ const themes = {
   quiet: readStyle("themes/quiet.css"),
   "high-contrast": readStyle("themes/high-contrast.css"),
 };
-// 지난 라운드에서 avocado와 Chromium으로 대조한 시맨틱 색의 계산값이다.
+// avocado와 Chromium으로 대조한 값에 기본 라이트 포커스 대비 개선을 반영했다.
 const themeSnapshot = JSON.parse(
   readFileSync(resolve(process.cwd(), "tests/fixtures/theme-values.json"), "utf8"),
 ) as Record<Theme, Record<Mode, Record<string, string>>>;
@@ -157,18 +157,20 @@ const pairs = [
   ["fg-danger-placeholder", "bg-surface", 4.5],
   ["error-fg", "bg-surface", 4.5],
   ["focus-primary", "primary", 3],
+  ["focus-primary", "bg-page", 3],
   ["focus-primary", "bg-surface", 3],
+  ["focus-primary", "bg-subtle", 3],
+  ["focus-primary", "bg-table-header", 3],
   ["focus-primary-soft", "primary", 3],
+  ["focus-primary-soft", "bg-page", 3],
   ["focus-primary-soft", "bg-surface", 3],
+  ["focus-primary-soft", "bg-subtle", 3],
+  ["focus-primary-soft", "bg-table-header", 3],
 ] as const;
 
 // 기존 값은 변경하지 않는다. 현재 대비에 미달하는 개별 쌍만 건너뛴다.
 const existingFailures = new Map([
   ["default light fg-subtle/bg-subtle", "4.393:1, 텍스트 AA 4.5:1 미달"],
-  ["default light focus-primary/primary", "2.117:1, 포커스 3:1 미달"],
-  ["default light focus-primary/bg-surface", "2.604:1, 포커스 3:1 미달"],
-  ["default light focus-primary-soft/primary", "2.117:1, 포커스 3:1 미달"],
-  ["default light focus-primary-soft/bg-surface", "2.604:1, 포커스 3:1 미달"],
 ]);
 
 describe("테마 색 대비 계약", () => {
@@ -193,7 +195,7 @@ describe("테마 색 대비 계약", () => {
   });
 
   for (const [theme, mode] of themeModes) {
-    it(`${theme} ${mode} 시맨틱 색은 avocado와 대조한 값과 같다`, () => {
+    it(`${theme} ${mode} 시맨틱 색은 검증된 값과 같다`, () => {
       const expected = themeSnapshot[theme][mode];
       expect(Object.keys(expected)).toHaveLength(76);
       expect(Object.keys(expected)).toEqual(Object.keys(themeSnapshot.default.light));
@@ -226,6 +228,13 @@ describe("테마 색 대비 계약", () => {
       });
     }
   }
+
+  it("기본 라이트의 primary 버튼 표면색 오프셋은 세 채움 상태와 구별된다", () => {
+    const tokens = effectiveTheme("default", "light");
+    for (const role of ["primary", "primary-hover", "primary-active"] as const) {
+      expect(contrast(color(tokens, "bg-surface"), color(tokens, role))).toBeGreaterThanOrEqual(3);
+    }
+  });
 
   it("고대비의 사용 중인 파랑·회색 스케일은 밝은 단계에서 어두운 단계로 유지된다", () => {
     const light = effectiveTheme("high-contrast", "light");

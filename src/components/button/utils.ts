@@ -70,8 +70,18 @@ export const getButtonDisplayClasses = (
   return map[display];
 };
 
-export const getButtonBaseClasses = (appearance: ButtonAppearance = "filled"): string =>
-  `items-center justify-center ${appearance === "link" ? "" : "font-control-action "}border-button transition-colors duration-button ease-button outline-none focus-visible:ring-button ${appearance === "link" ? "box-decoration-clone focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" : "focus-visible:ring-inset"} disabled:cursor-not-allowed disabled:pointer-events-none`;
+export const getButtonBaseClasses = (
+  appearance: ButtonAppearance = "filled",
+  variant: ButtonVariant = "primary",
+): string => {
+  // 어두워지는 primary 버튼의 눌림 상태에서도 링이 표면색 띠와 맞닿는다.
+  const focusPosition = appearance === "link"
+    ? "box-decoration-clone focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+    : appearance === "filled" && variant === "primary"
+      ? "focus-visible:ring-offset-2 focus-visible:ring-offset-bg-surface"
+      : "focus-visible:ring-inset";
+  return `items-center justify-center ${appearance === "link" ? "" : "font-control-action "}border-button transition-colors duration-button ease-button outline-none focus-visible:ring-button ${focusPosition} disabled:cursor-not-allowed disabled:pointer-events-none`;
+};
 
 export const getButtonFocusRing = (
   variant: ButtonVariant = "primary",
