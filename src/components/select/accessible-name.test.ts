@@ -37,4 +37,19 @@ describe("Select 트리거 이름", () => {
     }));
     expect(markup).toMatch(/role="combobox"[^>]*aria-label="국가 선택"|aria-label="국가 선택"[^>]*role="combobox"/);
   });
+  it("컨테이너 클래스와 나머지 props를 병합하고 트리거는 전체 폭을 쓴다", () => {
+    const containerProps = { className: "w-40", title: "컨테이너" };
+    const single = renderToStaticMarkup(createElement(Select, {
+      variant: "box", options, value: "", onChange: () => {}, containerProps,
+    }));
+    const multi = renderToStaticMarkup(createElement(MultiSelect, {
+      variant: "box", options, value: [], onChange: () => {}, containerProps,
+    }));
+    for (const markup of [single, multi]) {
+      expect(markup).toMatch(/^<div[^>]*title="컨테이너"/);
+      expect(markup.match(/^<div[^>]*class="([^"]*)"/)?.[1]).toContain("min-w-0 w-40");
+      expect(markup).toMatch(/<button[^>]*class="[^"]*w-full/);
+      expect(markup.match(/^<div[^>]*class="([^"]*)"/)?.[1]).not.toContain("w-full");
+    }
+  });
 });

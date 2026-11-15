@@ -481,9 +481,9 @@ export const Select = forwardRef<SelectTriggerRef, SelectProps>(function Select(
 
   return (
     <div
-      ref={containerRef}
-      className={cn(getInputContainerClasses(), "min-w-0")}
       {...containerProps}
+      ref={containerRef}
+      className={cn(getInputContainerClasses(), "min-w-0", containerProps?.className)}
     >
       {showLabel && label && (
         <label
